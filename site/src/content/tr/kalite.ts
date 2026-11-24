@@ -50,8 +50,8 @@ export interface KaliteContent {
 }
 
 export const kalite: KaliteContent = {
-  heading: { no: '06', title: 'Her partide aynı söz.' },
-  lead: 'Kalite bir kez söylenen söz değil, her kutuda yeniden verilen sözdür. Dört şeyi hiç gevşetmiyoruz.',
+  heading: { no: '', title: 'Aynı kayısı, her seferinde.' },
+  lead: 'İyi kayısı göndermek kolay. Zor olan, aynısını bir daha göndermek.',
   video: {
     src: '/media/video/v-tesis.mp4',
     srcMobile: '/media/video/v-tesis-m.mp4',
@@ -66,33 +66,33 @@ export const kalite: KaliteContent = {
     },
     alt: 'Tesisten görüntüler: kuru kayısıların seçilmesi ve paketlenmesi',
     toggle: { play: 'Videoyu oynat', pause: 'Videoyu durdur' },
-    caption: 'Tesis · Malatya',
+    caption: 'Seçme bandı',
   },
-  promisesLabel: 'Dört söz',
+  promisesLabel: 'Nasıl tutturuyoruz',
   promises: [
     {
       no: '01',
-      title: 'İzlenebilirlik',
-      text: 'Etikette firma adı ve adresi, parti (lot) numarası ve boy numarası yer alır. Her kutunun hangi partiden geldiği, etiketinden okunur.',
+      title: 'Parti numarası',
+      text: 'Her kolinin üstünde bir numara var. O numara, kayısının hangi gün hangi partiden çıktığını söyler. Bir sorun olursa geriye doğru yürürüz.',
     },
     {
       no: '02',
-      title: 'Laboratuvar analizi',
-      text: 'Hammadde kabulde nem, SO₂, kalibre ve kusur ölçülür. Dört ölçüt, partiden partiye aynı yöntemle denetlenir.',
+      title: 'Önce ölçü',
+      text: 'Kayısı içeri girerken nemi, kükürdü ve boyu ölçülür. Tutmayan parti, tutana karışmaz.',
     },
     {
       no: '03',
-      title: 'Pazara göre SO₂ ayarı',
-      text: 'AB ve Türkiye en çok 2.000 mg/kg kabul eder; ABD gibi bazı pazarlar 3.000 ppm’e kadar talep edebilir. Parti, gideceği pazarın sınırına göre hazırlanır.',
+      title: 'Ülkesine göre kükürt',
+      text: 'Avrupa en çok 2.000 mg/kg kabul eder, Amerika 3.000’e kadar ister. Kayısı, gideceği ülkenin sınırına göre hazırlanır.',
     },
     {
       no: '04',
-      title: 'Elle son seçim',
-      text: 'Işıklı bant ve masalarda yabancı madde ile kusurlu taneler ayıklanır. Makine eler, son bakış yine insan gözünündür.',
+      title: 'Son bakış insanın',
+      text: 'Makine iriyi ufaktan ayırır. Lekeyi, yarığı, rengi dönmüşü göz ayırır.',
     },
   ],
   strip: {
-    label: 'Dayandığımız standartlar',
+    label: 'Uyduğumuz ölçüler',
     items: [
       'Malatya Kayısısı · AB Korunan Menşe Adı · 2017',
       'UNECE DDP-15 · Ekstra, Sınıf I, Sınıf II',
@@ -103,13 +103,13 @@ export const kalite: KaliteContent = {
     ],
   },
   spec: {
-    label: 'Teknik veri',
-    title: 'Spesifikasyon özeti',
+    label: 'Teknik',
+    title: 'Kısaca şartname',
     colBasis: 'Dayanak',
     rows: [
       {
         label: 'Kalibre',
-        value: 'Jumbo (80’e kadar) → No.8 (221–240) tane/kg. Numara küçüldükçe tane irileşir.',
+        value: 'Jumbo’da kiloya en çok 80 tane girer, No.8’de 221–240. Numara küçüldükçe tane irileşir.',
         basis: 'AB şartnamesi · boy no 0–8',
       },
       {
@@ -118,26 +118,26 @@ export const kalite: KaliteContent = {
         basis: 'UNECE DDP-15 · TS 485',
       },
       {
-        label: 'SO₂ aralığı',
-        value: 'AB, Türkiye, Codex: en çok 2.000 mg/kg · ABD: 3.000 ppm · Kanada: 2.500 ppm',
-        basis: 'Pazara göre ayarlanır',
+        label: 'Kükürt (SO₂)',
+        value: 'AB ve Türkiye: en çok 2.000 mg/kg · ABD: 3.000 ppm · Kanada: 2.500 ppm',
+        basis: 'Ülkesine göre ayarlanır',
       },
       {
         label: 'Nem',
-        value: 'En çok %25 (şartname aralığı %20–25)',
+        value: 'En çok %25',
         basis: 'AB tescil şartnamesi',
       },
       {
         label: 'Ambalaj',
-        value: 'Perakende paket ve 5 kg jumbo koli. Etikette firma, parti ve boy no.',
+        value: 'Perakende paket ve 5 kg koli. Etikette firma, parti ve boy numarası.',
         basis: 'TS 485 etiket kuralları',
       },
       {
         label: 'Raf ömrü',
-        value: 'Paketlemeden itibaren en az 12 ay, serin ve kuru ortamda. Soğuk depoda (+4 °C) daha uzun.',
+        value: 'Serin ve kuru yerde en az 12 ay. Soğuk depoda daha uzun.',
         basis: 'İhracat spesifikasyonu',
       },
     ],
-    note: 'Referans değerlerdir. Nihai spesifikasyon ürün, parti ve hedef pazara göre sipariş öncesinde yazılı olarak paylaşılır.',
+    note: 'Bunlar genel değerler. Sizin partinizin şartnamesi siparişten önce yazılı gelir.',
   },
 };

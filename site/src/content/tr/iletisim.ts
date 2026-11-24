@@ -56,9 +56,9 @@ export interface IletisimContent {
 }
 
 export const iletisim: IletisimContent = {
-  heading: { no: '', title: 'Numuneniz yola çıksın.' },
-  eyebrow: 'Numune talebi',
-  lead: 'Hangi ürünle ilgilendiğinizi, hangi kalibreyi aradığınızı ve nereye göndereceğimizi yazın. Gerisini birlikte netleştirelim.',
+  heading: { no: '', title: 'Tadına bakmadan olmaz.' },
+  eyebrow: 'Numune',
+  lead: 'Ne aradığınızı yazın: hangi ürün, hangi boy, hangi ülke. Bir kutu kayısı gönderelim, gerisini kayısı anlatsın.',
   form: {
     label: 'Numune talep formu',
     fields: {
@@ -67,7 +67,7 @@ export const iletisim: IletisimContent = {
         name: 'ad',
         label: 'Ad Soyad',
         autocomplete: 'name',
-        required: 'Adınızı ve soyadınızı yazın.',
+        required: 'Adınızı yazar mısınız?',
       },
       company: {
         id: 'f-firma',
@@ -81,27 +81,27 @@ export const iletisim: IletisimContent = {
         name: 'ulke',
         label: 'Ülke',
         autocomplete: 'country-name',
-        required: 'Numunenin gideceği ülkeyi yazın.',
+        required: 'Numune hangi ülkeye gidecek?',
       },
       email: {
         id: 'f-eposta',
         name: 'eposta',
         label: 'E-posta',
         autocomplete: 'email',
-        required: 'E-posta adresinizi yazın.',
-        invalid: 'Geçerli bir e-posta adresi yazın, örneğin ad@firma.com.',
+        required: 'Size dönebilmemiz için e-posta lazım.',
+        invalid: 'Bu adres eksik görünüyor. Örnek: ad@firma.com',
       },
       message: {
         id: 'f-mesaj',
         name: 'mesaj',
-        label: 'Mesajınız',
+        label: 'Notunuz',
         optional: true,
-        placeholder: 'Miktar, ambalaj, hedef pazar ya da sormak istedikleriniz.',
+        placeholder: 'Ne kadar, hangi ambalajda, nereye? Aklınıza ne geliyorsa.',
       },
     },
     products: {
-      legend: 'İlgilendiğiniz ürünler',
-      hint: 'Birden fazla seçebilirsiniz.',
+      legend: 'Hangisi?',
+      hint: 'Birkaçını birden seçebilirsiniz.',
       options: [
         { value: 'sari', label: 'Sarı kayısı' },
         { value: 'gun-kurusu', label: 'Gün kurusu' },
@@ -113,10 +113,10 @@ export const iletisim: IletisimContent = {
     caliber: {
       id: 'f-kalibre',
       name: 'kalibre',
-      label: 'Kalibre',
+      label: 'Boy',
       options: [
-        { value: '', label: 'Henüz karar vermedim' },
-        { value: '0', label: 'Jumbo · 80’e kadar tane/kg' },
+        { value: '', label: 'Siz önerin' },
+        { value: '0', label: 'Jumbo · kiloda en çok 80 tane' },
         { value: '1', label: 'No.1 · 81–100' },
         { value: '2', label: 'No.2 · 101–120' },
         { value: '3', label: 'No.3 · 121–140' },
@@ -128,18 +128,18 @@ export const iletisim: IletisimContent = {
       ],
     },
     optionalLabel: 'isteğe bağlı',
-    submit: 'Numune talep et',
-    note: 'Ad, ülke ve e-posta zorunludur.',
-    summaryError: 'Lütfen işaretli alanları gözden geçirin.',
+    submit: 'Numune iste',
+    note: 'Ad, ülke ve e-posta yeter.',
+    summaryError: 'İşaretli alanlara bir daha bakar mısınız?',
   },
   success: {
-    title: 'Talebiniz bize ulaştı.',
-    text: 'Numune talebinizi inceleyip {email} adresine döneceğiz.',
+    title: 'Aldık.',
+    text: 'Talebinize bakıp {email} adresine yazacağız.',
     prototype: 'Prototip — form henüz bir adrese bağlı değil.',
-    again: 'Yeni bir talep yaz',
+    again: 'Bir talep daha',
   },
   contact: {
-    label: 'Doğrudan ulaşın',
+    label: 'Ya da doğrudan',
     address: {
       label: 'Adres',
       lines: ['Yeni Hamam Mah. Cezmi Kartay No: 16/B', 'Battalgazi / Malatya'],
@@ -148,7 +148,7 @@ export const iletisim: IletisimContent = {
     email: { label: 'E-posta', value: 'mail@ahsenkayisi.com', href: 'mailto:mail@ahsenkayisi.com' },
   },
   clock: {
-    label: 'Malatya’da şu an',
+    label: 'Malatya’da saat',
     timeZone: 'Europe/Istanbul',
     zone: 'UTC+3',
     placeholder: '--:--',

@@ -35,14 +35,14 @@ const TALL = { width: 967, height: 1200, widthLg: 1856, widthAvif: 1289 } as con
 
 // Adımlar arastirma/02-malatya-kayisi.md §2.4 (takvim) ve §5 (süreç) ile uyumludur.
 export const surec: SurecContent = {
-  heading: { no: '03', title: 'Bahçeden kutuya, sekiz adım.' },
-  intro: 'Kayısı mart sonunda çiçek açar, temmuzda toplanır; kutuya girmeden önce sekiz durak geçer.',
+  heading: { no: '', title: 'Daldan kutuya.' },
+  intro: 'Arada bir bahar, bir yaz ve çok el emeği var.',
   steps: [
     {
       id: 'cicek',
       title: 'Çiçek',
-      when: 'Mart sonu – Nisan başı',
-      copy: "Ağaçlar mart sonu ile nisan başı arasında tam çiçek açar. Don riski nisan ortasına kadar sürer; bu haftalar sezonun en kırılgan günleridir.",
+      when: 'Mart sonu',
+      copy: 'Ağaç önce çiçeğe durur. Nisan ortasına kadar don korkusu bitmez; o yılın kayısısı bu üç haftada belli olur.',
       photo: {
         base: '/media/foto/cicek-safak',
         ...WIDE,
@@ -53,8 +53,8 @@ export const surec: SurecContent = {
     {
       id: 'hasat',
       title: 'Hasat',
-      when: 'Temmuz başı – Ağustos ortası',
-      copy: "Meyve %22–28 briks'e ulaşıp saman sarısı rengini aldığında, günün erken saatlerinde toplanır. Önce güneş gören tepe dallar, sonra orta ve alt dallar: hasat kademelidir.",
+      when: 'Temmuz',
+      copy: 'Meyve saman sarısına dönünce, sabah serinliğinde toplanır. Ağaç bir günde boşalmaz: önce güneşi gören tepe dallar, sonra aşağısı.',
       photo: {
         base: '/media/foto/hasat-eller',
         ...TALL,
@@ -65,8 +65,8 @@ export const surec: SurecContent = {
     {
       id: 'islim',
       title: 'İslim',
-      when: 'Hasat günü · 8–10 saat',
-      copy: 'Kükürtlü kuru kayısıda meyve kerevetlere dizilir, islim odasında yakılan kükürtün gazıyla rengini altın sarısında korur. Gün kurusu bu adımı atlar; meyve doğrudan güneşe serilir.',
+      when: 'Hasat günü',
+      copy: 'Sarı kayısının sırrı burada. Meyve kerevetlere dizilir, islim odasında sekiz on saat kükürt dumanında bekler; rengi altın sarısı kalır. Gün kurusu bu odaya hiç girmez.',
       photo: {
         base: '/media/foto/islim',
         ...TALL,
@@ -77,8 +77,8 @@ export const surec: SurecContent = {
     {
       id: 'sergi',
       title: 'Sergi',
-      when: '3–4 gün · nem %40–50',
-      copy: "Kayısı sergi yerinde, temiz örtülerin üzerine serilir. Nemi %40–50'ye inene kadar üç dört gün güneşte kalır.",
+      when: 'Üç dört gün',
+      copy: 'Kayısı yere, temiz örtülerin üstüne tek kat serilir. Gerisi güneşin işi.',
       photo: {
         base: '/media/foto/sergi-drone',
         ...WIDE,
@@ -89,8 +89,8 @@ export const surec: SurecContent = {
     {
       id: 'patik',
       title: 'Patik',
-      when: 'Kurutmanın 3. günü',
-      copy: "Yarı kuru meyvenin çekirdeği elle çıkarılır, kayısı bastırılarak yassılaştırılır ve şeklini bulur. Patiklenen meyve ikinci kez sergiye döner; 2–3 gün sonra nem %20–25'e iner.",
+      when: 'Üçüncü gün',
+      copy: 'Yarı kuruyan meyvenin çekirdeği parmakla itilip çıkarılır, kayısı avuçta yassılır. Bildiğiniz o şekil makineden değil, elden çıkar. Sonra iki üç gün daha güneş.',
       photo: {
         base: '/media/foto/sergi-tepeden',
         ...WIDE,
@@ -100,9 +100,9 @@ export const surec: SurecContent = {
     },
     {
       id: 'secme',
-      title: 'Yıkama & Seçme',
-      when: 'Tesiste · nem dengeleme',
-      copy: 'Meyve yıkanır, nemi dengelenir. Işıklı bantlarda yabancı madde ve kusurlu taneler ayıklanır; kutuya yalnızca standardı tutturan kayısı geçer.',
+      title: 'Yıkama, seçme',
+      when: 'Tesiste',
+      copy: 'Kayısı yıkanır, bantta tane tane gözden geçer. Lekeli, yarık, küçük kalan ayrılır.',
       photo: {
         base: '/media/foto/tesis-secim',
         ...TALL916,
@@ -112,9 +112,9 @@ export const surec: SurecContent = {
     },
     {
       id: 'kalibrasyon',
-      title: 'Kalibrasyon',
-      when: 'Tane/kg ölçüsüyle',
-      copy: "Kayısı boylanır ve kiloda kaç tane girdiğine göre numaralara ayrılır: Jumbo'da kiloda en çok 80 tane, 8 numarada 221–240 tane. Aynı boydaki taneler aynı kutuya girer.",
+      title: 'Boylama',
+      when: 'Kiloda tane hesabı',
+      copy: 'Kayısı iriliğine göre numara alır: kiloya seksen taneden az giriyorsa jumbo, iki yüz yirmiden çok giriyorsa sekiz numara. Numara küçüldükçe tane büyür.',
       photo: {
         base: '/media/foto/urun-sari',
         ...TALL,
@@ -125,8 +125,8 @@ export const surec: SurecContent = {
     {
       id: 'paketleme',
       title: 'Paketleme',
-      when: 'Sevkiyat öncesi',
-      copy: 'Tartılıp paketlenen kolilerin tamamı metal dedektöründen geçer. Etikette firma, net ağırlık, lot ve menşe yazar; sevkiyata kadar serin ve kuru depoda bekler.',
+      when: 'Yola çıkmadan',
+      copy: 'Tartılır, kolilenir, etiketine parti numarası yazılır: hangi kayısı hangi günden, belli olsun. Sonrası serin depo ve yol.',
       photo: {
         base: '/media/foto/paketleme',
         ...TALL,
@@ -135,5 +135,5 @@ export const surec: SurecContent = {
       },
     },
   ],
-  cta: { label: 'Ürünleri keşfedin', href: '#urunler' },
+  cta: { label: 'Ürünlere bakın', href: '#urunler' },
 };

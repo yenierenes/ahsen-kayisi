@@ -12,7 +12,6 @@
 import { getContent } from '@/content';
 const { rakamlar: c } = getContent();
 
-const pad = (n: number): string => String(n).padStart(2, '0');
 ---
 
 <section id="rakamlar" class="rakamlar" data-rakamlar data-sky="bone" aria-labelledby="rakamlar-title">
@@ -21,12 +20,14 @@ const pad = (n: number): string => String(n).padStart(2, '0');
       <div class="container rakamlar__inner">
         <header class="rakamlar__head">
           <div class="rakamlar__heading">
-            <p class="section-label label" aria-hidden="true">
-              <span class="section-label__no">{c.heading.no}</span>
-              <span class="section-label__rule"></span>
-            </p>
+            {c.heading.no && (
+              <p class="section-label label" aria-hidden="true">
+                <span class="section-label__no">{c.heading.no}</span>
+                <span class="section-label__rule" />
+              </p>
+            )}
             <h2 id="rakamlar-title" class="rakamlar__title" data-reveal="lines">
-              <span class="sr-only">{c.heading.no} — </span>{c.heading.title}
+              {c.heading.no && <span class="sr-only">{c.heading.no} — </span>}{c.heading.title}
             </h2>
           </div>
           <p class="rakamlar__intro">{c.intro}</p>
@@ -67,11 +68,8 @@ const pad = (n: number): string => String(n).padStart(2, '0');
 
         <ol class="rakamlar__ledger" data-rakamlar-ledger>
           {
-            c.figures.map((f, i) => (
+            c.figures.map((f) => (
               <li class="fig" data-fig>
-                <span class="fig__idx label" aria-hidden="true">
-                  {pad(i + 1)}
-                </span>
                 <p class="fig__num num">
                   <span
                     class="fig__v"
@@ -162,9 +160,6 @@ const pad = (n: number): string => String(n).padStart(2, '0');
   .fig__bar {
     display: none;
   }
-  .fig__idx {
-    color: var(--accent);
-  }
   .fig__num,
   .fig-big__num {
     margin: 0;
@@ -211,13 +206,9 @@ const pad = (n: number): string => String(n).padStart(2, '0');
       align-items: end;
     }
     .fig {
-      grid-template-columns: 3rem minmax(0, 5fr) minmax(0, 3fr);
+      grid-template-columns: minmax(0, 5fr) minmax(0, 3fr);
       align-items: end;
       padding-block: var(--sp-8);
-    }
-    .fig__idx {
-      align-self: start;
-      padding-block-start: 0.5em;
     }
   }
 
@@ -371,7 +362,7 @@ const pad = (n: number): string => String(n).padStart(2, '0');
       }
     }
 
-    /* İlerleme sırası: 01 — 06 ve kısa etiketler */
+    /* İlerleme sırası: kısa etiketler */
     :global(html.motion-ok) .rakamlar__ledger {
       grid-column: 1 / -1;
       display: grid;
@@ -382,7 +373,7 @@ const pad = (n: number): string => String(n).padStart(2, '0');
     :global(html.motion-ok) .fig {
       position: relative;
       display: grid;
-      grid-template-columns: auto minmax(0, 1fr);
+      grid-template-columns: minmax(0, 1fr);
       grid-template-rows: auto auto;
       align-items: baseline;
       gap: var(--sp-3) var(--sp-3);
@@ -408,14 +399,6 @@ const pad = (n: number): string => String(n).padStart(2, '0');
       background: var(--c-apricot-strong);
       transform: scaleX(0);
       transform-origin: 0 50%;
-    }
-    :global(html.motion-ok) .fig__idx {
-      grid-row: 2;
-      padding: 0;
-      color: inherit;
-    }
-    :global(html.motion-ok) .fig.is-active .fig__idx {
-      color: var(--accent);
     }
     :global(html.motion-ok) .fig__short {
       display: block;

@@ -12,7 +12,7 @@ export const meta: MetaContent = {
   dir: 'ltr',
   title: 'Ahsen Kayısı — Güneşin meyvesi',
   description:
-    "Malatya'dan, güneşte kurutulmuş kayısı. Ahsen Kayısı; bahçeden kutuya her partide aynı özenle üretir ve dünyaya gönderir.",
+    'Malatya’nın güneşinde kuruyan kayısı. Sarısı, gün kurusu, doğranmışı: Ahsen Kayısı’ndan sofranıza ve tezgâhınıza.',
   ogImage: '/seq/hero/f_0192.webp',
   ogLocale: 'tr_TR',
 };

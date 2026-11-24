@@ -5,8 +5,10 @@ import { hero } from './hero';
 import { sergi } from './sergi';
 import { manifesto } from './manifesto';
 import { rakamlar } from './rakamlar';
+import { cicek } from './cicek';
 import { surec } from './surec';
 import { urunler } from './urunler';
+import { sofrada } from './sofrada';
 import { dunya } from './dunya';
 import { kalite } from './kalite';
 import { iletisim } from './iletisim';
@@ -19,8 +21,10 @@ export const tr = {
   sergi,
   manifesto,
   rakamlar,
+  cicek,
   surec,
   urunler,
+  sofrada,
   dunya,
   kalite,
   iletisim,

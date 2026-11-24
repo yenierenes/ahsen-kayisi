@@ -30,24 +30,24 @@ export interface DunyaContent {
 }
 
 export const dunya: DunyaContent = {
-  heading: { no: '05', title: "Malatya'dan dünyaya." },
-  lead: "Her pazarın kükürt sınırı, kalibre beklentisi ve ambalajı farklıdır. Yol Malatya'da başlar; nerede biteceğini alıcının spesifikasyonu belirler.",
+  heading: { no: '', title: 'Buradan her yere.' },
+  lead: 'Malatya kayısısının kolisi burada kapanır, yüzden fazla ülkede açılır.',
   origin: { name: 'Malatya', lat: 38.35, lon: 38.31, label: 'Malatya · 38.35° K, 38.31° D' },
   stat: {
     value: '100',
     suffix: "'den fazla",
     unit: 'ülke',
-    caption: 'Malatya Ticaret Borsası verilerine göre Malatya kayısısının ihraç edildiği ülke sayısı.',
+    caption: 'Malatya kayısısının gittiği ülke sayısı. Kaynak: Malatya Ticaret Borsası.',
   },
   list: {
-    title: 'Türkiye kuru kayısısının başlıca pazarları',
-    note: "İlk on pazar, ihracatın %69'unu alır.",
-    hint: 'Rotayı kürede görmek için bir ülkenin üzerine gelin.',
+    title: 'En çok kayısı alan on ülke',
+    note: 'Türkiye’nin kuru kayısı ihracatının %69’u bu on ülkeye gider.',
+    hint: 'Ülkenin üstüne gelin, yolu görün.',
     source: 'Kaynak: T.C. Ticaret Bakanlığı, 2025 ihracat değeri.',
   },
   globe: {
     label: "Malatya'dan başlıca kuru kayısı pazarlarına uzanan rotaları gösteren dönen küre",
-    drag: 'Sürükleyin',
+    drag: 'Çevirin',
     fallbackAlt: "Malatya merkezli noktalı dünya haritası ve başlıca pazarlara rotalar",
   },
   markets: [

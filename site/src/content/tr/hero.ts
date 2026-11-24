@@ -32,17 +32,17 @@ export const hero: HeroContent = {
     {
       index: '01',
       title: 'Dalında bekler.',
-      text: 'Hasat, meyvedeki şeker %22–28 brikse ulaştığında başlar.',
+      text: 'Şekeri oturmadan dala el sürülmez.',
     },
     {
       index: '02',
       title: 'Güneşe serilir.',
-      text: '5–7 gün. Yalnızca güneş, rüzgâr ve sabır.',
+      text: 'Beş ila yedi gün. Fırın yok, acele yok.',
     },
     {
       index: '03',
       title: 'Özü kalır.',
-      text: '3,5 kilo taze meyveden 1 kilo kuru kayısı.',
+      text: 'Üç buçuk kilo meyveden bir kilo kayısı. Suyu gider, tadı kalır.',
     },
   ],
   dayLabel: 'GÜN',

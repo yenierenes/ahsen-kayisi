@@ -1,0 +1,510 @@
+---
+/**
+ * Sofrada — "Kutu açılınca."
+ * Kayısı, gittiği yerde: beş kullanım, beş fotoğraf. Numara yok.
+ *
+ * Tek işaretleme, üç düzen:
+ *  1) Masaüstü (≥1024px, JS + hareket açık): sabit tam ekran sahne (--pin-len ≈ kalem başına 100lvh).
+ *     Her kalemin fotoğrafı (.sofra__media) sahneye göre mutlak konumlanır (li/ol konumsuz kalır);
+ *     solda dev başlık listesi. Etkin kalem kaydırmayla seçilir; yeni fotoğraf başlığın yanındaki
+ *     güneş noktasından büyüyen bir daireyle (clip-path: circle) açılır. → src/lib/sofrada/stage.ts
+ *  2) Dar ekran (hareket açık): dikey kart dizisi; her foto görünüme girerken aynı güneş dairesiyle açılır.
+ *  3) reduced-motion / JS yok: aynı kart dizisi, hareketsiz.
+ */
+import { getContent } from '@/content';
+const { sofrada: c } = getContent();
+const n = c.items.length;
+
+/** Başlığın son kelimesi italik: "Kahvaltı <em>sofrası</em>" */
+const split = (t: string): [string, string] => {
+  const k = t.lastIndexOf(' ');
+  return k < 0 ? ['', t] : [t.slice(0, k), t.slice(k + 1)];
+};
+
+/** Kırpma odağı (dar ekran 4:5) ve sol üçte biri parlak fotoğraflarda güçlü örtü */
+const FRAME: Record<string, { pos: string; strong?: boolean }> = {
+  kahvalti: { pos: '68% 50%', strong: true },
+  pastane: { pos: '80% 50%', strong: true },
+  cikolata: { pos: '68% 50%' },
+  musli: { pos: '78% 50%' },
+  hediye: { pos: '60% 50%' },
+};
+
+/* 16:9 foto "cover": masaüstünde yükseklik sınırlar (≈178vh), 4:5 kartta genişliğin ~2,2 katı gerekir */
+const SIZES = '(min-width: 1024px) max(100vw, 178vh), (min-width: 600px) 119vw, 222vw';
+---
+
+<section id="sofrada" class="section sofra" data-sky="night" aria-labelledby="sofrada-title" data-sofra>
+  <div class="sofra__pin" data-pin data-sofra-pin style={`--pin-len: ${(n - 1) * 100}lvh`}>
+    <div class="sofra__stage" data-pin-stage>
+      <header class="sofra__head">
+        <p class="label sofra__label">{c.label}</p>
+        <h2 id="sofrada-title" class="sofra__title">{c.title}</h2>
+        <p class="sofra__lead">{c.lead}</p>
+      </header>
+
+      <ol class="sofra__list" data-sofra-list>
+        {
+          c.items.map((it, i) => {
+            const [a, b] = split(it.title);
+            const f = FRAME[it.id] ?? { pos: '70% 50%' };
+            return (
+              <li
+                id={`sofra-${it.id}`}
+                class:list={[
+                  'sofra__item',
+                  { 'is-active': i === 0, 'is-base': i === 0, 'is-near': i <= 1, 'is-after': i > 0, 'is-strong': f.strong },
+                ]}
+                style={`--pos: ${f.pos}`}
+                data-sofra-item
+              >
+                <div class="sofra__media" data-sofra-media>
+                  <div class="sofra__frame" data-sofra-frame>
+                    <picture>
+                      <source type="image/avif" srcset={`${it.photo.base}-1600.avif ${it.photo.widthAvif}w`} sizes={SIZES} />
+                      <source
+                        type="image/webp"
+                        srcset={`${it.photo.base}-1200.webp ${it.photo.width}w, ${it.photo.base}-2400.webp ${it.photo.widthLg}w`}
+                        sizes={SIZES}
+                      />
+                      <img
+                        src={`${it.photo.base}-1200.webp`}
+                        width={it.photo.width}
+                        height={it.photo.height}
+                        alt={it.photo.alt}
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </picture>
+                  </div>
+                  <span class="sofra__scrim" aria-hidden="true" />
+                </div>
+                <h3 class="sofra__h">
+                  <a class="sofra__name" href={`#sofra-${it.id}`} data-sofra-name data-cursor="">
+                    <span class="sofra__sun" aria-hidden="true" data-sofra-sun />
+                    {a && `${a} `}
+                    <em>{b}</em>
+                  </a>
+                </h3>
+                <div class="sofra__detail">
+                  <div class="sofra__detail-in" data-sofra-detail>
+                    <p class="sofra__text">{it.text}</p>
+                    <p class="label sofra__pick">
+                      <span class="sofra__pick-k">{c.pickLabel}</span>
+                      <span aria-hidden="true"> · </span>
+                      <span class="sr-only">: </span>
+                      {it.pick}
+                    </p>
+                  </div>
+                </div>
+              </li>
+            );
+          })
+        }
+      </ol>
+
+      <span class="sofra__halo" aria-hidden="true" data-sofra-halo></span>
+
+      <footer class="sofra__foot">
+        <p class="sofra__footnote">{c.footnote}</p>
+        <a class="btn btn--accent sofra__cta" href={c.cta.href} data-magnetic="0.3" data-cursor="">
+          <span data-magnetic-inner>{c.cta.label}</span>
+        </a>
+      </footer>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* ======================================================================
+     VARSAYILAN: kart dizisi (dar ekran · reduced-motion · JS yok)
+     ====================================================================== */
+  .sofra {
+    color: var(--fg);
+  }
+  .sofra__pin {
+    block-size: auto; /* base.css [data-pin] yalnız sahne düzeninde geçerli */
+  }
+  .sofra__stage {
+    position: relative;
+    block-size: auto;
+    overflow: visible;
+    padding-inline: var(--gutter);
+    max-inline-size: 76rem;
+    margin-inline: auto;
+  }
+  .sofra__head {
+    display: grid;
+    gap: var(--sp-3);
+    max-inline-size: 36ch;
+  }
+  .sofra__label {
+    color: var(--c-amber);
+  }
+  .sofra__title {
+    font-family: var(--font-display);
+    font-size: clamp(2.25rem, 1.6rem + 2.6vw, 3.25rem);
+    font-weight: 360;
+    line-height: 1;
+    letter-spacing: var(--ls-display);
+    --soft: 80;
+  }
+  .sofra__lead {
+    color: var(--muted);
+    font-size: var(--fs-body);
+    line-height: var(--lh-body, 1.5);
+  }
+
+  .sofra__list {
+    list-style: none;
+    margin: var(--sp-7) 0 0;
+    padding: 0;
+    display: grid;
+    gap: var(--sp-8);
+  }
+  .sofra__item {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .sofra__media {
+    grid-area: 1 / 1;
+    position: relative;
+    aspect-ratio: 4 / 5;
+    border-radius: var(--r-media);
+    overflow: clip;
+    isolation: isolate;
+    background: color-mix(in srgb, var(--c-cream) 4%, var(--c-night));
+  }
+  .sofra__frame {
+    position: absolute;
+    inset: 0;
+  }
+  .sofra__frame picture {
+    display: block;
+    block-size: 100%;
+  }
+  .sofra__frame img {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+    object-position: var(--pos);
+  }
+  .sofra__scrim {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: var(--scrim-strong);
+  }
+  .sofra__h {
+    grid-area: 1 / 1;
+    align-self: end;
+    position: relative;
+    z-index: 2;
+    margin: 0;
+    padding: var(--sp-5) var(--sp-5) var(--sp-5) calc(var(--sp-5) + 0.35em);
+    font-size: clamp(2.25rem, 1.5rem + 3.6vw, 3.5rem);
+  }
+  .sofra__name {
+    position: relative;
+    display: inline-block;
+    font-family: var(--font-display);
+    font-size: inherit;
+    font-weight: 340;
+    line-height: 0.98;
+    letter-spacing: var(--ls-display);
+    color: var(--c-cream);
+    text-decoration: none;
+    --soft: 70;
+  }
+  .sofra__name em {
+    font-style: italic;
+    --wonk: 1;
+  }
+  .sofra__sun {
+    position: absolute;
+    inset-inline-start: -0.34em;
+    inset-block-start: 0.5em;
+    inline-size: 0.17em;
+    block-size: 0.17em;
+    margin-block-start: -0.085em;
+    border-radius: 50%;
+    background: radial-gradient(circle at 38% 34%, var(--c-honey), var(--c-amber) 70%);
+    box-shadow: 0 0 0.35em 0.06em color-mix(in srgb, var(--c-amber) 70%, transparent);
+    transition: transform var(--dur-3) var(--ease-sun);
+  }
+  .sofra__detail-in {
+    display: grid;
+    gap: var(--sp-2);
+    padding-block-start: var(--sp-4);
+    max-inline-size: 42ch;
+  }
+  .sofra__text {
+    font-size: var(--fs-body);
+    line-height: 1.45;
+  }
+  .sofra__pick {
+    color: var(--c-honey);
+    font-size: max(0.75rem, var(--fs-label));
+  }
+  .sofra__pick-k {
+    color: var(--c-ink-muted-dark);
+  }
+  .sofra__halo {
+    display: none;
+  }
+  .sofra__foot {
+    display: grid;
+    justify-items: start;
+    gap: var(--sp-5);
+    margin-block-start: var(--sp-8);
+  }
+  .sofra__footnote {
+    max-inline-size: 60ch;
+    font-family: var(--font-mono);
+    font-size: max(0.75rem, var(--fs-label));
+    letter-spacing: 0.08em;
+    line-height: 1.55;
+    color: var(--c-ink-muted-dark);
+  }
+  .sofra__cta {
+    font-size: max(0.9375rem, var(--fs-sm));
+  }
+
+  @media (min-width: 600px) {
+    .sofra__media {
+      aspect-ratio: 3 / 2;
+    }
+    .sofra__frame img {
+      object-position: 65% 50%;
+    }
+  }
+
+  /* ======================================================================
+     MASAÜSTÜ SAHNE (≥1024px · JS · hareket açık)
+     Yığın: foto (z 0–2) · güneş halkası (z 3) · metin (z 4). Sahne sticky → kendi yığın bağlamı.
+     ====================================================================== */
+  @media (min-width: 1024px) {
+    :global(html.js.motion-ok) .sofra {
+      padding-block: 0;
+    }
+    :global(html.js.motion-ok) .sofra__pin {
+      block-size: calc(100lvh + var(--pin-len, 0px));
+    }
+    :global(html.js.motion-ok) .sofra__stage {
+      position: sticky;
+      inset-block-start: 0;
+      block-size: 100lvh;
+      max-inline-size: none;
+      overflow: clip;
+      /* kenar boşlukları ızgara izleri: sahnede dolgu yok, böylece mutlak foto katmanları tam taşar */
+      display: grid;
+      grid-template-columns: var(--gutter) minmax(0, 1fr) var(--gutter);
+      grid-template-rows: calc(var(--nav-h) + var(--sp-3)) auto minmax(0, 1fr) auto var(--sp-6);
+      padding: 0;
+      color: var(--c-cream);
+      background: var(--c-night);
+    }
+    :global(html.js.motion-ok) .sofra__head,
+    :global(html.js.motion-ok) .sofra__list,
+    :global(html.js.motion-ok) .sofra__foot {
+      grid-column: 2;
+    }
+    :global(html.js.motion-ok) .sofra__head {
+      grid-row: 2;
+    }
+    :global(html.js.motion-ok) .sofra__list {
+      grid-row: 3;
+    }
+    :global(html.js.motion-ok) .sofra__foot {
+      grid-row: 4;
+    }
+    :global(html.js.motion-ok) .sofra__head {
+      position: relative;
+      z-index: 4;
+      gap: var(--sp-2);
+      max-inline-size: 30rem;
+    }
+    :global(html.js.motion-ok) .sofra__title {
+      font-size: clamp(1.75rem, 1.1rem + 1.3vw, 2.5rem);
+    }
+    :global(html.js.motion-ok) .sofra__lead {
+      color: var(--c-ink-muted-dark);
+      max-inline-size: 34ch;
+    }
+
+    :global(html.js.motion-ok) .sofra__list {
+      --push: 0px;
+      align-self: center;
+      display: block;
+      margin: 0 0 clamp(3rem, 9lvh, 6.5rem);
+    }
+    :global(html.js.motion-ok) .sofra__item {
+      display: block;
+    }
+
+    /* foto katmanları: li/ol konumsuz → sahneye göre mutlak */
+    :global(html.js.motion-ok) .sofra__media {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      aspect-ratio: auto;
+      border-radius: 0;
+      background: none;
+      clip-path: circle(0px at 0px 0px);
+    }
+    :global(html.js.motion-ok) .sofra__item.is-base .sofra__media {
+      z-index: 1;
+      clip-path: none;
+    }
+    :global(html.js.motion-ok) .sofra__item:not(.is-near):not(.is-base) .sofra__media {
+      display: none; /* yalnız etkin + komşu fotoğraflar yüklenir/çözülür */
+    }
+    :global(html.js.motion-ok) .sofra__frame {
+      will-change: transform;
+    }
+    :global(html.js.motion-ok) .sofra__frame img {
+      object-position: 64% 50%;
+      transform-origin: 68% 46%;
+      animation: sofra-drift 26s var(--ease-in-out) infinite alternate;
+    }
+    :global(html.js.motion-ok) .sofra__item:not(.is-base):not(.is-in) .sofra__frame img {
+      animation-play-state: paused;
+    }
+    :global(html.js.motion-ok) .sofra__scrim {
+      --s0: 0.86;
+      --s1: 0.56;
+      --s2: 0.16;
+      background:
+        linear-gradient(
+          to right,
+          rgb(20 11 7 / var(--s0)) 0%,
+          rgb(20 11 7 / var(--s1)) 34%,
+          rgb(20 11 7 / 0) 62%
+        ),
+        linear-gradient(to top, rgb(20 11 7 / 0.72) 0%, rgb(20 11 7 / 0) 26%),
+        linear-gradient(to bottom, rgb(20 11 7 / 0.5) 0%, rgb(20 11 7 / 0) 20%),
+        rgb(20 11 7 / var(--s2));
+    }
+    :global(html.js.motion-ok) .sofra__item.is-strong .sofra__scrim {
+      --s0: 0.93;
+      --s1: 0.74;
+      --s2: 0.26;
+    }
+
+    /* dev başlık listesi */
+    :global(html.js.motion-ok) .sofra__h {
+      z-index: 4;
+      padding: 0;
+      font-size: clamp(2.75rem, min(6vw, 9.2lvh), 6.5rem);
+      transition: transform var(--dur-4) var(--ease-sun);
+    }
+    :global(html.js.motion-ok) .sofra__name {
+      padding-block: 0.03em;
+      opacity: 0.28;
+      transition: opacity var(--dur-3) var(--ease-out);
+    }
+    :global(html.js.motion-ok) .sofra__name em {
+      font-style: normal;
+      --wonk: 0;
+    }
+    :global(html.js.motion-ok) .sofra__item.is-active .sofra__name {
+      opacity: 1;
+    }
+    :global(html.js.motion-ok) .sofra__item.is-active .sofra__name em {
+      font-style: italic;
+      --wonk: 1;
+    }
+    :global(html.js.motion-ok) .sofra__name:focus-visible {
+      outline-offset: 6px;
+      box-shadow: none;
+    }
+    :global(html.js.motion-ok) .sofra__sun {
+      transform: scale(0);
+    }
+    :global(html.js.motion-ok) .sofra__item.is-active .sofra__sun {
+      transform: scale(1);
+    }
+
+    /* not + "buna giden": etkin başlığın altında; sonraki başlıklar yalnız transform ile aşağı kayar */
+    :global(html.js.motion-ok) .sofra__detail {
+      position: relative;
+      z-index: 4;
+      block-size: 0;
+      transition: transform var(--dur-4) var(--ease-sun);
+    }
+    :global(html.js.motion-ok) .sofra__item.is-after .sofra__h,
+    :global(html.js.motion-ok) .sofra__item.is-after .sofra__detail {
+      transform: translateY(var(--push));
+    }
+    :global(html.js.motion-ok) .sofra__detail-in {
+      padding-block: var(--sp-3) var(--sp-5);
+      max-inline-size: 40ch;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(0.6rem);
+      transition:
+        opacity var(--dur-2) var(--ease-out),
+        transform var(--dur-3) var(--ease-sun),
+        visibility 0s linear var(--dur-2);
+    }
+    :global(html.js.motion-ok) .sofra__item.is-active .sofra__detail-in {
+      opacity: 1;
+      visibility: visible;
+      transform: none;
+      transition:
+        opacity var(--dur-3) var(--ease-out) 0.2s,
+        transform var(--dur-4) var(--ease-sun) 0.2s,
+        visibility 0s;
+    }
+    :global(html.js.motion-ok) .sofra__text {
+      color: var(--c-cream);
+    }
+
+    /* güneş halkası: dairesel açılımın kenarını izler (yalnız transform + opacity) */
+    :global(html.js.motion-ok) .sofra__halo {
+      display: block;
+      position: absolute;
+      inset-block-start: 0;
+      inset-inline-start: 0;
+      z-index: 3;
+      inline-size: 0;
+      block-size: 0;
+      border-radius: 50%;
+      pointer-events: none;
+      opacity: 0;
+      box-shadow:
+        0 0 0 1.5px color-mix(in srgb, var(--c-honey) 85%, transparent),
+        0 0 48px 8px color-mix(in srgb, var(--c-amber) 30%, transparent),
+        inset 0 0 64px 6px color-mix(in srgb, var(--c-amber) 22%, transparent);
+      transform-origin: 50% 50%;
+      will-change: transform, opacity;
+    }
+
+    :global(html.js.motion-ok) .sofra__foot {
+      position: relative;
+      z-index: 4;
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: var(--sp-6);
+      margin: 0;
+    }
+    :global(html.js.motion-ok) .sofra__footnote {
+      max-inline-size: 100ch;
+    }
+  }
+
+  @keyframes sofra-drift {
+    from {
+      transform: scale(1.03) translate3d(0, 0, 0);
+    }
+    to {
+      transform: scale(1.1) translate3d(-1.6%, -0.9%, 0);
+    }
+  }
+</style>
+
+<script>
+  import '@/lib/sofrada/stage';
+</script>

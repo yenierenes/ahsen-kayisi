@@ -21,7 +21,7 @@ export interface ManifestoContent {
   statement: StatementPart[];
   /** Mono yan notlar */
   notes: ManifestoNote[];
-  /** Yüzen kesimler: 5 kuru kayısı + 1 çiçek (süs; alt metin yok) */
+  /** Yüzen kesimler: 5 kuru kayısı (süs; alt metin yok). Çiçekler "BAHAR" sahnesinde sürüklenir. */
   floats: ManifestoFloat[];
   portrait: {
     /** -1200.webp / -2400.webp / -1600.avif ailesinin ortak yolu */
@@ -39,16 +39,16 @@ export interface ManifestoContent {
 }
 
 export const manifesto: ManifestoContent = {
-  heading: { no: '01', title: 'Ahsen' },
+  heading: { no: '', title: 'Ahsen' },
   statement: [
-    "Ahsen Kayısı olarak Malatya'nın kayısı bahçelerinin arasında çalışıyoruz. Meyve şekeri tam oturduğunda toplanır, güneşte kurur, modern tesisimizde ayıklanıp paketlenir. Kuralımız tek: ",
+    'Malatya’da kayısıyı herkes kurutur. Biz seçeriz: hangi bahçe, hangi dal, hangi gün. İyisini ayırır, gerisini kutuya koymayız. Ahsen’de kural kısa: ',
     { em: 'önce kalite.' },
-    ' Kutuyu açtığınızda bahçeyi de güneşi de bulursunuz.',
+    ' Kutuyu açan, bunu sormadan anlar.',
   ],
   notes: [
-    { label: 'Konum', value: 'Malatya · 38.35° K, 38.31° D' },
-    { label: 'İlke', value: 'Önce kalite' },
-    { label: 'Hasat', value: 'Temmuz başı – Ağustos ortası' },
+    { label: 'Yer', value: 'Battalgazi, Malatya' },
+    { label: 'Kural', value: 'Önce kalite' },
+    { label: 'Hasat', value: 'Temmuz başı – ağustos ortası' },
   ],
   floats: [
     { src: '/media/kesim/kuru-3-500.webp', width: 473, height: 500 },
@@ -56,7 +56,6 @@ export const manifesto: ManifestoContent = {
     { src: '/media/kesim/kuru-5-500.webp', width: 423, height: 500 },
     { src: '/media/kesim/kuru-2-500.webp', width: 483, height: 500 },
     { src: '/media/kesim/kuru-4-500.webp', width: 460, height: 500 },
-    { src: '/media/kesim/cicek-500.webp', width: 477, height: 500 },
   ],
   portrait: {
     base: '/media/foto/sergi-tepeden',
@@ -65,8 +64,8 @@ export const manifesto: ManifestoContent = {
     widthLg: 2400,
     widthAvif: 1600,
     alt: 'Malatya’da sergi alanlarında, serili kayısı tavalarının arasında çalışan işçiler; tepeden görünüm.',
-    caption: 'Sergi alanı · Malatya',
+    caption: 'Sergi yeri, temmuz',
     position: '60% 50%',
   },
-  cta: { label: 'Hikâyemizi dinleyin', href: '#surec' },
+  cta: { label: 'Kayısı nasıl kurur?', href: '#surec' },
 };

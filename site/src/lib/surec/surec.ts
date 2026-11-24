@@ -34,8 +34,6 @@ function initSurec(): void {
   const list = sec.querySelector<HTMLElement>('[data-surec-list]');
   const fill = sec.querySelector<HTMLElement>('[data-surec-fill]');
   const sun = sec.querySelector<HTMLElement>('[data-surec-sun]');
-  const tagNo = sec.querySelector<HTMLElement>('[data-surec-no]');
-  const tagName = sec.querySelector<HTMLElement>('[data-surec-name]');
   if (!list || !fill || !sun || !layers.length || layers.length !== steps.length || marks.length !== steps.length) return;
 
   const mqWide = window.matchMedia('(min-width: 1100px)');
@@ -81,8 +79,6 @@ function initSurec(): void {
 
     layers.forEach((l, i) => (i === next ? l.removeAttribute('aria-hidden') : l.setAttribute('aria-hidden', 'true')));
     steps.forEach((s, i) => s.classList.toggle('is-active', i === next));
-    if (tagNo) tagNo.textContent = String(next + 1).padStart(2, '0');
-    if (tagName) tagName.textContent = steps[next]?.dataset.title ?? '';
 
     cur = next;
     placeDiscrete();

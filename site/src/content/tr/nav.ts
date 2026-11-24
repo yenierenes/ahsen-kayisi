@@ -51,6 +51,6 @@ export const nav: NavContent = {
   languageLabel: 'Dil',
   soonLabel: 'yakında',
   menu: { open: 'Menü', close: 'Kapat' },
-  preloader: { label: 'Yükleniyor' },
-  cursor: { scroll: 'Kaydır', view: 'İncele' },
+  preloader: { label: 'Güneş doğuyor' },
+  cursor: { scroll: 'Kaydır', view: 'Bak' },
 };

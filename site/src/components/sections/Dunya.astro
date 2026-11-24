@@ -59,9 +59,6 @@ const globeData = JSON.stringify({
                   aria-pressed="false"
                   aria-describedby="dunya-hint"
                 >
-                  <span class="dunya__no" aria-hidden="true">
-                    {String(i + 1).padStart(2, '0')}
-                  </span>
                   <span class="dunya__name">{m.name}</span>
                   <span class="dunya__route" aria-hidden="true">
                     <span class="dunya__route-line" style={`--w:${(m.shareValue / maxShare).toFixed(3)}`} />
@@ -293,7 +290,7 @@ const globeData = JSON.stringify({
   }
   .dunya__item {
     display: grid;
-    grid-template-columns: 2.25rem minmax(0, 10.5rem) 1fr 4.25rem;
+    grid-template-columns: minmax(0, 10.5rem) 1fr 4.25rem;
     align-items: center;
     gap: var(--sp-3);
     inline-size: 100%;
@@ -311,12 +308,6 @@ const globeData = JSON.stringify({
   .dunya__item:focus-visible {
     outline: 2px solid var(--focus);
     outline-offset: 2px;
-  }
-  .dunya__no {
-    font-family: var(--font-mono);
-    font-size: max(0.75rem, var(--fs-label));
-    letter-spacing: var(--ls-label);
-    color: var(--muted);
   }
   .dunya__share {
     font-family: var(--font-mono);
@@ -376,8 +367,7 @@ const globeData = JSON.stringify({
     opacity: 1;
     transition-delay: 0ms;
   }
-  .dunya__item[aria-pressed='true'] .dunya__share,
-  .dunya__item[aria-pressed='true'] .dunya__no {
+  .dunya__item[aria-pressed='true'] .dunya__share {
     color: var(--c-honey);
   }
   .dunya[data-market-active] .dunya__item[aria-pressed='false'] {
@@ -390,7 +380,7 @@ const globeData = JSON.stringify({
   }
   @media (max-width: 479.98px) {
     .dunya__item {
-      grid-template-columns: 1.75rem minmax(0, 1fr) 3rem 3.75rem;
+      grid-template-columns: minmax(0, 1fr) 3rem 3.75rem;
     }
   }
 </style>

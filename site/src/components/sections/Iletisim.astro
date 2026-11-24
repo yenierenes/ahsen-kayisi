@@ -8,6 +8,9 @@
 import { getContent } from '@/content';
 const { iletisim: c } = getContent();
 const f = c.form.fields;
+const words = c.heading.title.split(' ');
+const titleTail = words.pop() ?? '';
+const titleHead = words.join(' ');
 ---
 
 <section id="iletisim" class="section iletisim" data-sky="night" aria-labelledby="iletisim-title">
@@ -16,7 +19,7 @@ const f = c.form.fields;
       <span class="iletisim__eyebrow-dot" aria-hidden="true"></span>
       {c.eyebrow}
     </p>
-    <h2 id="iletisim-title" class="iletisim__title" data-reveal="lines">{c.heading.title}</h2>
+    <h2 id="iletisim-title" class="iletisim__title" data-reveal="lines"><span class="iletisim__l1">{titleHead}</span> <em class="iletisim__l2">{titleTail}</em></h2>
 
     <div class="grid iletisim__body">
       <div class="cell iletisim__form-cell" style="--col: 1 / span 7; --col-md: 1 / -1">
@@ -228,6 +231,13 @@ const f = c.form.fields;
     --soft: 70;
     text-wrap: balance;
     max-inline-size: 100%;
+  }
+  .iletisim__l1,
+  .iletisim__l2 {
+    display: block;
+  }
+  .iletisim__l2 {
+    font-style: italic;
   }
   .iletisim__body {
     margin-block-start: var(--sp-9);

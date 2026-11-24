@@ -1,0 +1,476 @@
+---
+/**
+ * Çiçek — "BAHAR". Rakamlar ile Süreç arasında, numarasız önsöz.
+ * Sabit ≈320lvh (mobil 240lvh) sahne. Katmanlar (alttan üste):
+ *   medya (canvas dizisi /seq/cicek/ ya da durağan foto) → açık örtü (yazı alanı) →
+ *   uzak + orta yapraklar → üç vuruşluk yazı → yakın yapraklar.
+ * Bölümün altında, Süreç girişinin üstüne taşan küçük bir "köprü" alanı: birkaç yaprak
+ * sahne bittikten sonra da düşmeye devam eder.
+ * Koreografi: src/lib/cicek/cicek.ts · yaprak sistemi: src/lib/cicek/petals.ts
+ *
+ * Derleme/istek anında:
+ *  - /seq/cicek/manifest.json yoksa canvas yerine durağan foto basılır (404 yok);
+ *    dizi gelince kod değişmeden canvas'a geçer.
+ *  - Yaprak/çiçek kesimleri public/media/kesim/ klasöründen okunur
+ *    (cicek-N-500.webp, petal-N-300.webp); hiçbiri yoksa tek cicek-500.webp.
+ */
+// @ts-ignore -- projede @types/node yok; kod yalnızca derleme/istek anında Node'da çalışır
+import fs from 'node:fs';
+import { getContent } from '@/content';
+const { cicek: c } = getContent();
+
+const cwd = (globalThis as { process?: { cwd(): string } }).process?.cwd() ?? '.';
+const pub = (url: string): string => `${cwd}/public/${url.replace(/^\/+/, '')}`;
+const hasSeq: boolean = fs.existsSync(pub(`${c.sequence.base}manifest.json`));
+
+let files: string[] = [];
+try {
+  files = (fs.readdirSync(pub('/media/kesim/')) as string[]).slice();
+} catch {
+  files = [];
+}
+const byNo = (a: string, b: string): number => Number(/\d+/.exec(a)?.[0] ?? 0) - Number(/\d+/.exec(b)?.[0] ?? 0);
+let blossoms = files.filter((f) => /^cicek-\d+-500\.webp$/.test(f)).sort(byNo).map((f) => `/media/kesim/${f}`);
+const petals = files.filter((f) => /^petal-\d+-300\.webp$/.test(f)).sort(byNo).map((f) => `/media/kesim/${f}`);
+if (!blossoms.length && !petals.length) blossoms = [c.spriteFallback.src];
+const sprites = JSON.stringify({ b: blossoms, p: petals });
+
+// reduced-motion / JS yok: kadrajın kenarlarına oturan 6 durağan kesim (2 çiçek + 4 yaprak)
+const pickB = (i: number): string => blossoms[i % Math.max(1, blossoms.length)] ?? petals[i % petals.length] ?? c.spriteFallback.src;
+const pickP = (i: number): string => petals[i % Math.max(1, petals.length)] ?? pickB(i);
+const rest = [
+  { src: pickB(0), style: 'left:-1.5%; top:-7%; --s:clamp(4.5rem, 9vw, 8rem); --r:-14deg' },
+  { src: pickP(0), style: 'left:21%; top:-3.5%; --s:clamp(1.6rem, 2.4vw, 2.4rem); --r:32deg' },
+  { src: pickP(1), style: 'right:5%; top:7%; --s:clamp(2rem, 3.2vw, 3.2rem); --r:-48deg' },
+  { src: pickB(1), style: 'right:-2%; bottom:9%; --s:clamp(5rem, 11vw, 10rem); --r:22deg' },
+  { src: pickP(2), style: 'left:7%; bottom:-4%; --s:clamp(2rem, 3vw, 3rem); --r:64deg' },
+  { src: pickP(3), style: 'left:44%; bottom:-3%; --s:clamp(1.4rem, 2vw, 2rem); --r:-18deg' },
+];
+
+const s = c.still;
+---
+
+<section
+  id="cicek"
+  class:list={['cicek', { 'cicek--seq': hasSeq }]}
+  data-cicek
+  data-sky="blossom"
+  data-sky-to="bone"
+  data-sky-to-range="0.84 0.98"
+  data-pin
+  aria-labelledby="cicek-title"
+>
+  <div class="cicek__stage" data-pin-stage data-cicek-stage>
+    <h2 id="cicek-title" class="sr-only">{c.srTitle}</h2>
+
+    <div class="cicek__frame">
+      <div class="cicek__media" data-cicek-media>
+        <div class="cicek__zoom" data-cicek-zoom>
+          {
+            hasSeq && (
+              <canvas
+                class="cicek__canvas"
+                data-cicek-canvas
+                data-sequence={c.sequence.base}
+                data-sequence-group="cicek"
+                data-fit="cover"
+                data-fit-portrait="cover"
+                role="img"
+                aria-label={c.sequence.alt}
+              />
+            )
+          }
+          <picture class="cicek__still" data-cicek-still>
+            <source type="image/avif" srcset={`${s.base}-1600.avif ${s.widthAvif}w`} sizes="100vw" />
+            <img
+              src={`${s.base}-1200.webp`}
+              srcset={`${s.base}-1200.webp ${s.width}w, ${s.base}-2400.webp ${s.widthLg}w`}
+              sizes="100vw"
+              width={s.width}
+              height={s.height}
+              alt={s.alt}
+              loading="lazy"
+              decoding="async"
+            />
+          </picture>
+        </div>
+        <div class="cicek__wash" data-cicek-wash aria-hidden="true"></div>
+      </div>
+
+      <div class="cicek__rest" aria-hidden="true">
+        {rest.map((r) => <img src={r.src} alt="" style={r.style} loading="lazy" decoding="async" />)}
+      </div>
+    </div>
+
+    <!-- Yaprak alanı: petals.ts doldurur. Uzak + orta yazının arkasında, yakın önünde. -->
+    <div class="cicek__field" data-cicek-field data-sprites={sprites} aria-hidden="true">
+      <div class="cicek__layer" data-depth="0"></div>
+      <div class="cicek__layer" data-depth="1"></div>
+    </div>
+
+    <div class="cicek__ui">
+      <ol class="cicek__beats" role="list" data-cicek-beats>
+        {
+          c.beats.map((b, i) => (
+            <li class="cicek__beat" data-cicek-beat>
+              <p class="cicek__label label">
+                <span class="cicek__mask">
+                  <span class="cicek__mask-in" data-cicek-part>
+                    {c.label}
+                    <span class="cicek__dots" aria-hidden="true">
+                      {c.beats.map((_, j) => <i class:list={{ 'is-on': j === i }} />)}
+                    </span>
+                  </span>
+                </span>
+              </p>
+              <p class="cicek__title" data-cicek-split>
+                {b.title}
+              </p>
+              <p class="cicek__text" data-cicek-split>
+                {b.text}
+              </p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+
+    <div class="cicek__field cicek__field--near" data-cicek-near aria-hidden="true">
+      <div class="cicek__layer" data-depth="2"></div>
+    </div>
+  </div>
+
+  <!-- Köprü: Süreç girişine taşan birkaç yaprak (sahne bitince de düşer) -->
+  <div class="cicek__bridge" data-cicek-bridge aria-hidden="true"></div>
+</section>
+
+<style>
+  .cicek {
+    --pin-len: 320lvh;
+    position: relative;
+    z-index: var(--z-raised);
+    color: var(--fg);
+  }
+  @media (max-width: 767.98px) {
+    .cicek {
+      --pin-len: 240lvh;
+    }
+  }
+  .cicek__stage {
+    isolation: isolate;
+  }
+
+  /* --- Medya ------------------------------------------------------------------ */
+  .cicek__frame,
+  .cicek__media,
+  .cicek__zoom {
+    position: absolute;
+    inset: 0;
+  }
+  .cicek__media {
+    overflow: clip;
+    clip-path: inset(0% 0% 0% 0% round 0px);
+    background: var(--c-blossom);
+  }
+  .cicek__zoom {
+    transform-origin: 50% 46%;
+  }
+  .cicek__canvas,
+  .cicek__still,
+  .cicek__still img {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+  }
+  .cicek__still img {
+    object-fit: cover;
+    object-position: 50% 46%;
+  }
+  .cicek__still {
+    transform-origin: 50% 46%;
+  }
+  /* Dizi varken durağan foto yalnız reduced-motion / JS yok / dizi yüklenemedi durumunda */
+  :global(html.js:not(.reduce)) .cicek--seq:not(.is-nostream) .cicek__still {
+    display: none;
+  }
+  .cicek.is-nostream .cicek__canvas {
+    display: none;
+  }
+
+  /* Açık örtü: yazı alanının arkasında yumuşak krem ışık (kutu değil) */
+  .cicek__wash {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 58% 62% at 14% 30%, rgba(246, 235, 221, 0.9) 0%, rgba(246, 235, 221, 0.66) 42%, rgba(246, 235, 221, 0) 100%),
+      linear-gradient(to bottom, rgba(246, 235, 221, 0.35), rgba(246, 235, 221, 0) 34%);
+  }
+  @media (max-width: 767.98px) {
+    .cicek__wash {
+      background: linear-gradient(
+        to bottom,
+        rgba(246, 235, 221, 0.88) 0%,
+        rgba(246, 235, 221, 0.74) 32%,
+        rgba(246, 235, 221, 0.36) 46%,
+        rgba(246, 235, 221, 0) 58%
+      );
+    }
+  }
+
+  /* --- Yaprak alanı ------------------------------------------------------------ */
+  .cicek__field,
+  .cicek__layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .cicek__layer {
+    will-change: transform;
+  }
+  .cicek__field :global(.cicek-sprite) {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    inline-size: var(--s);
+    block-size: var(--s);
+    will-change: transform;
+    backface-visibility: visible;
+  }
+  .cicek__field :global(.cicek-sprite img),
+  .cicek__bridge :global(.cicek-sprite img) {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: contain;
+  }
+  .cicek__field :global(.cicek-sprite[data-d='0']) {
+    opacity: 0.82;
+  }
+  .cicek__field :global(.cicek-sprite[data-d='2']) {
+    filter: blur(1.6px);
+  }
+  .cicek__bridge {
+    position: absolute;
+    inset-inline: 0;
+    /* sahnenin son konumundan başlar, Süreç girişine taşar */
+    inset-block-start: calc(100% - 100lvh);
+    block-size: 165lvh;
+    pointer-events: none;
+  }
+  .cicek__bridge :global(.cicek-sprite) {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    inline-size: var(--s);
+    block-size: var(--s);
+    will-change: transform;
+  }
+
+  /* --- Yazılar ----------------------------------------------------------------- */
+  .cicek__ui {
+    position: absolute;
+    inset: 0;
+    padding: calc(var(--nav-h) + var(--sp-6)) var(--gutter) var(--sp-6);
+    pointer-events: none;
+  }
+  .cicek__beats {
+    display: grid;
+    inline-size: min(36rem, 46vw);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .cicek__beat {
+    grid-area: 1 / 1;
+    display: grid;
+    align-content: start;
+    gap: var(--sp-4);
+    visibility: hidden;
+  }
+  .cicek__label {
+    color: var(--c-apricot-deep);
+  }
+  .cicek__label b {
+    font-weight: 600;
+  }
+  .cicek__mask {
+    display: block;
+    overflow: clip;
+    padding-block: 0.2em 0.16em;
+    margin-block: -0.2em -0.16em;
+  }
+  .cicek__mask-in {
+    display: block;
+  }
+  .cicek__title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(2.25rem, 1.3rem + 3.4vw, 5.25rem);
+    font-weight: 380;
+    line-height: 1.02;
+    letter-spacing: var(--ls-heading);
+    font-variation-settings: 'SOFT' 60;
+    color: var(--c-night);
+    text-wrap: balance;
+  }
+  .cicek__text {
+    margin: 0;
+    max-inline-size: 34ch;
+    font-size: var(--fs-body);
+    line-height: 1.5;
+    color: var(--c-night);
+    text-wrap: pretty;
+  }
+  /* masaüstü: tam ekran fotoğrafta kaybolmasın diye daha iri satır + cümle
+     (yaprak hariç tutma kutusu cicek.ts'te .cicek__beats ölçüsünden okunur → büyüyen kutuyu izler) */
+  @media (min-width: 768px) {
+    .cicek__title {
+      font-size: clamp(2.5rem, 5.2vw, 5.5rem);
+    }
+    .cicek__text {
+      max-inline-size: 30ch;
+      font-size: clamp(1rem, 1.25vw, 1.25rem);
+      line-height: 1.45;
+    }
+  }
+  @media (max-width: 767.98px) {
+    .cicek__ui {
+      padding-block-start: calc(var(--nav-h) + var(--sp-4));
+    }
+    .cicek__beats {
+      inline-size: 100%;
+    }
+    .cicek__beat {
+      gap: var(--sp-3);
+    }
+    .cicek__title {
+      font-size: clamp(2rem, 1.2rem + 4.2vw, 2.75rem);
+    }
+  }
+
+  /* --- reduced-motion / JS yok: sabitleme yok; foto çerçevede, yazılar altında --- */
+  .cicek__rest {
+    display: none;
+  }
+  :global(html:not(.js)) .cicek {
+    block-size: auto;
+  }
+  :global(html.reduce) .cicek,
+  :global(html:not(.js)) .cicek {
+    padding-block: var(--section-y);
+  }
+  :global(html.reduce) .cicek__stage,
+  :global(html:not(.js)) .cicek__stage {
+    position: relative;
+    block-size: auto;
+    min-block-size: 0;
+    overflow: visible;
+    display: grid;
+    gap: var(--sp-7);
+    padding-inline: var(--gutter);
+  }
+  :global(html.reduce) .cicek__frame,
+  :global(html:not(.js)) .cicek__frame {
+    position: relative;
+    inset: auto;
+    aspect-ratio: 16 / 9;
+  }
+  :global(html.reduce) .cicek__media,
+  :global(html:not(.js)) .cicek__media {
+    clip-path: none;
+    border-radius: var(--r-media);
+  }
+  :global(html.reduce) .cicek__canvas,
+  :global(html:not(.js)) .cicek__canvas,
+  :global(html.reduce) .cicek__wash,
+  :global(html:not(.js)) .cicek__wash,
+  :global(html.reduce) .cicek__field,
+  :global(html:not(.js)) .cicek__field,
+  :global(html.reduce) .cicek__bridge,
+  :global(html:not(.js)) .cicek__bridge {
+    display: none;
+  }
+  :global(html.reduce) .cicek__still,
+  :global(html:not(.js)) .cicek__still {
+    display: block;
+  }
+  :global(html.reduce) .cicek__rest,
+  :global(html:not(.js)) .cicek__rest {
+    display: block;
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .cicek__rest img {
+    position: absolute;
+    inline-size: var(--s);
+    block-size: var(--s);
+    object-fit: contain;
+    transform: rotate(var(--r));
+  }
+  .cicek__dots {
+    display: inline-flex;
+    gap: 0.4em;
+    margin-inline-start: 0.9em;
+    vertical-align: 0.05em;
+  }
+  .cicek__dots i {
+    inline-size: 0.4em;
+    block-size: 0.4em;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 1px currentColor;
+    opacity: 0.6;
+  }
+  .cicek__dots i.is-on {
+    background: currentColor;
+    opacity: 1;
+  }
+  .cicek__rest img:nth-child(4) {
+    filter: blur(1px);
+  }
+  :global(html.reduce) .cicek__ui,
+  :global(html:not(.js)) .cicek__ui {
+    position: static;
+    padding: 0;
+  }
+  :global(html.reduce) .cicek__beats,
+  :global(html:not(.js)) .cicek__beats {
+    inline-size: auto;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--gap);
+  }
+  :global(html.reduce) .cicek__beat,
+  :global(html:not(.js)) .cicek__beat {
+    grid-area: auto;
+    visibility: visible;
+  }
+  :global(html.reduce) .cicek__title,
+  :global(html:not(.js)) .cicek__title {
+    font-size: var(--fs-h4);
+    color: var(--fg);
+  }
+  :global(html.reduce) .cicek__text,
+  :global(html:not(.js)) .cicek__text {
+    color: var(--muted);
+  }
+  :global(html.reduce) .cicek__label,
+  :global(html:not(.js)) .cicek__label {
+    color: var(--accent);
+  }
+  @media (max-width: 767.98px) {
+    :global(html.reduce) .cicek__beats,
+    :global(html:not(.js)) .cicek__beats {
+      grid-template-columns: 1fr;
+      row-gap: var(--sp-6);
+    }
+    :global(html.reduce) .cicek__frame,
+    :global(html:not(.js)) .cicek__frame {
+      aspect-ratio: 4 / 5;
+    }
+  }
+</style>
+
+<script>
+  import '@/lib/cicek/cicek';
+</script>

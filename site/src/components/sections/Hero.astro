@@ -56,9 +56,6 @@ const { hero: c } = getContent();
           c.captions.map((cap, i) => (
             <li class={`hero__caption hero__caption--${i % 2 ? 'right' : 'left'}`} data-hero-caption>
               <span class="hero__cap-head">
-                <span class="label hero__cap-index" data-cap-part>
-                  {cap.index}
-                </span>
                 <span class="hero__cap-rule" data-cap-rule aria-hidden="true" />
               </span>
               <p class="hero__cap-title" data-cap-part>

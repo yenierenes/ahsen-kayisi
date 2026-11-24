@@ -30,8 +30,6 @@ const layout = [
   { host: 'figure', depth: 'front', pos: 'left: -17%; bottom: 16%', size: 'clamp(5.5rem, 12vw, 13rem)', rot: '-14deg', speed: 0.2, mouse: 18, spin: -14, blur: 0 },
   // Orta, sağ üst: çerçevenin üst sağ kenarının arkasında
   { host: 'figure', depth: 'back', pos: 'right: -14%; top: -7%', size: 'clamp(5rem, 11vw, 12rem)', rot: '-34deg', speed: 0.12, mouse: 10, spin: 12, blur: 0 },
-  // Çiçek: alt boşlukta, solda (önde; metin yok)
-  { host: 'field', depth: 'front', pos: 'left: 3%; bottom: 2%', size: 'clamp(4rem, 7vw, 7.5rem)', rot: '14deg', speed: 0.1, mouse: 12, spin: 18, blur: 0 },
 ] as const;
 
 type Host = (typeof layout)[number]['host'];
@@ -88,11 +86,11 @@ const { portrait: p } = c;
   <div class="container manifesto__content">
     <div class="grid manifesto__grid">
       <p class="section-label label cell manifesto__label" aria-hidden="true" style="--col: 2 / span 6; --col-md: 1 / -1">
-        <span class="section-label__no">{c.heading.no}</span>
-        <span class="section-label__rule"></span>
+        {c.heading.no && <span class="section-label__no">{c.heading.no}</span>}
+        {c.heading.no && <span class="section-label__rule"></span>}
         <span>{c.heading.title}</span>
       </p>
-      <h2 id="hakkimizda-title" class="sr-only">{c.heading.no} — {c.heading.title}</h2>
+      <h2 id="hakkimizda-title" class="sr-only">{c.heading.no && `${c.heading.no} — `}{c.heading.title}</h2>
 
       <p
         class="manifesto__statement cell"

@@ -10,8 +10,6 @@ import { getContent } from '@/content';
 import SectionHeading from '@/components/ui/SectionHeading.astro';
 const { surec: c } = getContent();
 
-const pad = (n: number): string => String(n).padStart(2, '0');
-const total = pad(c.steps.length);
 const sizes = '(min-width: 1100px) 46vw, 100vw';
 ---
 
@@ -55,10 +53,6 @@ const sizes = '(min-width: 1100px) 46vw, 100vw';
               </div>
             ))
           }
-          <p class="surec__tag label" aria-hidden="true">
-            <span data-surec-no>{pad(1)}</span>
-            <span>/ {total}</span>
-          </p>
         </div>
       </div>
 
@@ -72,9 +66,6 @@ const sizes = '(min-width: 1100px) 46vw, 100vw';
             c.steps.map((s, i) => (
               <li class:list={['surec__step', { 'is-active': i === 0 }]} data-surec-step data-title={s.title}>
                 <div class="surec__body">
-                  <span class="surec__ghost" aria-hidden="true">
-                    {pad(i + 1)}
-                  </span>
                   <p class="surec__when label">
                     <span class="surec__mark" aria-hidden="true" data-surec-mark></span>
                     <span>{s.when}</span>
@@ -162,21 +153,6 @@ const sizes = '(min-width: 1100px) 46vw, 100vw';
     transition-duration: 5s;
   }
 
-  .surec__tag {
-    position: absolute;
-    inset-inline: 0;
-    inset-block-end: 0;
-    z-index: 3;
-    display: flex;
-    gap: 0.6em;
-    align-items: baseline;
-    margin: 0;
-    max-inline-size: none;
-    padding: var(--sp-7) var(--sp-5) var(--sp-4);
-    background: var(--scrim);
-    color: var(--c-cream);
-    pointer-events: none;
-  }
 
   /* --- Adımlar ------------------------------------------------------------- */
   .surec__list {
@@ -201,41 +177,13 @@ const sizes = '(min-width: 1100px) 46vw, 100vw';
     gap: var(--sp-4);
   }
   /* Pasif adımlar soluk; etkin adım tam güçte */
-  .surec__ghost,
   .surec__when,
   .surec__title,
   .surec__copy {
     transition: opacity var(--dur-3) var(--ease-soft);
   }
-  .surec__step:not(.is-active) :is(.surec__ghost, .surec__when, .surec__title, .surec__copy) {
+  .surec__step:not(.is-active) :is(.surec__when, .surec__title, .surec__copy) {
     opacity: 0.3;
-  }
-
-  /* Büyük içi boş numara */
-  .surec__ghost {
-    display: block;
-    margin-block-end: -0.12em;
-    font-family: var(--font-display);
-    font-size: clamp(3.5rem, 2rem + 6vw, 5rem);
-    font-weight: 300;
-    line-height: 0.8;
-    letter-spacing: -0.04em;
-    font-variant-numeric: lining-nums;
-    --soft: 100;
-    font-variation-settings:
-      'SOFT' var(--soft),
-      'WONK' var(--wonk);
-    color: transparent;
-    -webkit-text-stroke: 1px color-mix(in srgb, var(--fg) 42%, transparent);
-    user-select: none;
-  }
-  .surec__step.is-active .surec__ghost {
-    -webkit-text-stroke-color: color-mix(in srgb, var(--fg) 58%, transparent);
-  }
-  @supports not (-webkit-text-stroke: 1px black) {
-    .surec__ghost {
-      color: color-mix(in srgb, var(--fg) 14%, transparent);
-    }
   }
 
   .surec__when {
@@ -247,7 +195,7 @@ const sizes = '(min-width: 1100px) 46vw, 100vw';
     color: var(--accent);
   }
   .surec__title {
-    font-size: clamp(2.25rem, 1.4rem + 3.2vw, 5rem);
+    font-size: clamp(2.5rem, 1.5rem + 3.6vw, 5.25rem);
     line-height: 0.98;
     letter-spacing: var(--ls-display);
     font-weight: 380;
@@ -368,9 +316,6 @@ const sizes = '(min-width: 1100px) 46vw, 100vw';
       max-block-size: 60rem;
       border-radius: 24px;
     }
-    .surec__tag {
-      padding: var(--sp-8) var(--sp-6) var(--sp-5);
-    }
     /* Liste 7–12; kolon ölçüsü liste genişliğinden (6 kolon) türetilir */
     .surec__list {
       grid-column: 7 / span 6;
@@ -386,11 +331,8 @@ const sizes = '(min-width: 1100px) 46vw, 100vw';
     .surec__body {
       gap: var(--sp-5);
     }
-    .surec__ghost {
-      font-size: clamp(5rem, 9vw, 10rem);
-    }
     .surec__title {
-      font-size: clamp(2.5rem, 4.6vw, 4.75rem);
+      font-size: clamp(2.75rem, 5.2vw, 5.5rem);
     }
     .surec__copy {
       font-size: clamp(1.0625rem, 0.9rem + 0.25vw, 1.125rem);
