@@ -538,21 +538,21 @@
     },
     {
       "path": "seq/cicek/f_0001.webp",
-      "bytes": 157272,
-      "width": 1600,
-      "height": 900,
-      "description": "Çiçek sekansı, 96 kare 1600x900 (f_0001..f_0096; m/ 48 kare 960x540), Veo, sesiz"
+      "bytes": 57344,
+      "width": 1152,
+      "height": 648,
+      "description": "Çiçek sekansı, 128 kare 1152x648 (f_0001..f_0128, 6,5 MB; m/ 72 kare 720x405, 2,1 MB), Veo, sesiz"
     },
     {
       "path": "seq/cicek/m/f_0001.webp",
-      "bytes": 82870,
-      "width": 960,
-      "height": 540,
-      "description": "Çiçek sekansı, 96 kare 1600x900 (f_0001..f_0096; m/ 48 kare 960x540), Veo, sesiz"
+      "bytes": 31416,
+      "width": 720,
+      "height": 405,
+      "description": "Çiçek sekansı, 128 kare 1152x648 (f_0001..f_0128, 6,5 MB; m/ 72 kare 720x405, 2,1 MB), Veo, sesiz"
     },
     {
       "path": "seq/cicek/manifest.json",
-      "bytes": 130,
+      "bytes": 131,
       "description": "Çiçek sekans manifesti"
     },
     {
