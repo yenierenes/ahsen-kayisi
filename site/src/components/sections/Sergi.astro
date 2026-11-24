@@ -1,0 +1,324 @@
+---
+/**
+ * Sergi — Hero'nun turuncu → turuncu eşleşme kesmesinin hedefi.
+ * Tam ekran sabit drone videosu → başlık satırları → mono çipler →
+ * video 24px köşeli editoryal çerçeveye küçülür, sayfa krem rengine akar.
+ * Koreografi: src/lib/sergi/sergi.ts
+ */
+// @ts-ignore — @types/node kurulu değil; yalnız derleme anında (Node) çalışır
+import { existsSync } from 'node:fs';
+import { getContent } from '@/content';
+const { sergi: c, nav } = getContent();
+
+// Video henüz üretilmedi: dosyalar derleme anında (dev'de her istekte) aranır.
+// mp4 yoksa durağan kare + "drone push-in" döngüsü; dosya gelince kod değişmeden videoya geçer.
+// Göreli yol = proje kökü (site/, astro'nun çalışma dizini).
+const inPublic = (p: string): boolean => Boolean(existsSync(`public${p}`));
+const hasVideo = inPublic(c.video.src);
+const hasMobile = hasVideo && inPublic(c.video.srcMobile);
+const poster = hasVideo && inPublic(c.video.poster) ? c.video.poster : c.still.webp;
+---
+
+<section
+  id="sergi"
+  class="sergi"
+  data-sergi
+  data-sky="golden"
+  data-sky-to="cream"
+  data-sky-to-range="0.62 0.9"
+  data-pin
+  aria-labelledby="sergi-title"
+>
+  <div class="sergi__stage" data-pin-stage>
+    <div class="sergi__target" data-sergi-target aria-hidden="true"></div>
+
+    <div class="sergi__media" data-sergi-media data-cursor={nav.cursor.view}>
+      {
+        hasVideo ? (
+          <video
+            id="sergi-video"
+            data-video
+            data-sergi-motion
+            data-src={c.video.src}
+            data-src-mobile={hasMobile ? c.video.srcMobile : undefined}
+            poster={poster}
+            muted
+            playsinline
+            loop
+            preload="none"
+            aria-label={c.video.alt}
+          />
+        ) : (
+          <picture class="sergi__still" data-sergi-motion data-sergi-still>
+            <source type="image/avif" srcset={c.still.avif} />
+            <img
+              src={c.still.webp}
+              srcset={`${c.still.webp} 1200w, ${c.still.webpLarge} 2400w`}
+              sizes="100vw"
+              alt={c.still.alt}
+              width="2400"
+              height="1350"
+              loading="lazy"
+              decoding="async"
+            />
+          </picture>
+        )
+      }
+      <div class="sergi__scrim" data-sergi-scrim aria-hidden="true"></div>
+    </div>
+
+    <div class="sergi__veil sun-fill" data-sergi-veil aria-hidden="true"></div>
+
+    <div class="sergi__copy" data-sergi-copy>
+      <h2 id="sergi-title" class="sergi__title" data-reveal="lines" data-reveal-trigger="#sergi" data-reveal-start="13%">
+        {c.title}
+      </h2>
+      <ul class="sergi__chips" role="list">
+        {
+          c.chips.map((chip) => (
+            <li class="chip label sergi__chip" data-sergi-chip>
+              <span class="sergi__chip-dot" aria-hidden="true" />
+              {chip}
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <p class="sergi__caption" data-sergi-caption>
+      <span class="label">Malatya</span>
+      <span>{c.caption}</span>
+    </p>
+
+    {
+      hasVideo && (
+        <button
+          class="sergi__toggle label"
+          type="button"
+          data-sergi-toggle
+          data-video-toggle="#sergi-video"
+          data-label-play={c.toggle.play}
+          data-label-pause={c.toggle.pause}
+          aria-pressed="false"
+        >
+          <span class="sergi__toggle-icon" aria-hidden="true" />
+          <span data-video-label>{c.toggle.pause}</span>
+        </button>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  .sergi {
+    --pin-len: 260lvh;
+    position: relative;
+  }
+  @media (max-width: 767.98px) {
+    .sergi {
+      --pin-len: 190lvh;
+    }
+  }
+  /* Hero'nun son ekranının altına biner (eşleşme kesmesi). Yalnız hareket açıkken. */
+  :global(html.motion-ok) .sergi {
+    margin-block-start: -100lvh;
+  }
+  .sergi.is-under .sergi__stage {
+    visibility: hidden;
+  }
+
+  .sergi__media {
+    position: absolute;
+    inset: 0;
+    overflow: clip;
+    background: var(--sun) center / cover no-repeat;
+    /* video gelene kadar / poster yoksa: aynı karenin fotoğrafı */
+    background-image: url('/media/foto/sergi-drone-1200.webp');
+    background-image: image-set(
+      url('/media/foto/sergi-drone-1600.avif') type('image/avif'),
+      url('/media/foto/sergi-drone-1200.webp') type('image/webp')
+    );
+    will-change: clip-path;
+  }
+  .sergi__media video {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+    background: transparent;
+  }
+  /* Video yokken: durağan kare + yavaş "drone push-in" (yalnız transform).
+     Ekran dışında duraklar (.is-inview, sergi.ts), reduced-motion'da kapalı. */
+  .sergi__still {
+    position: absolute;
+    inset: 0;
+    display: block;
+  }
+  .sergi__still img {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+    transform-origin: 50% 58%;
+    will-change: transform;
+    animation: sergi-push 26s var(--ease-in-out) infinite alternate;
+    animation-play-state: paused;
+  }
+  .sergi.is-inview .sergi__still img {
+    animation-play-state: running;
+  }
+  @keyframes sergi-push {
+    from {
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+    to {
+      transform: translate3d(0, -2.2%, 0) scale(1.12);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .sergi__still img {
+      animation: none;
+    }
+  }
+  :global(html.reduce) .sergi__still img,
+  :global(html:not(.js)) .sergi__still img {
+    animation: none;
+  }
+  .sergi__scrim {
+    position: absolute;
+    inset: 0;
+    background: var(--scrim-strong);
+    pointer-events: none;
+  }
+  .sergi__veil {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    visibility: hidden;
+  }
+  :global(html.motion-ok) .sergi__veil {
+    visibility: visible;
+  }
+
+  .sergi__copy {
+    position: absolute;
+    inset: auto var(--gutter) var(--sp-8);
+    display: grid;
+    gap: var(--sp-6);
+    color: var(--c-cream);
+  }
+  .sergi__title {
+    font-size: var(--fs-h1);
+    line-height: 0.95;
+    letter-spacing: var(--ls-display);
+    max-inline-size: 11ch;
+    font-weight: 380;
+    --soft: 60;
+  }
+  .sergi__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-3);
+  }
+  .sergi__chip {
+    color: var(--c-cream);
+    box-shadow: inset 0 0 0 1px rgba(246, 235, 221, 0.35);
+    background: rgba(20, 11, 7, 0.28);
+  }
+  .sergi__chip-dot {
+    inline-size: 6px;
+    block-size: 6px;
+    border-radius: 50%;
+    background: var(--c-honey);
+  }
+
+  /* Küçülme hedefi: 12 kolonluk ızgarada 6–12. kolonlar */
+  .sergi__target {
+    position: absolute;
+    inset-block: calc(var(--nav-h) + var(--sp-5)) var(--sp-8);
+    inset-inline: calc(var(--gutter) + (100% - 2 * var(--gutter) + var(--gap)) * 5 / 12) var(--gutter);
+    pointer-events: none;
+  }
+  .sergi__caption {
+    position: absolute;
+    inset-inline-start: var(--gutter);
+    inset-block-end: var(--sp-8);
+    inline-size: calc((100% - 2 * var(--gutter)) * 4 / 12);
+    display: grid;
+    gap: var(--sp-3);
+    color: var(--fg);
+    font-size: var(--fs-lead);
+    line-height: 1.3;
+    font-family: var(--font-display);
+    font-variation-settings: 'SOFT' 50;
+    visibility: hidden;
+  }
+  .sergi__caption .label {
+    color: var(--muted);
+    font-family: var(--font-mono);
+  }
+  @media (max-width: 1099.98px) {
+    .sergi__target {
+      inset-block: calc(var(--nav-h) + var(--sp-4)) 38%;
+      inset-inline: var(--gutter);
+    }
+    .sergi__caption {
+      inline-size: auto;
+      inset-inline-end: var(--gutter);
+      inset-block-end: var(--sp-7);
+    }
+  }
+
+  .sergi__toggle {
+    position: absolute;
+    inset-block-start: calc(var(--nav-h) + var(--sp-3));
+    inset-inline-end: var(--gutter);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7em;
+    min-block-size: 2.75rem;
+    padding-inline: 1em;
+    border-radius: var(--r-pill);
+    color: var(--c-cream);
+    background: rgba(20, 11, 7, 0.45);
+  }
+  .sergi__toggle-icon {
+    inline-size: 8px;
+    block-size: 10px;
+    border-inline: 2.5px solid currentColor;
+  }
+  .sergi__toggle[aria-pressed='true'] .sergi__toggle-icon {
+    border: 0;
+    border-inline-start: 9px solid currentColor;
+    border-block: 5px solid transparent;
+    inline-size: 0;
+  }
+
+  /* reduced-motion / JS yok: sabitleme yok, metin videonun üzerinde okunur */
+  :global(html.reduce) .sergi__caption,
+  :global(html:not(.js)) .sergi__caption {
+    position: relative;
+    visibility: visible;
+    inset: auto;
+    inline-size: auto;
+    padding: var(--sp-7) var(--gutter);
+  }
+  :global(html.reduce) .sergi__stage,
+  :global(html:not(.js)) .sergi__stage {
+    display: grid;
+    grid-template-rows: 100svh auto;
+  }
+  :global(html.reduce) .sergi__media,
+  :global(html:not(.js)) .sergi__media {
+    inset: 0 0 auto;
+    block-size: 100svh;
+  }
+  :global(html.reduce) .sergi__copy,
+  :global(html:not(.js)) .sergi__copy {
+    inset-block-end: auto;
+    inset-block-start: calc(100svh - var(--sp-8));
+    transform: translateY(-100%);
+  }
+</style>
+
+<script>
+  import '@/lib/sergi/sergi';
+</script>

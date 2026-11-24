@@ -1,0 +1,12 @@
+# Depo herkese açık: yalnızca site kaynağı izlenir.
+# Araştırma notları, ham medya, üretim araçları ve harcama defteri depoya girmez.
+/arastirma/
+/medya/
+/araclar/
+/.claude/
+node_modules/
+dist/
+.astro/
+*.log
+.env
+.env.*

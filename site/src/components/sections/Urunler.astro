@@ -1,0 +1,969 @@
+---
+/**
+ * Ürünler — "04 — Tek meyve, beş hâl."
+ * 1) Sabitlenmiş yatay iz (motion/horizontal.ts): beş editoryal ürün kartı + "Numune iste" kartı.
+ *    Başlık sütunu (sol) iz boyunca sabit kalır; kartlar onun altından kayar. İlerleme "02 / 05" sol altta.
+ *    Masaüstünde dikey kaydırma yatay ize çevrilir; dokunmatik/dar ekran/reduced-motion'da yerel kaydırma + snap.
+ *    Kart yığınlarının kaydırmaya bağlı dönüş/salınımı: src/lib/urunler/rail.ts
+ * 2) Kalibre: "Bir kiloda kaç tane?" — resmî boy tablosu, gerçek <input type="range">.
+ *    Tek ekranlık alet: solda başlık + okumalar, sağda sahne + 100 g kümesi + kaydırıcı.
+ *    Etkileşim + ilk görünüşte kısa tanıtım: src/lib/urunler/kalibre.ts
+ */
+import { getContent } from '@/content';
+import SectionHeading from '@/components/ui/SectionHeading.astro';
+const { urunler: c, nav } = getContent();
+const k = c.kalibre;
+
+const g0 = k.grades[k.defaultIndex] ?? k.grades[0]!;
+const gMax = k.grades[0]!.g;
+const s0 = Math.cbrt(g0.g / gMax);
+const p0 = k.defaultIndex / (k.grades.length - 1);
+const n0 = Math.round(100 / g0.g);
+const MAX_DOTS = Math.round(100 / k.grades[k.grades.length - 1]!.g) + 1;
+const fract = (x: number) => x - Math.floor(x);
+const rnd = (j: number, seed: number) => fract(Math.sin(j * 12.9898 + seed * 78.233) * 43758.5453);
+const dots = Array.from({ length: MAX_DOTS }, (_, j) => ({
+  src: `/media/kesim/kuru-${(j % 5) + 1}-500.webp`,
+  r: Math.round(rnd(j, 1) * 360),
+  ox: ((rnd(j, 2) - 0.5) * 30).toFixed(1),
+  oy: ((rnd(j, 3) - 0.5) * 30).toFixed(1),
+}));
+const valueText0 = k.valueText
+  .replace('{name}', g0.name)
+  .replace('{perKg}', g0.perKg)
+  .replace('{grams}', g0.grams)
+  .replace('{per100}', g0.per100);
+const total = String(c.products.length).padStart(2, '0');
+---
+
+<section id="urunler" class="section urunler" data-sky="bark" aria-labelledby="urunler-title">
+  <div class="urunler__rail" data-horizontal data-pin data-rail data-cursor={nav.cursor.scroll}>
+    <div class="urunler__stage" data-pin-stage>
+      <div class="urunler__aside">
+        <SectionHeading heading={c.heading} id="urunler-title" />
+        <p class="urunler__intro" data-reveal="lines">{c.intro}</p>
+      </div>
+
+      <div class="urunler__track" data-horizontal-track>
+        {
+          c.products.map((p, i) => (
+            <article class="pcard" data-horizontal-card aria-labelledby={`pcard-${p.id}`}>
+              <span class="pcard__index" aria-hidden="true">
+                {p.index}
+              </span>
+              <div class="pcard__media" data-card-parallax={i % 2 ? '1.25' : '0.85'}>
+                <div class="pcard__float" data-rail-float>
+                  <img
+                    class="pcard__img"
+                    src={p.image.src}
+                    width={p.image.width}
+                    height={p.image.height}
+                    alt={p.image.alt}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </div>
+              </div>
+              <div class="pcard__body">
+                <div class="pcard__meta">
+                  <span class="label pcard__tag">{p.tag}</span>
+                  <a class="pcard__link label" href={c.end.link.href}>
+                    <span class="link">{c.sampleLink}</span>
+                    <span class="sr-only">: {p.name} {p.em}</span>
+                    <span aria-hidden="true">→</span>
+                  </a>
+                </div>
+                <h3 id={`pcard-${p.id}`} class="pcard__name">
+                  <span class="sr-only">{p.index} — </span>
+                  {p.name} <em>{p.em}</em>
+                </h3>
+                <p class="pcard__desc">{p.desc}</p>
+                <dl class="pcard__specs">
+                  {
+                    p.specs.map((s) => (
+                      <div class="pcard__spec">
+                        <dt>{s.k}</dt>
+                        <dd>{s.v}</dd>
+                      </div>
+                    ))
+                  }
+                </dl>
+              </div>
+            </article>
+          ))
+        }
+        <a class="pcard-end" href={c.end.link.href} data-cursor="">
+          <span class="pcard-end__fill" aria-hidden="true"></span>
+          <span class="label pcard-end__kicker">{c.end.kicker}</span>
+          <span class="pcard-end__title">
+            {c.end.title} <em>{c.end.em}</em>
+            <span class="pcard-end__arrow" aria-hidden="true">→</span>
+          </span>
+        </a>
+      </div>
+
+      <div class="urunler__hud" aria-hidden="true">
+        <span class="urunler__count" data-horizontal-progress>01 / {total}</span>
+        <span class="urunler__bar"><span class="urunler__bar-fill" data-horizontal-bar></span></span>
+        <span class="label urunler__hint">{c.scrollHint} <span class="urunler__hint-arrow">→</span></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <p class="t-sm urunler__note">{c.note}</p>
+  </div>
+
+  <!-- KALİBRE ------------------------------------------------------------- -->
+  <div
+    class="container kalibre"
+    data-kalibre
+    data-grades={JSON.stringify(k.grades)}
+    data-value-text={k.valueText}
+    style={`--s:${s0.toFixed(4)}; --p:${p0.toFixed(4)}; --k:${k.defaultIndex}`}
+    role="group"
+    aria-labelledby="kalibre-title"
+  >
+    <div class="kalibre__grid">
+      <div class="kalibre__copy">
+        <p class="section-label label kalibre__label" aria-hidden="true">
+          <span class="section-label__no">{k.label}</span>
+          <span class="section-label__rule"></span>
+        </p>
+        <h3 id="kalibre-title" class="kalibre__title" data-reveal="lines">
+          {k.title} <em>{k.em}</em>
+        </h3>
+        <p class="kalibre__rule">{k.rule}</p>
+        <p class="kalibre__body">{k.body}</p>
+
+        <dl class="kalibre__readouts">
+          <div class="kalibre__readout kalibre__readout--main">
+            <dt class="label">{k.perKgUnit}</dt>
+            <dd class="kalibre__big"><span class="kalibre__swap" data-k-perkg>{g0.perKg}</span></dd>
+          </div>
+          <div class="kalibre__readout">
+            <dt class="label">{k.gramsUnit}</dt>
+            <dd class="kalibre__mid"><span class="kalibre__swap" data-k-grams>{g0.grams}</span></dd>
+          </div>
+          <div class="kalibre__readout">
+            <dt class="label">{k.per100Unit}</dt>
+            <dd class="kalibre__mid"><span class="kalibre__swap" data-k-per100>{g0.per100}</span></dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class="kalibre__lab" data-k-lab>
+        <div class="kalibre__stage" aria-hidden="true">
+          <span class="kalibre__ghost"><span class="kalibre__swap" data-k-name>{g0.name}</span></span>
+          <span class="kalibre__ring"><span class="label kalibre__ring-label">{k.jumboRing}</span></span>
+          <img
+            class="kalibre__piece"
+            src="/media/kesim/kuru-3-1000.webp"
+            width="705"
+            height="745"
+            alt=""
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+
+        <div class="kalibre__cluster-wrap" aria-hidden="true">
+          <p class="label kalibre__cluster-label">
+            {k.clusterLabel} · <span class="kalibre__swap" data-k-per100>{g0.per100}</span>
+            {' '}tane
+          </p>
+          <div class="kalibre__cluster">
+            {
+              dots.map((d, j) => (
+                <span
+                  class:list={['kalibre__dot', { 'is-on': j < n0 }]}
+                  data-k-dot
+                  style={`--r:${d.r}deg; --ox:${d.ox}%; --oy:${d.oy}%`}
+                >
+                  <img src={d.src} width="460" height="500" alt="" loading="lazy" decoding="async" />
+                </span>
+              ))
+            }
+          </div>
+        </div>
+
+        <div class="kalibre__control">
+          <label class="label kalibre__control-label" for="kalibre-range">{k.sliderLabel}</label>
+          <div class="kalibre__slider">
+            <input
+              id="kalibre-range"
+              class="kalibre__range"
+              type="range"
+              min="0"
+              max={k.grades.length - 1}
+              step="1"
+              value={k.defaultIndex}
+              aria-valuetext={valueText0}
+              data-k-range
+            />
+            <ol class="kalibre__ticks" aria-hidden="true">
+              {
+                k.grades.map((g, i) => (
+                  <li
+                    class:list={['kalibre__tick', { 'is-active': i === k.defaultIndex }]}
+                    style={`--i:${i}`}
+                    data-k-tick={i}
+                  >
+                    <span class="kalibre__tick-long">{g.name}</span>
+                    <span class="kalibre__tick-short">{i === 0 ? 'J' : g.no}</span>
+                  </li>
+                ))
+              }
+            </ol>
+          </div>
+        </div>
+      </div>
+      <p class="t-sm kalibre__source">{k.source}</p>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* ======================================================================
+     YATAY İZ
+     Masaüstü (sabit): sahne = 100lvh. Sol sütun (başlık + giriş + ilerleme) üstte sabit,
+     iz tam genişlikte ve onun altından kayar. Kartlar sahnenin altına oturur.
+     ====================================================================== */
+  .urunler {
+    padding-block-end: var(--sp-8);
+  }
+  .urunler__stage {
+    --aside: clamp(17rem, 27vw, 29rem);
+    --card-h: min(80lvh, 780px, calc(100lvh - var(--nav-h) - 7rem));
+    --card-w: clamp(300px, 29vw, 500px);
+    --lift: 0.075; /* foto, kartın üst kenarından kart yüksekliğinin bu oranı kadar taşar */
+    /* konum: base.css [data-pin-stage] sticky — burada ezilmez */
+  }
+
+  /* --- sol sütun -------------------------------------------------------- */
+  .urunler__aside {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    z-index: 2;
+    inline-size: var(--aside);
+    display: grid;
+    align-content: start;
+    gap: var(--sp-5);
+    padding: calc(var(--nav-h) + var(--sp-7)) calc(var(--sp-7) + var(--sp-2)) 0 var(--gutter);
+    /* kartlar bu sütunun altından geçer: zemin rengiyle yumuşak kesim */
+    background: linear-gradient(
+      to right,
+      var(--bg) 0,
+      var(--bg) calc(100% - var(--sp-7)),
+      color-mix(in srgb, var(--bg) 0%, transparent) 100%
+    );
+    pointer-events: none;
+  }
+  .urunler__aside > * {
+    pointer-events: auto;
+  }
+  .urunler__aside :global(.section-heading__title) {
+    font-size: clamp(2.5rem, 3.9vw, 4.75rem);
+    line-height: 0.95;
+    max-inline-size: 9ch;
+  }
+  .urunler__intro {
+    color: var(--muted);
+    font-size: var(--fs-body);
+    line-height: var(--lh-body);
+    max-inline-size: 30ch;
+  }
+
+  /* --- iz + kartlar ---------------------------------------------------- */
+  .urunler__track {
+    --h-gap: clamp(1rem, 1.8vw, 2.25rem);
+    position: relative;
+    z-index: 1;
+    align-items: flex-end;
+    padding-inline-start: calc(var(--aside) + var(--sp-2));
+    padding-block-end: var(--sp-6);
+  }
+  .pcard {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto;
+    inline-size: var(--card-w);
+    block-size: var(--card-h);
+    padding: var(--sp-5);
+    border-radius: var(--r-lg);
+    background:
+      radial-gradient(75% 52% at 50% 30%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 72%),
+      color-mix(in srgb, var(--fg) 4%, transparent);
+    box-shadow: inset 0 0 0 1px var(--line);
+  }
+  .pcard::before {
+    /* hover'da güneş lekesi koyulaşır (yalnız opacity) */
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: radial-gradient(70% 50% at 50% 34%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 70%);
+    opacity: 0;
+    transition: opacity var(--dur-3) var(--ease-out);
+  }
+  .pcard:hover::before,
+  .pcard:focus-within::before {
+    opacity: 1;
+  }
+  .pcard__index {
+    position: absolute;
+    inset-block-start: var(--sp-4);
+    inset-inline-start: var(--sp-5);
+    z-index: 3; /* yığının önünde: yalnız kontur, meyveyi örtmez */
+    pointer-events: none;
+    font-family: var(--font-mono);
+    font-size: clamp(4.5rem, min(8vw, 13lvh), 9rem);
+    font-weight: 300;
+    line-height: 0.8;
+    letter-spacing: -0.06em;
+    color: transparent;
+    -webkit-text-stroke: 1.25px color-mix(in srgb, var(--fg) 70%, transparent);
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35));
+    transition: transform var(--dur-3) var(--ease-sun);
+  }
+  .pcard:hover .pcard__index,
+  .pcard:focus-within .pcard__index {
+    transform: translateY(-6%);
+  }
+  .pcard__media {
+    position: relative;
+    z-index: 1;
+    min-block-size: 0;
+  }
+  .pcard__float {
+    /* kart üst kenarından taşar; dönüş/salınım rail.ts'ten (yalnız transform) */
+    position: absolute;
+    inset-inline: -8%;
+    inset-block-start: calc(-1 * (var(--sp-5) + var(--card-h) * var(--lift)));
+    inset-block-end: var(--sp-2);
+    transform-origin: 50% 75%;
+  }
+  .pcard__img {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: contain;
+    object-position: 50% 100%;
+    filter: drop-shadow(0 26px 30px rgba(0, 0, 0, 0.55));
+    transition:
+      transform var(--dur-4) var(--ease-sun),
+      filter var(--dur-4) var(--ease-sun);
+  }
+  .pcard:hover .pcard__img,
+  .pcard:focus-within .pcard__img {
+    transform: translateY(-4%) scale(1.045) rotate(-1.5deg);
+    filter: drop-shadow(0 46px 44px rgba(0, 0, 0, 0.62));
+  }
+  .pcard__body {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    gap: var(--sp-2);
+    padding-block-start: var(--sp-3);
+  }
+  .pcard__meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-3);
+    margin-block-end: calc(-1 * var(--sp-2));
+  }
+  .pcard__tag {
+    color: var(--accent);
+  }
+  .pcard__link {
+    display: inline-flex;
+    gap: 0.6em;
+    align-items: center;
+    min-block-size: 2.75rem;
+    color: var(--fg);
+  }
+  .pcard__name {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, min(3.3vw, 5.8lvh), 3.75rem);
+    font-weight: 380;
+    line-height: 0.95;
+    letter-spacing: var(--ls-display);
+    --soft: 70;
+  }
+  .pcard__name em {
+    display: block;
+    color: var(--accent);
+    font-weight: 330;
+  }
+  .pcard__desc {
+    color: var(--muted);
+    font-size: max(0.9375rem, var(--fs-sm));
+    line-height: 1.35;
+    max-inline-size: 38ch;
+  }
+  .pcard__specs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: var(--sp-4);
+    margin-block-start: var(--sp-1);
+  }
+  .pcard__spec {
+    display: grid;
+    align-content: start;
+    gap: 0.2em;
+    padding-block: 0.5em 0.4em;
+    border-block-start: 1px solid var(--line);
+    font-family: var(--font-mono);
+    line-height: 1.3;
+  }
+  .pcard__spec dt {
+    color: var(--muted);
+    font-size: max(0.6875rem, var(--fs-label));
+    text-transform: uppercase;
+    letter-spacing: var(--ls-label);
+  }
+  .pcard__spec dd {
+    font-size: 0.875rem;
+  }
+
+  .pcard-end {
+    position: relative;
+    display: grid;
+    align-content: space-between;
+    inline-size: clamp(280px, 24vw, 420px);
+    block-size: var(--card-h);
+    padding: var(--sp-6);
+    border-radius: var(--r-lg);
+    overflow: clip;
+    isolation: isolate;
+    background: var(--c-apricot);
+    color: var(--c-night);
+  }
+  .pcard-end__fill {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--c-honey);
+    border-radius: 50%;
+    transform: translateY(70%) scale(0.4);
+    opacity: 0;
+    transition:
+      transform var(--dur-4) var(--ease-sun),
+      opacity var(--dur-3) var(--ease-out);
+  }
+  .pcard-end:hover .pcard-end__fill,
+  .pcard-end:focus-visible .pcard-end__fill {
+    transform: translateY(20%) scale(2.2);
+    opacity: 1;
+  }
+  .pcard-end__kicker {
+    color: var(--c-night);
+  }
+  .pcard-end__title {
+    font-family: var(--font-display);
+    font-size: clamp(3.5rem, min(8vw, 14lvh), 9rem);
+    font-weight: 360;
+    line-height: 0.9;
+    letter-spacing: var(--ls-display);
+    --soft: 100;
+  }
+  .pcard-end__title em {
+    display: block;
+  }
+  .pcard-end__arrow {
+    display: inline-block;
+    transition: transform var(--dur-3) var(--ease-sun);
+  }
+  .pcard-end:hover .pcard-end__arrow,
+  .pcard-end:focus-visible .pcard-end__arrow {
+    transform: translateX(0.25em);
+  }
+  .pcard-end:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 4px;
+  }
+
+  /* --- ilerleme (sol sütunun altında) ---------------------------------- */
+  .urunler__hud {
+    position: absolute;
+    inset-inline-start: var(--gutter);
+    inset-block-end: var(--sp-6);
+    z-index: 3;
+    inline-size: calc(var(--aside) - var(--gutter) - var(--sp-7) - var(--sp-2));
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: var(--sp-3) var(--sp-4);
+    color: var(--muted);
+  }
+  .urunler__count {
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    letter-spacing: 0.08em;
+    font-variant-numeric: tabular-nums;
+    color: var(--fg);
+  }
+  .urunler__bar {
+    position: relative;
+    block-size: 1px;
+    background: var(--line);
+  }
+  .urunler__bar-fill {
+    position: absolute;
+    inset: 0;
+    background: var(--accent);
+  }
+  .urunler__hint {
+    grid-column: 1 / -1;
+  }
+  .urunler__hint-arrow {
+    display: inline-block;
+    animation: urunler-nudge 2.4s var(--ease-in-out) infinite;
+  }
+  @keyframes urunler-nudge {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(0.4em); }
+  }
+
+  /* --- yerel yatay kaydırma (dokunmatik / dar / reduced-motion) -------- */
+  .urunler__rail.is-native .urunler__stage {
+    display: grid;
+    padding-block: 0 var(--sp-4);
+  }
+  .urunler__rail.is-native .urunler__aside {
+    position: static;
+    inline-size: auto;
+    padding: 0 var(--gutter) var(--sp-4);
+    background: none;
+  }
+  .urunler__rail.is-native .urunler__track {
+    padding-inline-start: var(--gutter);
+    padding-block: 3.25rem var(--sp-3);
+    align-items: stretch;
+  }
+  .urunler__rail.is-native .pcard {
+    inline-size: min(82vw, 400px);
+    block-size: auto;
+    grid-template-rows: auto auto;
+  }
+  .urunler__rail.is-native .pcard__media {
+    block-size: min(40svh, 340px);
+  }
+  .urunler__rail.is-native .pcard__float {
+    inset-block-start: calc(-1 * var(--sp-5) - 2.5rem);
+  }
+  .urunler__rail.is-native .pcard-end {
+    inline-size: min(72vw, 360px);
+    block-size: auto;
+    min-block-size: 22rem;
+    scroll-snap-align: start;
+  }
+  .urunler__rail.is-native .urunler__hud {
+    position: static;
+    inline-size: auto;
+    padding-inline: var(--gutter);
+    padding-block-start: var(--sp-3);
+  }
+  .urunler__rail.is-native .urunler__hint {
+    display: none;
+  }
+  :global(html:not(.js)) .urunler__rail [data-horizontal-track] {
+    overflow-x: auto;
+    inline-size: 100%;
+  }
+
+  .urunler__note {
+    color: var(--muted);
+    padding-block-start: var(--sp-5);
+    max-inline-size: 60ch;
+  }
+
+  /* ======================================================================
+     KALİBRE — tek ekranlık alet
+     ====================================================================== */
+  .kalibre {
+    display: grid;
+    align-content: center;
+    min-block-size: 100lvh;
+    padding-block: calc(var(--nav-h) + var(--sp-4)) var(--sp-5);
+    margin-block-start: var(--sp-8);
+  }
+  .kalibre__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    grid-template-areas:
+      'copy lab'
+      'source source';
+    gap: var(--sp-4) clamp(2rem, 5vw, 6rem);
+    align-items: center;
+  }
+  .kalibre__copy {
+    grid-area: copy;
+    display: grid;
+    gap: var(--sp-4);
+    align-content: center;
+  }
+  .kalibre__lab {
+    grid-area: lab;
+    display: grid;
+    gap: var(--sp-4);
+  }
+  .kalibre__label .section-label__no {
+    color: var(--accent);
+  }
+  .kalibre__title {
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 5vw, 5rem);
+    font-weight: 360;
+    line-height: 0.95;
+    letter-spacing: var(--ls-display);
+    --soft: 80;
+  }
+  .kalibre__title em {
+    display: block;
+    color: var(--accent);
+    --wonk: 1;
+  }
+  .kalibre__rule {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: clamp(1.25rem, 1.9vw, 1.875rem);
+    line-height: 1.15;
+    --soft: 100;
+  }
+  .kalibre__body {
+    color: var(--muted);
+    max-inline-size: 44ch;
+  }
+  .kalibre__readouts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--sp-4) var(--sp-6);
+    margin-block-start: var(--sp-2);
+    padding-block-start: var(--sp-4);
+    border-block-start: 1px solid var(--line);
+  }
+  .kalibre__readout--main {
+    grid-column: 1 / -1;
+  }
+  .kalibre__readout dt {
+    color: var(--muted);
+  }
+  .kalibre__readout dd {
+    overflow: clip;
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.045em;
+    line-height: 1;
+    padding-block: 0.08em;
+  }
+  .kalibre__big {
+    font-size: clamp(3rem, min(6.4vw, 11lvh), 6.5rem);
+    font-weight: 300;
+    color: var(--fg);
+  }
+  .kalibre__mid {
+    font-size: clamp(1.5rem, 2.4vw, 2.4rem);
+    font-weight: 350;
+  }
+  .kalibre__swap {
+    display: inline-block;
+  }
+
+  /* --- sahne ------------------------------------------------------------ */
+  .kalibre__stage {
+    position: relative;
+    display: grid;
+    place-items: center;
+    block-size: clamp(220px, 40lvh, 440px);
+    inline-size: 100%;
+    isolation: isolate;
+  }
+  .kalibre__ghost {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    z-index: -1;
+    overflow: clip;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: clamp(5rem, min(13vw, 30lvh), 15rem);
+    font-weight: 300;
+    letter-spacing: -0.05em;
+    color: color-mix(in srgb, var(--fg) 7%, transparent);
+    --soft: 100;
+  }
+  .kalibre__ring {
+    position: absolute;
+    block-size: 88%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    border: 1px dashed color-mix(in srgb, var(--fg) 30%, transparent);
+  }
+  .kalibre__ring-label {
+    position: absolute;
+    inset-block-start: -1.7em;
+    inset-inline-start: 50%;
+    transform: translateX(-50%);
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .kalibre__piece {
+    /* Jumbo (--s:1) halkayı doldurur; diğer boylar çap ∝ ∛kütle */
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    block-size: 84%;
+    inline-size: auto;
+    max-inline-size: none;
+    filter: drop-shadow(0 26px 26px rgba(0, 0, 0, 0.55));
+    transform: scale(var(--s)) rotate(calc(var(--k) * -5deg));
+    transition: transform var(--dur-4) var(--ease-sun);
+    will-change: transform;
+  }
+
+  /* --- 100 g kümesi ---------------------------------------------------- */
+  .kalibre__cluster-wrap {
+    display: grid;
+    gap: var(--sp-2);
+  }
+  .kalibre__cluster-label {
+    color: var(--muted);
+  }
+  .kalibre__cluster {
+    --dot: clamp(24px, min(2.5vw, 4.4lvh), 40px);
+    display: grid;
+    grid-template-columns: repeat(13, var(--dot));
+    gap: 2px;
+    min-block-size: calc(var(--dot) * 2 + 2px);
+  }
+  .kalibre__dot {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 1;
+    opacity: 0;
+    transform: translate(var(--ox), var(--oy)) rotate(var(--r)) scale(0.2);
+    transition:
+      transform var(--dur-4) var(--ease-sun) var(--d, 0ms),
+      opacity var(--dur-2) var(--ease-out) var(--d, 0ms);
+  }
+  .kalibre__dot.is-on {
+    opacity: 1;
+    transform: translate(var(--ox), var(--oy)) rotate(var(--r)) scale(calc(var(--s) * 0.95));
+  }
+  .kalibre__dot img {
+    inline-size: 100%;
+    block-size: auto;
+    filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.45));
+  }
+
+  /* --- kaydırıcı: güneş topu ------------------------------------------- */
+  .kalibre__control {
+    display: grid;
+    gap: var(--sp-1);
+  }
+  .kalibre__control-label {
+    color: var(--muted);
+  }
+  .kalibre__slider {
+    --thumb: 32px;
+    --track: 4px;
+    --fill: calc(var(--thumb) / 2 + var(--p) * (100% - var(--thumb)));
+    position: relative;
+    padding-block-end: 2.1rem;
+  }
+  .kalibre__range {
+    appearance: none;
+    -webkit-appearance: none;
+    display: block;
+    inline-size: 100%;
+    block-size: 48px; /* dokunma alanı ≥ 44px */
+    margin: 0;
+    background: transparent;
+    cursor: pointer;
+    touch-action: pan-y;
+  }
+  .kalibre__range:focus-visible {
+    outline: none;
+  }
+  .kalibre__range::-webkit-slider-runnable-track {
+    block-size: var(--track);
+    border-radius: var(--r-pill);
+    background: linear-gradient(to right, var(--c-amber) var(--fill), var(--line) var(--fill));
+  }
+  .kalibre__range::-moz-range-track {
+    block-size: var(--track);
+    border-radius: var(--r-pill);
+    background: var(--line);
+  }
+  .kalibre__range::-moz-range-progress {
+    block-size: var(--track);
+    border-radius: var(--r-pill);
+    background: var(--c-amber);
+  }
+  .kalibre__range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    inline-size: var(--thumb);
+    block-size: var(--thumb);
+    margin-block-start: calc(var(--track) / 2 - var(--thumb) / 2);
+    border: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle at 38% 34%, var(--c-honey), var(--c-apricot) 62%, #d9711a);
+    box-shadow:
+      0 0 0 6px color-mix(in srgb, var(--c-apricot) 22%, transparent),
+      0 0 26px 4px color-mix(in srgb, var(--c-apricot) 45%, transparent);
+    transition:
+      transform var(--dur-2) var(--ease-out),
+      box-shadow var(--dur-2) var(--ease-out);
+  }
+  .kalibre__range::-moz-range-thumb {
+    inline-size: var(--thumb);
+    block-size: var(--thumb);
+    border: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle at 38% 34%, var(--c-honey), var(--c-apricot) 62%, #d9711a);
+    box-shadow:
+      0 0 0 6px color-mix(in srgb, var(--c-apricot) 22%, transparent),
+      0 0 26px 4px color-mix(in srgb, var(--c-apricot) 45%, transparent);
+    transition: transform var(--dur-2) var(--ease-out);
+  }
+  .kalibre__range:hover::-webkit-slider-thumb,
+  .kalibre__range:active::-webkit-slider-thumb {
+    transform: scale(1.12);
+  }
+  .kalibre__range:hover::-moz-range-thumb,
+  .kalibre__range:active::-moz-range-thumb {
+    transform: scale(1.12);
+  }
+  .kalibre__range:focus-visible::-webkit-slider-thumb {
+    box-shadow:
+      0 0 0 3px var(--bg),
+      0 0 0 6px var(--focus),
+      0 0 26px 6px color-mix(in srgb, var(--c-apricot) 50%, transparent);
+  }
+  .kalibre__range:focus-visible::-moz-range-thumb {
+    box-shadow:
+      0 0 0 3px var(--bg),
+      0 0 0 6px var(--focus),
+      0 0 26px 6px color-mix(in srgb, var(--c-apricot) 50%, transparent);
+  }
+  .kalibre__ticks {
+    position: absolute;
+    inset-inline: 0;
+    inset-block-end: 0;
+    block-size: 1.9rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .kalibre__tick {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: calc(var(--thumb) / 2 + (100% - var(--thumb)) * var(--i) / 8);
+    transform: translateX(-50%);
+    padding: 0.35em 0.25em;
+    font-family: var(--font-mono);
+    font-size: max(0.6875rem, var(--fs-label));
+    letter-spacing: var(--ls-label);
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    transition: transform var(--dur-2) var(--ease-out);
+  }
+  .kalibre__tick.is-active {
+    color: var(--c-honey);
+    transform: translateX(-50%) translateY(-2px);
+  }
+  .kalibre__tick-short {
+    display: none;
+  }
+  .kalibre__source {
+    grid-area: source;
+    color: var(--muted);
+    max-inline-size: 70ch;
+    margin-block-start: var(--sp-2);
+  }
+
+  /* --- dar ekran: sahne önce, kaydırıcı başparmakta, okumalar altta ---- */
+  @media (max-width: 899.98px) {
+    .kalibre__tick-long {
+      display: none;
+    }
+    .kalibre__tick-short {
+      display: inline;
+    }
+    .kalibre {
+      min-block-size: 0;
+      padding-block: var(--sp-6) var(--sp-5);
+      margin-block-start: var(--sp-6);
+    }
+    .kalibre__grid {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: var(--sp-4);
+    }
+    .kalibre__copy,
+    .kalibre__lab {
+      display: contents;
+    }
+    .kalibre__label { order: 1; }
+    .kalibre__title { order: 2; }
+    .kalibre__rule { order: 3; }
+    .kalibre__stage { order: 4; }
+    .kalibre__control { order: 5; }
+    .kalibre__readouts { order: 6; }
+    .kalibre__cluster-wrap { order: 7; }
+    .kalibre__body { order: 8; }
+    .kalibre__source { order: 9; }
+    .kalibre__stage {
+      block-size: min(62vw, 34svh);
+    }
+    .kalibre__title {
+      font-size: clamp(2.5rem, 10vw, 3.5rem);
+    }
+    .kalibre__readouts {
+      margin-block-start: 0;
+      grid-template-columns: 1.3fr 1fr 1fr;
+      align-items: end;
+      gap: var(--sp-3);
+    }
+    .kalibre__readout--main {
+      grid-column: auto;
+    }
+    .kalibre__big {
+      font-size: clamp(1.75rem, 8vw, 2.5rem);
+    }
+    .kalibre__mid {
+      font-size: clamp(1.125rem, 4.6vw, 1.5rem);
+    }
+    .kalibre__cluster {
+      --dot: clamp(24px, 7vw, 34px);
+      grid-template-columns: repeat(auto-fill, var(--dot));
+      min-block-size: 0;
+    }
+  }
+
+  :global(html.reduce) .kalibre__piece,
+  :global(html.reduce) .kalibre__dot,
+  :global(html.reduce) .pcard__img,
+  :global(html.reduce) .pcard-end__fill {
+    transition-duration: 1ms;
+    transition-delay: 0ms;
+  }
+  :global(html.reduce) .urunler__hint-arrow {
+    animation: none;
+  }
+</style>
+
+<script>
+  import '@/lib/urunler/rail';
+  import '@/lib/urunler/kalibre';
+</script>

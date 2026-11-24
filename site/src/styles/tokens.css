@@ -1,0 +1,199 @@
+/* ==========================================================================
+   Ahsen Kayısı — tasarım belirteçleri (design tokens)
+   "Güneşin Meyvesi": sayfa Malatya'da tek bir gün. Renkler gökyüzüne göre akar.
+   Kaynak: arastirma/04-uiux-promax.md §4–5 (kontrast düzeltmeleri dahil).
+   Bu dosya yalnızca custom property tanımlar; kural yazılmaz.
+   ========================================================================== */
+
+:root {
+  /* --- Palet (ham renkler, v0) ------------------------------------------- */
+  --c-night: #140b07; /* gece-toprağı */
+  --c-night-soil: var(--c-night); /* eski ad, geriye uyum */
+  --c-bark: #2a1710;
+  --c-dusk: #3a1c14;
+  --c-apricot: #f28c28;
+  --c-amber: #e9a23b;
+  --c-honey: #f6c56b;
+  --c-cream: #f6ebdd;
+  --c-bone: #ede2d0;
+  --c-leaf: #3f5b3a;
+  --c-blossom: #f4d9d0;
+
+  /* --- Kontrast yardımcıları (rapor §4.2, F1–F8) -------------------------- */
+  --c-apricot-deep: #8f4a0b; /* açık zeminde kayısı tonlu METİN/bağlantı (≥4,98:1) */
+  --c-apricot-strong: #c3660c; /* açık zeminde yalnızca ≥24px başlık, ikon, çizgi (≥3:1) */
+  --c-sage: #7fa06e; /* koyu zeminde yeşil metin/ikon */
+  --c-ink-muted-dark: #b2a89d; /* koyu zeminde ikincil metin (opaklık KULLANMA) */
+  --c-ink-muted-light: #67574e; /* açık zeminde ikincil metin */
+  --c-line-dark: rgba(246, 235, 221, 0.16);
+  --c-line-light: rgba(42, 23, 16, 0.16);
+  --c-field-border-dark: #857b72;
+  --c-field-border-light: #908176;
+  --scrim: linear-gradient(to top, rgba(20, 11, 7, 0.78), rgba(20, 11, 7, 0) 60%);
+  --scrim-strong: linear-gradient(to top, rgba(20, 11, 7, 0.86) 0%, rgba(20, 11, 7, 0.5) 38%, rgba(20, 11, 7, 0) 72%);
+
+  /* Hero → Sergi eşleşme kesmesinin "güneş" rengi (iki bölüm de bunu okur) */
+  --sun: #e98a26;
+  --sun-core: #f6b04e;
+
+  /* --- Canlı tema (daylight.ts <html> üzerinde enterpolasyonla yazar) ----- */
+  --bg: var(--c-night);
+  --fg: var(--c-cream);
+  --accent: var(--c-apricot);
+  --muted: var(--c-ink-muted-dark);
+  --grain: 0.11;
+  --line: color-mix(in srgb, var(--fg) 16%, transparent);
+  --surface: color-mix(in srgb, var(--fg) 6%, var(--bg));
+  --focus: var(--c-honey);
+
+  /* --- Tipografi ---------------------------------------------------------- */
+  --font-display: 'Fraunces Variable', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+  --font-sans: 'Instrument Sans Variable', 'Helvetica Neue', Arial, system-ui, sans-serif;
+  --font-mono: 'Geist Mono Variable', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+
+  /* Fraunces eksenleri — başlıklar bu değişkenleri okur */
+  --soft: 50; /* SOFT 0–100 */
+  --wonk: 0; /* WONK 0|1 */
+
+  /* Akışkan ölçek: 375px → 1920px. rem + vw (zoom'a saygılı) */
+  --fs-label: clamp(0.6875rem, 0.66rem + 0.11vw, 0.8125rem); /* 11 → 13 */
+  --fs-sm: clamp(0.8125rem, 0.78rem + 0.13vw, 0.9375rem); /* 13 → 15 */
+  --fs-body: clamp(1rem, 0.96rem + 0.16vw, 1.1875rem); /* 16 → 19 */
+  --fs-lead: clamp(1.1875rem, 1.03rem + 0.65vw, 1.8125rem); /* 19 → 29 */
+  --fs-h4: clamp(1.375rem, 1.13rem + 1.04vw, 2.375rem); /* 22 → 38 */
+  --fs-h3: clamp(1.75rem, 1.2rem + 2.33vw, 4rem); /* 28 → 64 */
+  --fs-h2: clamp(2.5rem, 1.37rem + 4.79vw, 7.125rem); /* 40 → 114 */
+  --fs-h1: clamp(3.25rem, 1.42rem + 7.77vw, 10.75rem); /* 52 → 172 */
+  --fs-display: clamp(4rem, 0.94rem + 13.07vw, 16.625rem); /* 64 → 266 */
+  --fs-display-xl: clamp(4.75rem, 1.2rem + 15.2vw, 19.5rem); /* 76 → 312 (hero) */
+  --fs-mega: clamp(5rem, 0.23rem + 20.3vw, 24.5rem); /* 80 → 392 (footer wordmark) */
+
+  --lh-tight: 0.86;
+  --lh-snug: 1.02;
+  --lh-heading: 1.12;
+  --lh-body: 1.55;
+  --ls-display: -0.035em;
+  --ls-heading: -0.02em;
+  --ls-label: 0.09em;
+  --measure: 62ch;
+
+  /* --- Boşluk ------------------------------------------------------------- */
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-5: 1.5rem;
+  --sp-6: 2rem;
+  --sp-7: clamp(2.5rem, 2.14rem + 1.55vw, 4rem);
+  --sp-8: clamp(3.5rem, 2.89rem + 2.59vw, 6rem);
+  --sp-9: clamp(5rem, 3.79rem + 5.18vw, 10rem);
+  --sp-10: clamp(7rem, 4.82rem + 9.32vw, 16rem);
+  --gutter: clamp(1rem, 0.4rem + 2.6vw, 4rem); /* sayfa kenarı: 390px'te 16px */
+  --gap: clamp(0.75rem, 0.57rem + 0.78vw, 1.5rem); /* ızgara oluğu */
+  --section-y: var(--sp-10);
+  --nav-h: clamp(4.25rem, 3.9rem + 1.5vw, 5.75rem);
+
+  /* --- Yarıçap ------------------------------------------------------------ */
+  --r-xs: 4px;
+  --r-sm: 8px;
+  --r-md: 16px;
+  --r-media: 24px; /* medya çerçevesi */
+  --r-lg: 28px;
+  --r-xl: 44px;
+  --r-pill: 999px;
+
+  /* --- Katman sırası (tek ölçek) ------------------------------------------ */
+  --z-below: -1;
+  --z-base: 0;
+  --z-raised: 10;
+  --z-sticky: 100;
+  --z-nav: 500;
+  --z-sunarc: 510;
+  --z-menu: 700;
+  --z-grain: 900;
+  --z-cursor: 950;
+  --z-preloader: 1000;
+
+  /* --- Hareket ------------------------------------------------------------ */
+  --ease-sun: cubic-bezier(0.16, 1, 0.3, 1); /* expo-out: imza eğri */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in: cubic-bezier(0.64, 0, 0.78, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-1: 150ms; /* mikro: renk, opaklık */
+  --dur-2: 300ms; /* arayüz */
+  --dur-3: 600ms; /* açılım */
+  --dur-4: 900ms; /* büyük açılım */
+  --dur-5: 1600ms; /* sahne */
+}
+
+/* --------------------------------------------------------------------------
+   Gökyüzü temaları. Her <section data-sky="…"> bu değişkenleri taşır;
+   daylight.ts bunları okur ve <html> üzerindeki --bg/--fg/--accent/--muted/
+   --grain değerlerini kaydırmaya göre karıştırır. Değerler HEX olmalı.
+   Bölüm bazında ezmek serbest: <section data-sky="golden" style="--sky-bg:#f0b450">
+   -------------------------------------------------------------------------- */
+[data-sky='void'] {
+  --sky-bg: #140b07;
+  --sky-fg: #f6ebdd;
+  --sky-accent: #f28c28;
+  --sky-muted: #b2a89d;
+  --sky-focus: #f6c56b;
+  --sky-grain: 0.12;
+}
+[data-sky='blossom'] {
+  --sky-bg: #f4d9d0;
+  --sky-fg: #140b07;
+  --sky-accent: #8f4a0b;
+  --sky-muted: #67574e;
+  --sky-focus: #140b07;
+  --sky-grain: 0.06;
+}
+[data-sky='cream'] {
+  --sky-bg: #f6ebdd;
+  --sky-fg: #140b07;
+  --sky-accent: #8f4a0b;
+  --sky-muted: #67574e;
+  --sky-focus: #140b07;
+  --sky-grain: 0.06;
+}
+[data-sky='bone'] {
+  --sky-bg: #ede2d0;
+  --sky-fg: #140b07;
+  --sky-accent: #8f4a0b;
+  --sky-muted: #67574e;
+  --sky-focus: #140b07;
+  --sky-grain: 0.06;
+}
+[data-sky='golden'] {
+  --sky-bg: #e9a23b;
+  --sky-fg: #140b07;
+  --sky-accent: #2a1710;
+  --sky-muted: #2a1710;
+  --sky-focus: #140b07;
+  --sky-grain: 0.08;
+}
+[data-sky='bark'] {
+  --sky-bg: #2a1710;
+  --sky-fg: #f6ebdd;
+  --sky-accent: #f6c56b;
+  --sky-muted: #b2a89d;
+  --sky-focus: #f6c56b;
+  --sky-grain: 0.1;
+}
+[data-sky='dusk'] {
+  --sky-bg: #3a1c14;
+  --sky-fg: #f6e3cf;
+  --sky-accent: #f6c56b;
+  --sky-muted: #b9aa9c;
+  --sky-focus: #f6c56b;
+  --sky-grain: 0.11;
+}
+[data-sky='night'] {
+  --sky-bg: #140b07;
+  --sky-fg: #f6ebdd;
+  --sky-accent: #e9a23b;
+  --sky-muted: #b2a89d;
+  --sky-focus: #f6c56b;
+  --sky-grain: 0.12;
+}

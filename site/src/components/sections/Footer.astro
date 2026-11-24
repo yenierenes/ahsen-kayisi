@@ -1,0 +1,342 @@
+---
+/**
+ * Footer — gün batımı: gece-toprağından ufka akan sıcak gradyan, ekran genişliğine
+ * sığan dev "AHSEN" (harfler tek tek yükselir, taban çizgisinden kırpılır).
+ * Betik: src/lib/footer/footer.ts
+ */
+import { getContent } from '@/content';
+const { footer: c, nav, iletisim } = getContent();
+const year = new Date().getFullYear();
+const copyright = c.copyright.replace('{year}', String(year));
+const letters = Array.from(c.wordmark);
+---
+
+<footer id="footer" class="footer" data-sky="night" aria-label="Alt bilgi">
+  <div class="container footer__top">
+    <div class="grid footer__grid">
+      <div class="cell footer__brand" style="--col: 1 / span 5; --col-md: 1 / span 8">
+        <img
+          class="footer__logo"
+          src={c.logo.src}
+          alt={c.logo.alt}
+          width={c.logo.width}
+          height={c.logo.height}
+          loading="lazy"
+          decoding="async"
+        />
+        <p class="footer__tagline t-h4">{c.tagline}</p>
+      </div>
+
+      <nav class="cell footer__cols" style="--col: 7 / span 6; --col-md: 1 / -1" aria-label={c.sectionsLabel}>
+        <div class="footer__col">
+          <p class="label footer__label">{c.sectionsLabel}</p>
+          <ul role="list">
+            {
+              c.sections.map((l) => (
+                <li>
+                  <a class="footer__link link" href={l.href}>
+                    {l.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+
+        <div class="footer__col">
+          <p class="label footer__label" id="footer-lang">{nav.languageLabel}</p>
+          <ul role="list" aria-labelledby="footer-lang">
+            {
+              nav.languages.map((l) => (
+                <li class="footer__lang" lang={l.code.toLowerCase()}>
+                  {l.active ? (
+                    <span class="footer__link footer__link--active" aria-current="true">
+                      {l.label}
+                    </span>
+                  ) : (
+                    <span class="footer__link footer__link--soon">
+                      {l.label}
+                      <span class="footer__soon label">{nav.soonLabel}</span>
+                    </span>
+                  )}
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+
+        <div class="footer__col">
+          <p class="label footer__label">{c.contactLabel}</p>
+          <ul role="list">
+            <li>
+              <a class="footer__link link num" href={iletisim.contact.phone.href}>{iletisim.contact.phone.value}</a>
+            </li>
+            <li>
+              <a class="footer__link link" href={iletisim.contact.email.href}>{iletisim.contact.email.value}</a>
+            </li>
+          </ul>
+          {
+            c.social.length > 0 && (
+              <>
+                <p class="label footer__label footer__label--gap">{c.socialLabel}</p>
+                <ul role="list">
+                  {c.social.map((l) => (
+                    <li>
+                      <a class="footer__link link" href={l.href} rel="noopener">
+                        {l.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )
+          }
+        </div>
+      </nav>
+    </div>
+
+    <div class="footer__meta">
+      <p class="label label--plain footer__copy">
+        <span data-copyright data-template={c.copyright}>{copyright}</span>
+      </p>
+      <p class="label label--plain footer__place">{c.place}</p>
+      <button class="totop" type="button" data-to-top data-magnetic="0.25" data-cursor>
+        <span class="totop__sun" aria-hidden="true" data-magnetic-inner>
+          <svg viewBox="0 0 32 32" width="28" height="28" focusable="false">
+            <circle cx="16" cy="16" r="6" fill="currentColor"></circle>
+            <g class="totop__rays" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+              <path d="M16 2.5v4M16 25.5v4M2.5 16h4M25.5 16h4M6.5 6.5l2.8 2.8M22.7 22.7l2.8 2.8M6.5 25.5l2.8-2.8M22.7 9.3l2.8-2.8"
+              ></path>
+            </g>
+          </svg>
+        </span>
+        <span class="totop__label label">{c.toTop.label}</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="footer__horizon" data-footer-horizon>
+    <div class="footer__word" data-footer-word aria-hidden="true">
+      <span class="footer__word-inner" data-footer-word-inner>
+        {letters.map((ch, i) => <span class="footer__char" style={`--i:${i}`}>{ch}</span>)}
+      </span>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    position: relative;
+    overflow: clip;
+    padding-block-start: var(--sp-9);
+    background: var(--c-night);
+    color: var(--c-cream);
+  }
+  .footer__grid {
+    --row-gap: var(--sp-8);
+  }
+  .footer__brand {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: var(--sp-5) var(--sp-6);
+  }
+  .footer__logo {
+    flex: none;
+    inline-size: 7.5rem; /* 120px */
+    block-size: auto;
+    aspect-ratio: 240 / 115;
+  }
+  .footer__tagline {
+    flex: 1 1 14rem;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 340;
+    --soft: 90;
+    line-height: 1.08;
+    letter-spacing: var(--ls-heading);
+    max-inline-size: 18ch;
+  }
+  .footer__cols {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--sp-7) var(--gap);
+  }
+  @media (min-width: 768px) {
+    .footer__cols {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  .footer__col ul {
+    display: grid;
+    gap: var(--sp-3);
+    padding: 0;
+  }
+  .footer__label {
+    color: var(--muted);
+    margin-block-end: var(--sp-4);
+  }
+  .footer__label--gap {
+    margin-block-start: var(--sp-6);
+  }
+  .footer__link {
+    display: inline-block;
+    font-size: var(--fs-body);
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+    padding-block: 0.15em;
+  }
+  .footer__link--active {
+    color: var(--fg);
+  }
+  .footer__link--soon {
+    color: var(--muted);
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.2em 0.7em;
+  }
+  .footer__soon {
+    font-size: 0.7rem;
+    padding: 0.2em 0.6em;
+    border-radius: var(--r-pill);
+    box-shadow: inset 0 0 0 1px var(--line);
+  }
+
+  .footer__meta {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: var(--sp-5) var(--gap);
+    align-items: center;
+    margin-block-start: var(--sp-9);
+    padding-block-start: var(--sp-5);
+    border-block-start: 1px solid var(--line);
+  }
+  .footer__copy,
+  .footer__place {
+    color: var(--muted);
+    margin: 0;
+  }
+  .footer__place {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .footer__copy {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .totop {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.9em;
+    min-block-size: 3rem;
+    color: var(--c-cream);
+  }
+  .totop__sun {
+    display: grid;
+    place-items: center;
+    inline-size: 3.5rem;
+    block-size: 3.5rem;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 1px var(--c-field-border-dark);
+    color: var(--c-honey);
+    overflow: clip;
+    transition:
+      box-shadow var(--dur-3) var(--ease-sun),
+      color var(--dur-3) var(--ease-sun),
+      background-color var(--dur-3) var(--ease-sun);
+  }
+  .totop__rays {
+    transform-origin: 16px 16px;
+    transition: transform var(--dur-4) var(--ease-sun);
+  }
+  .totop:hover .totop__sun,
+  .totop:focus-visible .totop__sun {
+    background: var(--c-honey);
+    color: var(--c-night);
+    box-shadow: none;
+  }
+  .totop:hover .totop__rays,
+  .totop:focus-visible .totop__rays {
+    transform: rotate(90deg);
+  }
+  @media (min-width: 768px) {
+    .footer__meta {
+      grid-template-columns: auto 1fr auto;
+    }
+    .footer__copy {
+      grid-column: 1;
+      grid-row: 1;
+    }
+    .footer__place {
+      grid-column: 2;
+      grid-row: 1;
+      justify-self: center;
+    }
+    .totop {
+      grid-column: 3;
+      grid-row: 1;
+    }
+  }
+
+  /* --- Ufuk: sıcak gradyan + dev wordmark ----------------------------------- */
+  .footer__horizon {
+    position: relative;
+    margin-block-start: var(--sp-9);
+    padding-block-start: var(--sp-9);
+    padding-inline: var(--gutter);
+    background:
+      radial-gradient(60% 85% at 50% 100%, rgba(246, 197, 107, 0.55), transparent 72%),
+      linear-gradient(
+        to bottom,
+        var(--c-night) 0%,
+        #3a1c14 24%,
+        #8f3a12 56%,
+        var(--c-apricot) 84%,
+        var(--c-honey) 100%
+      );
+  }
+  /* Taban çizgisi sayfa tabanına oturur: kutu yüksekliği (--word-h) betikte tarayıcının gerçek yazı tipi
+     ölçüsünden hesaplanır; yedek 0,75em (Fraunces: taban ≈ 0,749em, büyük harf ≈ 0,737em). S'nin taşması dışında kırpma yok. */
+  .footer__word {
+    font-family: var(--font-display);
+    font-weight: 560;
+    --soft: 40;
+    font-size: calc((100vw - 2 * var(--gutter)) / 3.55);
+    line-height: 0.74;
+    letter-spacing: -0.04em;
+    text-transform: uppercase;
+    color: var(--c-night);
+    block-size: var(--word-h, 0.75em);
+    overflow: clip;
+    display: flex;
+    justify-content: center;
+    user-select: none;
+  }
+  .footer__word-inner {
+    display: inline-flex;
+    white-space: nowrap;
+  }
+  .footer__char {
+    display: inline-block;
+  }
+
+  /* Yükselen harfler: yalnız hareket açıkken ve görünür olunca */
+  :global(html.motion-ok) .footer__char {
+    transform: translateY(112%);
+    transition: transform 1.1s var(--ease-sun) calc(var(--i) * 80ms);
+  }
+  :global(html.motion-ok) .footer__horizon.is-in .footer__char {
+    transform: none;
+  }
+  :global(html.reduce) .totop__rays,
+  :global(html.reduce) .totop__sun {
+    transition: none;
+  }
+</style>
+
+<script>
+  import '@/lib/footer/footer';
+</script>

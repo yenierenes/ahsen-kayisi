@@ -1,0 +1,27 @@
+---
+// Sayfa bileşimi. Bölüm sahipleri bu dosyaya dokunmaz; yalnız kendi bileşen + içerik dosyalarını değiştirir.
+import Base from '@/layouts/Base.astro';
+import Hero from '@/components/sections/Hero.astro';
+import Sergi from '@/components/sections/Sergi.astro';
+import Manifesto from '@/components/sections/Manifesto.astro';
+import Rakamlar from '@/components/sections/Rakamlar.astro';
+import Surec from '@/components/sections/Surec.astro';
+import Urunler from '@/components/sections/Urunler.astro';
+import Dunya from '@/components/sections/Dunya.astro';
+import Kalite from '@/components/sections/Kalite.astro';
+import Iletisim from '@/components/sections/Iletisim.astro';
+import Footer from '@/components/sections/Footer.astro';
+---
+
+<Base>
+  <Hero />
+  <Sergi />
+  <Manifesto />
+  <Rakamlar />
+  <Surec />
+  <Urunler />
+  <Dunya />
+  <Kalite />
+  <Iletisim />
+  <Footer slot="footer" />
+</Base>

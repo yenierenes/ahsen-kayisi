@@ -1,0 +1,535 @@
+---
+/**
+ * Kalite — "Her partide aynı söz."
+ * Solda yapışkan 4:5 medya çerçevesi (yavaş parallax), sağda dört söz (yerel
+ * <details> akordeonu, açılış/kapanış animasyonlu), altında hıza tepki veren
+ * standartlar şeridi ve teknik veri tablosu. Hareket: data-* motion API'si.
+ *
+ * Tesis videosu (public/media/video/v-tesis.mp4) derleme/istek anında aranır:
+ *  - dosya varsa <video> + oynat/durdur düğmesi çizilir (kod değişikliği gerekmez),
+ *  - yoksa 404 üretmeden, yavaşça "nefes alan" bir ürün fotoğrafı gösterilir.
+ */
+// @ts-ignore -- projede @types/node yok; kod yalnızca derleme/istek anında Node'da çalışır
+import fs from 'node:fs';
+import { getContent } from '@/content';
+import SectionHeading from '@/components/ui/SectionHeading.astro';
+const { kalite: c, nav } = getContent();
+
+const cwd = (globalThis as { process?: { cwd(): string } }).process?.cwd() ?? '.';
+const fromPublic = (url: string): boolean => fs.existsSync(`${cwd}/public/${url.replace(/^\/+/, '')}`);
+const hasVideo = fromPublic(c.video.src);
+const hasMobileVideo = hasVideo && fromPublic(c.video.srcMobile);
+const still = c.video.still;
+const caption = hasVideo ? c.video.caption : still.caption;
+---
+
+<section id="kalite" class="section kalite" data-sky="dusk" aria-labelledby="kalite-title">
+  <div class="container">
+    <div class="grid kalite__head">
+      <div class="cell" style="--col: 1 / span 8; --col-md: 1 / -1">
+        <SectionHeading heading={c.heading} id="kalite-title" />
+      </div>
+      <p class="cell kalite__lead t-lead" style="--col: 9 / span 4; --col-md: 1 / span 6; --row: 1">
+        {c.lead}
+      </p>
+    </div>
+
+    <div class="grid kalite__body">
+      <figure class="cell kalite__figure" style="--col: 1 / span 5; --col-md: 1 / span 8">
+        <div class:list={['media-frame kalite__frame', { 'kalite__frame--still': !hasVideo }]} data-cursor={nav.cursor.view}>
+          <div class="kalite__layer" data-speed="0.1">
+            <picture class="kalite__still">
+              <source srcset={still.avif} type="image/avif" />
+              <source
+                srcset={still.webpSet}
+                sizes="(min-width: 1100px) 42vw, 100vw"
+                type="image/webp"
+              />
+              <img
+                src={still.webp}
+                alt={hasVideo ? '' : still.alt}
+                aria-hidden={hasVideo ? 'true' : undefined}
+                width={still.width}
+                height={still.height}
+                loading="lazy"
+                decoding="async"
+              />
+            </picture>
+            {
+              hasVideo && (
+                <video
+                  id="kalite-video"
+                  class="kalite__video"
+                  data-video
+                  data-src={c.video.src}
+                  data-src-mobile={hasMobileVideo ? c.video.srcMobile : undefined}
+                  muted
+                  playsinline
+                  loop
+                  preload="none"
+                  aria-label={c.video.alt}
+                />
+              )
+            }
+          </div>
+          <div class="kalite__scrim" aria-hidden="true"></div>
+          {
+            hasVideo && (
+              <button
+                class="kalite__toggle label"
+                type="button"
+                data-video-toggle="#kalite-video"
+                data-label-play={c.video.toggle.play}
+                data-label-pause={c.video.toggle.pause}
+                aria-pressed="false"
+              >
+                <span class="kalite__toggle-icon" aria-hidden="true" />
+                <span data-video-label>{c.video.toggle.pause}</span>
+              </button>
+            )
+          }
+        </div>
+        <figcaption class="kalite__caption label">{caption}</figcaption>
+      </figure>
+
+      <div class="cell kalite__promises" style="--col: 7 / span 6; --col-md: 1 / -1">
+        <p class="label kalite__kicker">{c.promisesLabel}</p>
+        <ol class="kalite__list" role="list">
+          {
+            c.promises.map((p, i) => (
+              <li class="kalite__item">
+                <details name="kalite-sozu" open={i === 0}>
+                  <summary class="kalite__summary" data-cursor>
+                    <span class="kalite__no label">{p.no}</span>
+                    <h3 class="kalite__title">{p.title}</h3>
+                    <span class="kalite__plus" aria-hidden="true" />
+                  </summary>
+                  <p class="kalite__text">{p.text}</p>
+                </details>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <div class="kalite__strip" role="group" aria-labelledby="kalite-strip-label">
+    <p id="kalite-strip-label" class="label kalite__strip-label">{c.strip.label}</p>
+    <div class="kalite__marquee" data-marquee="46" data-marquee-react="direction" aria-hidden="true">
+      <div data-marquee-track>
+        {
+          c.strip.items.map((item) => (
+            <span data-marquee-item class="kalite__std">
+              <span class="kalite__std-dot" />
+              {item}
+            </span>
+          ))
+        }
+      </div>
+    </div>
+    <ul class="kalite__std-static" role="list">
+      {c.strip.items.map((item) => <li class="label label--plain">{item}</li>)}
+    </ul>
+  </div>
+
+  <div class="container">
+    <div class="grid kalite__spec-wrap">
+      <div class="cell kalite__spec-head" style="--col: 1 / span 4; --col-md: 1 / -1">
+        <p class="label kalite__kicker">{c.spec.label}</p>
+        <h3 class="kalite__spec-title t-h3" id="kalite-spec-title">{c.spec.title}</h3>
+      </div>
+      <div class="cell" style="--col: 5 / span 8; --col-md: 1 / -1">
+        <dl class="kalite__spec" aria-labelledby="kalite-spec-title">
+          {
+            c.spec.rows.map((r) => (
+              <div class="kalite__row">
+                <dt class="label">{r.label}</dt>
+                <dd class="kalite__val">{r.value}</dd>
+                <dd class="kalite__basis label label--plain">
+                  <span class="sr-only">{c.spec.colBasis}: </span>
+                  {r.basis}
+                </dd>
+              </div>
+            ))
+          }
+        </dl>
+        <p class="kalite__note t-sm">{c.spec.note}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .kalite__head,
+  .kalite__body {
+    --row-gap: var(--sp-6);
+  }
+  .kalite__body {
+    margin-block-start: var(--sp-9);
+    align-items: start;
+  }
+  .kalite__lead {
+    color: var(--muted);
+    max-inline-size: 28ch;
+    align-self: end;
+  }
+
+  /* --- Medya çerçevesi ------------------------------------------------------ */
+  .kalite__figure {
+    position: relative;
+  }
+  .kalite__frame {
+    aspect-ratio: 4 / 5;
+    isolation: isolate;
+    background: var(--c-night);
+  }
+  @media (max-width: 1099.98px) {
+    .kalite__frame {
+      aspect-ratio: 4 / 3;
+    }
+  }
+  /* ≥1100px: uzun, yapışkan 4:5 çerçeve; yüksekliği ekrana sığar */
+  @media (min-width: 1100px) {
+    .kalite__figure {
+      position: sticky;
+      inset-block-start: calc(var(--nav-h) + var(--sp-4));
+    }
+    .kalite__frame {
+      inline-size: min(100%, calc((100svh - var(--nav-h) - 6.5rem) * 0.8));
+    }
+  }
+  /* Parallax katmanı çerçeveden taşar; çerçeve kırpar */
+  .kalite__layer {
+    position: absolute;
+    inset-block: -9%;
+    inset-inline: 0;
+  }
+  .kalite__layer :is(.kalite__still, .kalite__video) {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+  }
+  .kalite__still img {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+    transform-origin: 50% 50%;
+  }
+  /* Video yokken: yavaş nefes alan zoom (yalnız transform) */
+  .kalite__frame--still .kalite__still img {
+    animation: kalite-breathe 22s var(--ease-in-out) infinite alternate;
+    will-change: transform;
+  }
+  @keyframes kalite-breathe {
+    from {
+      transform: scale(1);
+    }
+    to {
+      transform: scale(1.08);
+    }
+  }
+  .kalite__video {
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity var(--dur-3) var(--ease-out);
+  }
+  .kalite__video:global(.is-playing) {
+    opacity: 1;
+  }
+  .kalite__video:global(.is-error) {
+    display: none;
+  }
+  .kalite__scrim {
+    position: absolute;
+    inset: 0;
+    background: var(--scrim);
+    pointer-events: none;
+  }
+  .kalite__toggle {
+    position: absolute;
+    inset-block-end: var(--sp-4);
+    inset-inline-start: var(--sp-4);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7em;
+    min-block-size: 2.75rem;
+    padding-inline: 1em;
+    border-radius: var(--r-pill);
+    color: var(--c-cream);
+    background: rgba(20, 11, 7, 0.55);
+  }
+  .kalite__toggle-icon {
+    inline-size: 8px;
+    block-size: 10px;
+    border-inline: 2.5px solid currentColor;
+  }
+  .kalite__toggle[aria-pressed='true'] .kalite__toggle-icon {
+    border: 0;
+    border-inline-start: 9px solid currentColor;
+    border-block: 5px solid transparent;
+    inline-size: 0;
+  }
+  .kalite__caption {
+    margin-block-start: var(--sp-3);
+    color: var(--muted);
+  }
+
+  /* --- Dört söz: akordeon -------------------------------------------------- */
+  @media (min-width: 1100px) {
+    .kalite__promises {
+      align-self: center;
+    }
+  }
+  .kalite__kicker {
+    color: var(--muted);
+    margin-block-end: var(--sp-5);
+  }
+  .kalite__list {
+    border-block-start: 1px solid var(--line);
+  }
+  .kalite__item {
+    border-block-end: 1px solid var(--line);
+  }
+  .kalite__item details {
+    interpolate-size: allow-keywords;
+  }
+  .kalite__summary {
+    display: grid;
+    grid-template-columns: 2.6rem 1fr auto;
+    align-items: baseline;
+    gap: var(--sp-3);
+    padding-block: var(--sp-5);
+    list-style: none;
+    cursor: pointer;
+    min-block-size: 3.5rem;
+  }
+  @media (min-width: 1100px) {
+    .kalite__summary {
+      grid-template-columns: 3.25rem 1fr auto;
+      padding-block: var(--sp-6);
+    }
+  }
+  .kalite__summary::-webkit-details-marker {
+    display: none;
+  }
+  .kalite__no {
+    color: var(--accent);
+  }
+  .kalite__title {
+    font-size: clamp(1.5rem, 2.4vw, 2.25rem);
+    line-height: 1.05;
+    letter-spacing: var(--ls-heading);
+    font-weight: 380;
+    --soft: 70;
+    transition: transform var(--dur-3) var(--ease-sun);
+  }
+  .kalite__summary:hover .kalite__title,
+  .kalite__summary:focus-visible .kalite__title {
+    transform: translateX(0.18em);
+  }
+  details[open] .kalite__title {
+    font-style: italic;
+  }
+  .kalite__plus {
+    position: relative;
+    inline-size: 1.1rem;
+    block-size: 1.1rem;
+    align-self: center;
+  }
+  .kalite__plus::before,
+  .kalite__plus::after {
+    content: '';
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline: 0;
+    block-size: 1.5px;
+    margin-block-start: -0.75px;
+    background: var(--fg);
+    transition: transform var(--dur-3) var(--ease-sun);
+  }
+  .kalite__plus::after {
+    transform: rotate(90deg);
+  }
+  details[open] .kalite__plus::after {
+    transform: rotate(0deg);
+  }
+  .kalite__text {
+    padding-inline-start: calc(2.6rem + var(--sp-3));
+    padding-inline-end: var(--sp-5);
+    padding-block-end: var(--sp-6);
+    max-inline-size: 56ch;
+    color: var(--muted);
+    font-size: max(1rem, var(--fs-body));
+    line-height: var(--lh-body);
+  }
+  @media (min-width: 1100px) {
+    .kalite__text {
+      padding-inline-start: calc(3.25rem + var(--sp-3));
+      padding-inline-end: var(--sp-7);
+    }
+  }
+  details[open] .kalite__text {
+    animation: kalite-in var(--dur-3) var(--ease-sun) both;
+  }
+  @keyframes kalite-in {
+    from {
+      opacity: 0;
+      transform: translateY(0.6rem);
+    }
+  }
+  /* Açılış/kapanış yüksekliği: destekleyen tarayıcıda ::details-content; yoksa anında */
+  @supports selector(details::details-content) {
+    .kalite__item details::details-content {
+      block-size: 0;
+      overflow: clip;
+      transition:
+        block-size var(--dur-3) var(--ease-sun),
+        content-visibility var(--dur-3) allow-discrete;
+    }
+    .kalite__item details[open]::details-content {
+      block-size: auto;
+    }
+  }
+
+  /* --- Standartlar şeridi --------------------------------------------------- */
+  .kalite__strip {
+    margin-block-start: var(--sp-10);
+    border-block: 1px solid var(--line);
+    padding-block: var(--sp-5);
+  }
+  .kalite__strip-label {
+    padding-inline: var(--gutter);
+    color: var(--muted);
+    margin-block-end: var(--sp-4);
+  }
+  .kalite__marquee {
+    font-family: var(--font-display);
+    font-size: var(--fs-h3);
+    line-height: 1.1;
+    letter-spacing: var(--ls-heading);
+    font-style: italic;
+    font-weight: 340;
+    --soft: 100;
+    --marquee-gap: 1.1em;
+  }
+  .kalite__std {
+    display: inline-flex;
+    align-items: center;
+    gap: 1.1em;
+  }
+  .kalite__std-dot {
+    inline-size: 0.28em;
+    block-size: 0.28em;
+    border-radius: 50%;
+    background: var(--accent);
+    flex: none;
+  }
+  /* Ekran okuyucu ve hareketsiz kullanıcı için durağan karşılık */
+  .kalite__std-static {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: clip;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  :global(html.reduce) .kalite__marquee,
+  :global(html:not(.js)) .kalite__marquee {
+    display: none;
+  }
+  :global(html.reduce) .kalite__std-static,
+  :global(html:not(.js)) .kalite__std-static {
+    position: static;
+    inline-size: auto;
+    block-size: auto;
+    clip-path: none;
+    white-space: normal;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-3) var(--sp-6);
+    padding-inline: var(--gutter);
+  }
+
+  /* --- Teknik veri ------------------------------------------------------------ */
+  .kalite__spec-wrap {
+    margin-block-start: var(--sp-10);
+  }
+  .kalite__spec-title {
+    max-inline-size: 10ch;
+    font-weight: 380;
+  }
+  .kalite__spec {
+    border-block-start: 1px solid var(--fg);
+  }
+  .kalite__row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--sp-2) var(--gap);
+    padding-block: var(--sp-5);
+    border-block-end: 1px solid var(--line);
+    align-items: baseline;
+  }
+  .kalite__row dt {
+    color: var(--accent);
+    font-size: max(0.75rem, var(--fs-label));
+  }
+  .kalite__val {
+    font-family: var(--font-mono);
+    font-size: clamp(0.9375rem, 0.9rem + 0.12vw, 1.0625rem);
+    line-height: 1.55;
+    font-variant-numeric: tabular-nums;
+    margin: 0;
+  }
+  .kalite__basis {
+    color: var(--muted);
+    margin: 0;
+    font-size: clamp(0.8125rem, 0.78rem + 0.1vw, 0.9375rem);
+    line-height: 1.45;
+  }
+  @media (min-width: 768px) {
+    .kalite__row {
+      grid-template-columns: 9rem minmax(0, 1fr) minmax(0, 12rem);
+    }
+  }
+  @media (min-width: 1100px) {
+    .kalite__row {
+      grid-template-columns: 10rem minmax(0, 1fr) 16rem;
+    }
+  }
+  .kalite__note {
+    margin-block-start: var(--sp-5);
+    color: var(--muted);
+    max-inline-size: 60ch;
+    font-size: max(0.9375rem, var(--fs-sm));
+  }
+
+  /* --- reduced-motion: parallax ve nefes kapalı, akordeon animasyonsuz ------- */
+  :global(html.reduce) .kalite__layer {
+    inset-block: 0;
+  }
+  :global(html.reduce) .kalite__frame--still .kalite__still img {
+    animation: none;
+    will-change: auto;
+  }
+  :global(html.reduce) details[open] .kalite__text {
+    animation: none;
+  }
+  :global(html.reduce) .kalite__title,
+  :global(html.reduce) .kalite__plus::before,
+  :global(html.reduce) .kalite__plus::after,
+  :global(html.reduce) .kalite__item details::details-content {
+    transition: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .kalite__frame--still .kalite__still img {
+      animation: none;
+      will-change: auto;
+    }
+    .kalite__item details::details-content {
+      transition: none;
+    }
+  }
+</style>

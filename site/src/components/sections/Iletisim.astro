@@ -1,0 +1,609 @@
+---
+/**
+ * İletişim — "Numuneniz yola çıksın."
+ * Dev başlık (satır satır açılım) + numune formu + doğrudan iletişim bilgileri.
+ * Form yalnız ön yüz: gönderimde ağ çağrısı yok, zarif bir başarı durumu gösterilir.
+ * Betikler: src/lib/iletisim/form.ts, clock.ts
+ */
+import { getContent } from '@/content';
+const { iletisim: c } = getContent();
+const f = c.form.fields;
+---
+
+<section id="iletisim" class="section iletisim" data-sky="night" aria-labelledby="iletisim-title">
+  <div class="container">
+    <p class="label iletisim__eyebrow">
+      <span class="iletisim__eyebrow-dot" aria-hidden="true"></span>
+      {c.eyebrow}
+    </p>
+    <h2 id="iletisim-title" class="iletisim__title" data-reveal="lines">{c.heading.title}</h2>
+
+    <div class="grid iletisim__body">
+      <div class="cell iletisim__form-cell" style="--col: 1 / span 7; --col-md: 1 / -1">
+        <form
+          class="form"
+          data-sample-form
+          data-summary-error={c.form.summaryError}
+          data-success-text={c.success.text}
+          aria-label={c.form.label}
+          novalidate
+        >
+          <div class="form__row">
+            <div class="field" data-field>
+              <label class="field__label label" for={f.name.id}>{f.name.label}</label>
+              <input
+                class="field__control"
+                id={f.name.id}
+                name={f.name.name}
+                type="text"
+                autocomplete={f.name.autocomplete}
+                required
+                aria-required="true"
+                aria-describedby={`${f.name.id}-msg`}
+                data-msg-required={f.name.required}
+              />
+              <p class="field__msg" id={`${f.name.id}-msg`}></p>
+            </div>
+            <div class="field" data-field>
+              <label class="field__label label" for={f.company.id}>
+                {f.company.label}
+                <span class="field__opt">{c.form.optionalLabel}</span>
+              </label>
+              <input
+                class="field__control"
+                id={f.company.id}
+                name={f.company.name}
+                type="text"
+                autocomplete={f.company.autocomplete}
+                aria-describedby={`${f.company.id}-msg`}
+              />
+              <p class="field__msg" id={`${f.company.id}-msg`}></p>
+            </div>
+          </div>
+
+          <div class="form__row">
+            <div class="field" data-field>
+              <label class="field__label label" for={f.country.id}>{f.country.label}</label>
+              <input
+                class="field__control"
+                id={f.country.id}
+                name={f.country.name}
+                type="text"
+                autocomplete={f.country.autocomplete}
+                required
+                aria-required="true"
+                aria-describedby={`${f.country.id}-msg`}
+                data-msg-required={f.country.required}
+              />
+              <p class="field__msg" id={`${f.country.id}-msg`}></p>
+            </div>
+            <div class="field" data-field>
+              <label class="field__label label" for={f.email.id}>{f.email.label}</label>
+              <input
+                class="field__control"
+                id={f.email.id}
+                name={f.email.name}
+                type="email"
+                inputmode="email"
+                autocomplete={f.email.autocomplete}
+                spellcheck="false"
+                required
+                aria-required="true"
+                aria-describedby={`${f.email.id}-msg`}
+                data-msg-required={f.email.required}
+                data-msg-invalid={f.email.invalid}
+              />
+              <p class="field__msg" id={`${f.email.id}-msg`}></p>
+            </div>
+          </div>
+
+          <fieldset class="pick">
+            <legend class="field__label label">
+              {c.form.products.legend}
+              <span class="field__opt">{c.form.products.hint}</span>
+            </legend>
+            <div class="pick__list">
+              {
+                c.form.products.options.map((o) => (
+                  <label class="pick__chip chip">
+                    <input class="pick__input" type="checkbox" name="urun" value={o.value} />
+                    <span class="pick__dot" aria-hidden="true" />
+                    <span class="pick__text">{o.label}</span>
+                  </label>
+                ))
+              }
+            </div>
+          </fieldset>
+
+          <div class="field field--select" data-field>
+            <label class="field__label label" for={c.form.caliber.id}>
+              {c.form.caliber.label}
+              <span class="field__opt">{c.form.optionalLabel}</span>
+            </label>
+            <select class="field__control" id={c.form.caliber.id} name={c.form.caliber.name}>
+              {c.form.caliber.options.map((o) => <option value={o.value}>{o.label}</option>)}
+            </select>
+          </div>
+
+          <div class="field" data-field>
+            <label class="field__label label" for={f.message.id}>
+              {f.message.label}
+              <span class="field__opt">{c.form.optionalLabel}</span>
+            </label>
+            <textarea
+              class="field__control field__control--area"
+              id={f.message.id}
+              name={f.message.name}
+              rows="4"
+              placeholder={f.message.placeholder}></textarea>
+          </div>
+
+          <div class="form__foot">
+            <button class="btn btn--accent iletisim__submit" type="submit" data-magnetic="0.3" data-cursor>
+              <span data-magnetic-inner class="iletisim__submit-inner">
+                {c.form.submit}
+                <span class="btn__dot" aria-hidden="true"></span>
+              </span>
+            </button>
+            <p class="form__note t-sm">{c.form.note}</p>
+          </div>
+          <p class="form__summary t-sm" data-form-summary role="alert"></p>
+        </form>
+
+        <div class="success" data-success hidden tabindex="-1" role="status">
+          <svg class="success__sun" viewBox="0 0 64 64" width="64" height="64" aria-hidden="true" focusable="false">
+            <circle class="success__disc" cx="32" cy="32" r="14"></circle>
+            <g class="success__rays">
+              <path d="M32 6v8M32 50v8M6 32h8M50 32h8M13.6 13.6l5.7 5.7M44.7 44.7l5.7 5.7M13.6 50.4l5.7-5.7M44.7 19.3l5.7-5.7"
+              ></path>
+            </g>
+          </svg>
+          <h3 class="success__title" data-success-title tabindex="-1">{c.success.title}</h3>
+          <p class="success__text t-lead" data-success-text></p>
+          <p class="success__proto label">{c.success.prototype}</p>
+          <button class="btn btn--ghost" type="button" data-success-again>{c.success.again}</button>
+        </div>
+      </div>
+
+      <aside class="cell iletisim__aside" style="--col: 9 / span 4; --col-md: 1 / -1" aria-label={c.contact.label}>
+        <p class="iletisim__lead t-lead">{c.lead}</p>
+        <dl class="contact">
+          <div class="contact__row">
+            <dt class="label">{c.contact.address.label}</dt>
+            <dd>
+              <address class="contact__addr">
+                {c.contact.address.lines.map((l) => <span>{l}</span>)}
+              </address>
+            </dd>
+          </div>
+          <div class="contact__row">
+            <dt class="label">{c.contact.phone.label}</dt>
+            <dd><a class="link contact__link num" href={c.contact.phone.href}>{c.contact.phone.value}</a></dd>
+          </div>
+          <div class="contact__row">
+            <dt class="label">{c.contact.email.label}</dt>
+            <dd><a class="link contact__link" href={c.contact.email.href}>{c.contact.email.value}</a></dd>
+          </div>
+        </dl>
+        <p
+          class="clock label"
+          data-clock-wrap
+          data-tz={c.clock.timeZone}
+        >
+          <span class="clock__dot" aria-hidden="true"></span>
+          <span>{c.clock.label}</span>
+          <span class="clock__time num" data-clock>{c.clock.placeholder}</span>
+          <span class="clock__zone">{c.clock.zone}</span>
+        </p>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<style>
+  .iletisim {
+    color-scheme: dark; /* yerel açılır liste, kaydırma çubuğu ve otomatik doldurma koyu çizilir */
+    --err: #ff9d80;
+    padding-block-end: var(--sp-9);
+  }
+  .iletisim__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.8em;
+    color: var(--muted);
+    margin-block-end: var(--sp-6);
+  }
+  .iletisim__eyebrow-dot {
+    inline-size: 0.55rem;
+    block-size: 0.55rem;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+  /* Genişlik: 12 karakterlik ikinci satır, kapsayıcıya sığacak şekilde ölçeklenir */
+  .iletisim__title {
+    font-size: clamp(3rem, calc((100vw - 2 * var(--gutter)) / 6.8), 15rem);
+    line-height: 0.98;
+    letter-spacing: var(--ls-display);
+    font-weight: 360;
+    --soft: 70;
+    text-wrap: balance;
+    max-inline-size: 100%;
+  }
+  .iletisim__body {
+    margin-block-start: var(--sp-9);
+    --row-gap: var(--sp-8);
+  }
+  .iletisim__lead {
+    color: var(--muted);
+    max-inline-size: 30ch;
+  }
+
+  /* --- Form ---------------------------------------------------------------- */
+  .form {
+    display: grid;
+    gap: var(--sp-7);
+  }
+  .form[hidden] {
+    display: none;
+  }
+  .form__row {
+    display: grid;
+    gap: var(--sp-7) var(--sp-6);
+  }
+  @media (min-width: 768px) {
+    .form__row {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  .field {
+    position: relative;
+    display: grid;
+    gap: var(--sp-2);
+  }
+  .field__label {
+    color: var(--fg);
+    font-size: max(0.8125rem, var(--fs-label));
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25em 0.8em;
+    align-items: baseline;
+    padding: 0;
+  }
+  .field__opt {
+    text-transform: none;
+    letter-spacing: 0.02em;
+    opacity: 1;
+    color: var(--muted);
+    font-weight: 400;
+    font-size: 0.8125rem;
+  }
+  .field__opt::before {
+    content: '· ';
+  }
+  .field__control {
+    inline-size: 100%;
+    min-block-size: 3.25rem;
+    padding: 0.55em 0;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    border-block-end: 1px solid var(--c-field-border-dark);
+    color: var(--fg);
+    font-family: var(--font-display);
+    font-size: max(1.0625rem, var(--fs-lead));
+    line-height: 1.25;
+    --soft: 60;
+    transition:
+      border-color var(--dur-2) var(--ease-soft),
+      box-shadow var(--dur-2) var(--ease-soft);
+  }
+  .field__control::placeholder {
+    color: var(--muted);
+    opacity: 1;
+    font-style: italic;
+  }
+  .field__control:hover {
+    border-color: var(--fg);
+  }
+  .field__control:focus {
+    border-color: var(--accent);
+    box-shadow: 0 1px 0 0 var(--accent);
+  }
+  .field__control:focus-visible {
+    border-radius: var(--r-xs);
+    outline: 2px solid var(--focus);
+    outline-offset: 6px;
+  }
+  .field:focus-within .field__label {
+    color: var(--accent);
+  }
+  .field__control:-webkit-autofill {
+    -webkit-text-fill-color: var(--fg);
+    transition: background-color 9999s ease-out;
+  }
+  .field__control--area {
+    resize: vertical;
+    min-block-size: 7rem;
+  }
+  /* Seçim kutusu: çizgili alan yerine çerçeveli, çip diliyle uyumlu */
+  .field--select select {
+    appearance: none;
+    padding: 0.55em 2.8rem 0.55em 1.1rem;
+    border: 0;
+    border-radius: var(--r-md);
+    background: color-mix(in srgb, var(--fg) 5%, transparent);
+    box-shadow: inset 0 0 0 1px var(--c-field-border-dark);
+    font-size: max(1.0625rem, var(--fs-body));
+    cursor: pointer;
+  }
+  .field--select select:hover {
+    box-shadow: inset 0 0 0 1px var(--fg);
+  }
+  .field--select select:focus {
+    box-shadow: inset 0 0 0 1.5px var(--accent);
+  }
+  .field--select select option {
+    background: var(--c-night);
+    color: var(--c-cream);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+  }
+  .field--select::after {
+    content: '';
+    position: absolute;
+    inset-inline-end: 1.2rem;
+    inset-block-end: 1.5rem;
+    inline-size: 0.6rem;
+    block-size: 0.6rem;
+    border-inline-end: 1.5px solid var(--fg);
+    border-block-end: 1.5px solid var(--fg);
+    transform: rotate(45deg);
+    pointer-events: none;
+  }
+  .field__msg {
+    min-block-size: 0;
+    margin: 0;
+    font-size: var(--fs-sm);
+    line-height: 1.4;
+    color: var(--err);
+  }
+  .field__msg:not(:empty) {
+    animation: msg-in var(--dur-2) var(--ease-out) both;
+  }
+  @keyframes msg-in {
+    from {
+      opacity: 0;
+      transform: translateY(-0.3rem);
+    }
+  }
+  .field.is-invalid .field__control {
+    border-color: var(--err);
+  }
+
+  /* Ürün çipleri */
+  .pick {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    min-inline-size: 0;
+  }
+  .pick__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-3);
+    margin-block-start: var(--sp-4);
+  }
+  .pick__chip {
+    position: relative;
+    min-block-size: 2.75rem;
+    padding: 0.7em 1.25em;
+    cursor: pointer;
+    font-size: max(0.9375rem, var(--fs-sm));
+    line-height: 1.2;
+    color: var(--fg);
+    background: color-mix(in srgb, var(--fg) 5%, transparent);
+    box-shadow: inset 0 0 0 1px var(--c-field-border-dark);
+    transition:
+      background-color var(--dur-2) var(--ease-soft),
+      color var(--dur-2) var(--ease-soft),
+      box-shadow var(--dur-2) var(--ease-soft);
+  }
+  .pick__chip:hover {
+    box-shadow: inset 0 0 0 1px var(--fg);
+    background: color-mix(in srgb, var(--fg) 9%, transparent);
+  }
+  .pick__input {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+  .pick__dot {
+    flex: none;
+    inline-size: 0.6rem;
+    block-size: 0.6rem;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 1.5px currentColor;
+    transition: transform var(--dur-2) var(--ease-sun);
+  }
+  .pick__input:checked + .pick__dot {
+    background: currentColor;
+    transform: scale(1.25);
+  }
+  .pick__chip:has(.pick__input:checked) {
+    background: var(--accent);
+    color: var(--c-night);
+    box-shadow: none;
+  }
+  .pick__chip:has(.pick__input:focus-visible) {
+    outline: 2px solid var(--focus);
+    outline-offset: 3px;
+  }
+
+  .form__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sp-4) var(--sp-6);
+  }
+  .iletisim__submit {
+    min-block-size: 3.5rem;
+    padding-inline: 2em;
+    font-size: var(--fs-body);
+  }
+  .iletisim__submit-inner {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7em;
+  }
+  .form__note {
+    color: var(--muted);
+  }
+  .form__summary {
+    color: var(--err);
+    margin: 0;
+    min-block-size: 0;
+  }
+  .form__summary:empty {
+    display: none;
+  }
+
+  /* --- Başarı durumu ----------------------------------------------------------- */
+  .success {
+    display: grid;
+    justify-items: start;
+    gap: var(--sp-5);
+    padding-block: var(--sp-6);
+    outline: none;
+  }
+  .success[hidden] {
+    display: none;
+  }
+  .success__sun {
+    color: var(--accent);
+    fill: currentColor;
+    stroke: currentColor;
+    stroke-width: 2.4;
+    stroke-linecap: round;
+  }
+  .success__disc {
+    stroke: none;
+  }
+  .success__rays {
+    fill: none;
+    transform-origin: 32px 32px;
+  }
+  .success:not([hidden]) .success__sun {
+    animation: sun-up var(--dur-4) var(--ease-sun) both;
+  }
+  .success:not([hidden]) .success__rays {
+    animation: rays-turn 1.4s var(--ease-sun) both;
+  }
+  @keyframes sun-up {
+    from {
+      opacity: 0;
+      transform: translateY(1.2rem) scale(0.8);
+    }
+  }
+  @keyframes rays-turn {
+    from {
+      transform: rotate(-60deg);
+      opacity: 0;
+    }
+  }
+  .success__title {
+    font-size: var(--fs-h2);
+    line-height: 0.98;
+    letter-spacing: var(--ls-display);
+    font-weight: 360;
+    font-style: italic;
+    --soft: 80;
+    max-inline-size: 12ch;
+    outline: none;
+  }
+  .success__text {
+    color: var(--muted);
+    max-inline-size: 34ch;
+  }
+  .success__proto {
+    margin: 0;
+    padding-block: 0.4em;
+    padding-inline-start: 1em;
+    border-inline-start: 2px solid var(--accent);
+    color: var(--muted);
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    max-inline-size: 44ch;
+  }
+
+  /* --- İletişim bilgileri -------------------------------------------------------- */
+  .iletisim__aside {
+    display: grid;
+    gap: var(--sp-7);
+    align-content: start;
+  }
+  .contact {
+    display: grid;
+    border-block-start: 1px solid var(--line);
+  }
+  .contact__row {
+    display: grid;
+    gap: var(--sp-2);
+    padding-block: var(--sp-4);
+    border-block-end: 1px solid var(--line);
+  }
+  .contact__row dt {
+    color: var(--muted);
+  }
+  .contact__row dd {
+    margin: 0;
+  }
+  .contact__addr {
+    display: grid;
+    font-style: normal;
+    font-size: var(--fs-body);
+    line-height: 1.45;
+  }
+  .contact__link {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 2.75rem;
+    font-size: var(--fs-body);
+    overflow-wrap: anywhere;
+  }
+  .clock {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.4em 0.9em;
+    color: var(--muted);
+    margin: 0;
+  }
+  .clock__dot {
+    inline-size: 0.5rem;
+    block-size: 0.5rem;
+    border-radius: 50%;
+    background: var(--accent);
+    align-self: center;
+  }
+  .clock__time {
+    color: var(--fg);
+    font-size: 1.35em;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+  }
+
+  :global(html.reduce) .field__msg:not(:empty),
+  :global(html.reduce) .success:not([hidden]) .success__sun,
+  :global(html.reduce) .success:not([hidden]) .success__rays {
+    animation: none;
+  }
+</style>
+
+<script>
+  import '@/lib/iletisim/form';
+  import '@/lib/iletisim/clock';
+</script>

@@ -1,0 +1,211 @@
+---
+/**
+ * Kabuk: meta/OG · kendi sunucumuzdan fontlar (latin + latin-ext) · preloader ·
+ * imleç · gezinme · güneş yayı · film greni · atlama bağlantısı · footer yuvası.
+ */
+import '@/styles/tokens.css';
+import '@/styles/base.css';
+import '@/styles/shell.css';
+import 'lenis/dist/lenis.css';
+
+import frLatN from '@fontsource-variable/fraunces/files/fraunces-latin-full-normal.woff2?url';
+import frExtN from '@fontsource-variable/fraunces/files/fraunces-latin-ext-full-normal.woff2?url';
+import frLatI from '@fontsource-variable/fraunces/files/fraunces-latin-full-italic.woff2?url';
+import frExtI from '@fontsource-variable/fraunces/files/fraunces-latin-ext-full-italic.woff2?url';
+import isLatN from '@fontsource-variable/instrument-sans/files/instrument-sans-latin-wght-normal.woff2?url';
+import isExtN from '@fontsource-variable/instrument-sans/files/instrument-sans-latin-ext-wght-normal.woff2?url';
+import gmLatN from '@fontsource-variable/geist-mono/files/geist-mono-latin-wght-normal.woff2?url';
+import gmExtN from '@fontsource-variable/geist-mono/files/geist-mono-latin-ext-wght-normal.woff2?url';
+
+import { getContent, type Locale } from '@/content';
+
+interface Props {
+  locale?: Locale;
+}
+const { locale = 'tr' } = Astro.props;
+const { meta, nav } = getContent(locale);
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL(meta.ogImage, Astro.site);
+
+// Türkçe için latin (ı dahil) + latin-ext (İ ğ ş …) yeterli; başka alt küme yüklenmez.
+const LATIN =
+  'U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD';
+const LATIN_EXT =
+  'U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF';
+const face = (family: string, url: string, range: string, weight: string, style = 'normal') =>
+  `@font-face{font-family:'${family}';font-style:${style};font-display:swap;font-weight:${weight};src:url(${url}) format('woff2-variations'),url(${url}) format('woff2');unicode-range:${range}}`;
+const fontCss = [
+  face('Fraunces Variable', frLatN, LATIN, '100 900'),
+  face('Fraunces Variable', frExtN, LATIN_EXT, '100 900'),
+  face('Fraunces Variable', frLatI, LATIN, '100 900', 'italic'),
+  face('Fraunces Variable', frExtI, LATIN_EXT, '100 900', 'italic'),
+  face('Instrument Sans Variable', isLatN, LATIN, '400 700'),
+  face('Instrument Sans Variable', isExtN, LATIN_EXT, '400 700'),
+  face('Geist Mono Variable', gmLatN, LATIN, '100 900'),
+  face('Geist Mono Variable', gmExtN, LATIN_EXT, '100 900'),
+].join('');
+const preloads = [frLatN, frExtN, frLatI, isLatN, gmLatN];
+---
+
+<!doctype html>
+<html lang={meta.lang} dir={meta.dir} data-sky="void">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{meta.title}</title>
+    <meta name="description" content={meta.description} />
+    <link rel="canonical" href={canonical} />
+    <meta name="theme-color" content="#140b07" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content={meta.ogLocale} />
+    <meta property="og:title" content={meta.title} />
+    <meta property="og:description" content={meta.description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    {preloads.map((href) => <link rel="preload" as="font" type="font/woff2" href={href} crossorigin />)}
+    <link rel="preload" as="fetch" href="/seq/hero/manifest.json" crossorigin />
+    <link rel="preload" as="fetch" href="/seq/hero-fg/manifest.json" crossorigin />
+    <link rel="preload" as="image" href="/seq/hero/f_0001.webp" media="(min-width: 768px)" fetchpriority="high" />
+    <link rel="preload" as="image" href="/seq/hero-fg/f_0001.webp" media="(min-width: 768px)" fetchpriority="high" />
+    <link rel="preload" as="image" href="/seq/hero/m/f_0001.webp" media="(max-width: 767.98px)" fetchpriority="high" />
+    <link rel="preload" as="image" href="/seq/hero-fg/m/f_0001.webp" media="(max-width: 767.98px)" fetchpriority="high" />
+    <style is:inline set:html={fontCss} />
+    <script is:inline>
+      (function () {
+        var d = document.documentElement;
+        d.classList.add('js');
+        d.classList.add(matchMedia('(prefers-reduced-motion: reduce)').matches ? 'reduce' : 'motion-ok');
+      })();
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">{nav.skipLink}</a>
+
+    <div class="preloader" data-preloader aria-hidden="true">
+      <div class="preloader__inner" data-preloader-inner>
+        <div class="preloader__fruit">
+          <svg class="preloader__outline" viewBox="0 0 120 132" fill="none" stroke="currentColor" stroke-width="1.2">
+            <path d="M60 24C92 24 112 48 112 80C112 110 88 128 60 128C32 128 8 110 8 80C8 48 28 24 60 24Z"></path>
+            <path d="M60 28C50 52 50 98 62 126" opacity=".6"></path>
+            <path d="M60 25C60 17 62 11 66 6"></path>
+            <path d="M65 12C75 2 93 2 101 8C91 18 75 20 65 12Z"></path>
+          </svg>
+          <svg class="preloader__fill" viewBox="0 0 120 132">
+            <defs>
+              <radialGradient id="pl-g" cx="38%" cy="40%" r="75%">
+                <stop offset="0" stop-color="#f6c56b"></stop>
+                <stop offset=".55" stop-color="#f28c28"></stop>
+                <stop offset="1" stop-color="#c3660c"></stop>
+              </radialGradient>
+            </defs>
+            <path fill="url(#pl-g)" d="M60 24C92 24 112 48 112 80C112 110 88 128 60 128C32 128 8 110 8 80C8 48 28 24 60 24Z"></path>
+            <path d="M60 28C50 52 50 98 62 126" fill="none" stroke="#8f4a0b" stroke-width="1.2" opacity=".55"></path>
+            <path fill="#7fa06e" d="M65 12C75 2 93 2 101 8C91 18 75 20 65 12Z"></path>
+          </svg>
+        </div>
+        <p class="label preloader__count"><span>{nav.preloader.label}</span><strong data-preloader-count>00</strong></p>
+      </div>
+    </div>
+
+    <header class="nav" data-nav>
+      <div class="nav__bar">
+        <a class="nav__brand nav__wordmark" href="#hero" aria-label={nav.brandLabel}>
+          <span class="nav__word" aria-hidden="true">{nav.wordmark}</span><span class="nav__sun" aria-hidden="true"></span>
+        </a>
+        <nav class="nav__links" aria-label="Ana gezinme">
+          <ul role="list">
+            {nav.links.map((l) => <li><a class="nav__link" href={l.href}>{l.label}</a></li>)}
+          </ul>
+        </nav>
+        <div class="nav__end">
+          <details class="lang" data-lang>
+            <summary class="label" aria-label={`${nav.languageLabel}: ${nav.languages.find((l) => l.active)?.label ?? ''}`}>
+              {nav.languages.find((l) => l.active)?.code}
+              <svg viewBox="0 0 10 6" aria-hidden="true"><path d="M1 1l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.3"></path></svg>
+            </summary>
+            <ul class="lang__list label" role="list">
+              {
+                nav.languages.map((l) =>
+                  l.active ? (
+                    <li class="lang__item" aria-current="true" lang={l.code.toLowerCase()}>
+                      <span>{l.code}</span>
+                      <span class="label--plain">{l.label}</span>
+                    </li>
+                  ) : (
+                    <li class="lang__item is-soon" aria-disabled="true">
+                      <span>{l.code}</span>
+                      <span class="lang__soon">{nav.soonLabel}</span>
+                    </li>
+                  ),
+                )
+              }
+            </ul>
+          </details>
+          <a class="btn btn--cta" href={nav.cta.href} data-magnetic="0.3">
+            <span data-magnetic-inner>{nav.cta.label}</span>
+          </a>
+          <button
+            class="nav__menu-btn label"
+            type="button"
+            data-menu-toggle
+            aria-expanded="false"
+            aria-controls="site-menu"
+            data-label-open={nav.menu.open}
+            data-label-close={nav.menu.close}
+          >
+            <span class="nav__menu-label" data-menu-label>{nav.menu.open}</span>
+            <span class="burger" aria-hidden="true"></span>
+          </button>
+        </div>
+      </div>
+      <div class="menu" id="site-menu" inert>
+        <ul class="menu__list" role="list">
+          {nav.links.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
+          <li><a href={nav.cta.href}>{nav.cta.label}</a></li>
+        </ul>
+        <p class="menu__meta label">{nav.languages.map((l) => (l.active ? l.code : `${l.code} (${nav.soonLabel})`)).join(' · ')}</p>
+      </div>
+    </header>
+
+    <div class="sunarc" data-sunarc aria-hidden="true">
+      <svg viewBox="0 0 1 1" preserveAspectRatio="none">
+        <path class="sunarc__track" d="M0 0.92Q0.5 -0.6 1 0.92" fill="none" stroke-width="1" vector-effect="non-scaling-stroke"></path>
+        <path
+          class="sunarc__trail"
+          data-sunarc-trail
+          d="M0 0.92Q0.5 -0.6 1 0.92"
+          fill="none"
+          stroke-width="1.5"
+          pathLength="1"
+          stroke-dasharray="1 1"
+          stroke-dashoffset="1"
+          vector-effect="non-scaling-stroke"></path>
+      </svg>
+      <span class="sunarc__sun" data-sunarc-sun></span>
+    </div>
+
+    <main id="main">
+      <slot />
+    </main>
+    <slot name="footer" />
+
+    <div class="cursor" data-cursor-el aria-hidden="true">
+      <span class="cursor__dot"><span class="cursor__label label" data-cursor-label></span></span>
+    </div>
+    <div class="grain" aria-hidden="true"></div>
+
+    <script>
+      import { initMotion } from '@/lib/motion';
+      import { initPreloader } from '@/lib/shell/preloader';
+      import { initNav } from '@/lib/shell/nav';
+      import { initSunArc } from '@/lib/shell/sunarc';
+
+      initMotion();
+      initPreloader('hero');
+      initNav();
+      initSunArc();
+    </script>
+  </body>
+</html>

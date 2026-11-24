@@ -1,0 +1,367 @@
+---
+/**
+ * Manifesto — krem gökyüzünde "Ahsen" bölümü.
+ * Paragrafın kendisi tasarım: Fraunces'ta, 10 kolonluk bir açıklama; kaydırdıkça
+ * kelime kelime renkle dolar. Kuru kayısı kesimleri metin bloğunun KENARLARINDA,
+ * çoğu metnin ARKASINDA farklı derinliklerde yüzer; ikisi büyük ve sayfa kenarınca
+ * kırpılır. Sağda, paragrafın sonuna binen uzun dikey çerçeve (clip açılımı).
+ * Koreografi: src/lib/manifesto/manifesto.ts (yüzenlerin dönüşü, çerçeve açılımı);
+ * parallax ve dolum ortak motion kütüphanesinden (data-speed, data-mouse, data-fill).
+ */
+import { getContent } from '@/content';
+const { manifesto: c } = getContent();
+
+/**
+ * Yüzen kesimlerin yerleşimi (sıra, content/tr/manifesto.ts → floats ile aynı).
+ * host: "field" bölüm alanına, "figure" fotoğraf çerçevesine göre konumlanır.
+ * depth: "back" metnin arkasında, "front" önünde (yalnız metin olmayan yerlerde).
+ * size: inline-size; big: 1000px kaynak. speed: data-speed, mouse: data-mouse,
+ * spin: kaydırma boyunca toplam dönüş (derece). blur yalnız en uzak katmana.
+ * İlk satır güvenli: hiçbir kesim paragrafın ilk satırının üstüne yerleşmez.
+ */
+const layout = [
+  // Büyük, sağ kenarda kırpılır; paragrafın sağ kenarının arkasında (ilk satırın altında)
+  { host: 'field', depth: 'back', pos: 'right: -13vw; top: 27%', size: 'clamp(11rem, 36vw, 46rem)', rot: '24deg', speed: 0.16, mouse: 10, spin: 8, blur: 0, big: true },
+  // Büyük, sol kenarda kırpılır; paragrafın sol kenarının arkasında
+  { host: 'field', depth: 'back', pos: 'left: -21vw; top: 40%', size: 'clamp(10rem, 32vw, 40rem)', rot: '-28deg', speed: 0.26, mouse: 14, spin: -10, blur: 0, big: true },
+  // Uzak, küçük, bulanık: üst boşlukta, başlık etiketinin sağında
+  { host: 'field', depth: 'back', pos: 'left: 58%; top: 2.5%', size: 'clamp(3rem, 6vw, 6.5rem)', rot: '8deg', speed: 0.08, mouse: 6, spin: 6, blur: 2 },
+  // Fotoğraf çerçevesinin sol alt köşesine biner (önde; metin yok)
+  { host: 'figure', depth: 'front', pos: 'left: -17%; bottom: 16%', size: 'clamp(5.5rem, 12vw, 13rem)', rot: '-14deg', speed: 0.2, mouse: 18, spin: -14, blur: 0 },
+  // Orta, sağ üst: çerçevenin üst sağ kenarının arkasında
+  { host: 'figure', depth: 'back', pos: 'right: -14%; top: -7%', size: 'clamp(5rem, 11vw, 12rem)', rot: '-34deg', speed: 0.12, mouse: 10, spin: 12, blur: 0 },
+  // Çiçek: alt boşlukta, solda (önde; metin yok)
+  { host: 'field', depth: 'front', pos: 'left: 3%; bottom: 2%', size: 'clamp(4rem, 7vw, 7.5rem)', rot: '14deg', speed: 0.1, mouse: 12, spin: 18, blur: 0 },
+] as const;
+
+type Host = (typeof layout)[number]['host'];
+const floatsFor = (host: Host) =>
+  c.floats
+    .map((f, i) => ({ f, l: layout[i % layout.length]! }))
+    .filter(({ l }) => l.host === host)
+    .map(({ f, l }) => {
+      const lg = f.src.replace('-500.webp', '-1000.webp');
+      return {
+        src: f.src,
+        srcset: `${f.src} ${f.width}w, ${lg} ${f.width * 2}w`,
+        sizes: 'big' in l && l.big ? '(min-width: 768px) 36vw, 44vw' : '(min-width: 768px) 12vw, 24vw',
+        width: f.width,
+        height: f.height,
+        l,
+      };
+    });
+
+const { portrait: p } = c;
+---
+
+<section
+  id="hakkimizda"
+  class="section manifesto"
+  data-manifesto
+  data-sky="cream"
+  aria-labelledby="hakkimizda-title"
+>
+  <div class="manifesto__field" aria-hidden="true">
+    {
+      floatsFor('field').map(({ src, srcset, sizes, width, height, l }) => (
+        <img
+          class="manifesto__float"
+          data-depth={l.depth}
+          data-float
+          data-spin={l.spin}
+          data-speed={l.speed}
+          data-mouse={l.mouse}
+          src={src}
+          srcset={srcset}
+          sizes={sizes}
+          width={width}
+          height={height}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          style={`${l.pos}; inline-size: ${l.size}; --rot: ${l.rot}; --blur: ${l.blur}px;`}
+        />
+      ))
+    }
+  </div>
+
+  <div class="container manifesto__content">
+    <div class="grid manifesto__grid">
+      <p class="section-label label cell manifesto__label" aria-hidden="true" style="--col: 2 / span 6; --col-md: 1 / -1">
+        <span class="section-label__no">{c.heading.no}</span>
+        <span class="section-label__rule"></span>
+        <span>{c.heading.title}</span>
+      </p>
+      <h2 id="hakkimizda-title" class="sr-only">{c.heading.no} — {c.heading.title}</h2>
+
+      <p
+        class="manifesto__statement cell"
+        data-fill
+        data-fill-start="top 78%"
+        data-fill-end="bottom 50%"
+        style="--col: 2 / span 10; --col-md: 1 / -1"
+      >
+        {c.statement.map((part) => (typeof part === 'string' ? part : <em class="manifesto__em">{part.em}</em>))}
+      </p>
+
+      <div class="manifesto__side cell" style="--col: 2 / span 6; --col-md: 1 / span 4">
+        <dl class="manifesto__notes">
+          {
+            c.notes.map((n) => (
+              <div class="manifesto__note">
+                <dt class="label">{n.label}</dt>
+                <dd>{n.value}</dd>
+              </div>
+            ))
+          }
+        </dl>
+        <a class="manifesto__cta" href={c.cta.href} data-cursor>
+          <span class="link">{c.cta.label}</span>
+          <span class="manifesto__arrow" aria-hidden="true">→</span>
+        </a>
+      </div>
+
+      <figure class="manifesto__figure cell" style="--col: 9 / span 4; --col-md: 5 / span 4">
+        <div class="manifesto__figfield" aria-hidden="true">
+          {
+            floatsFor('figure').map(({ src, srcset, sizes, width, height, l }) => (
+              <img
+                class="manifesto__float"
+                data-depth={l.depth}
+                data-float
+                data-spin={l.spin}
+                data-speed={l.speed}
+                data-mouse={l.mouse}
+                src={src}
+                srcset={srcset}
+                sizes={sizes}
+                width={width}
+                height={height}
+                alt=""
+                loading="lazy"
+                decoding="async"
+                style={`${l.pos}; inline-size: ${l.size}; --rot: ${l.rot}; --blur: ${l.blur}px;`}
+              />
+            ))
+          }
+        </div>
+        <div class="media-frame manifesto__frame" data-manifesto-frame>
+          <picture>
+            <source type="image/avif" srcset={`${p.base}-1600.avif ${p.widthAvif}w`} sizes="(min-width: 1100px) 60vw, (min-width: 768px) 80vw, 160vw" />
+            <img
+              class="manifesto__img"
+              src={`${p.base}-1200.webp`}
+              srcset={`${p.base}-1200.webp ${p.width}w, ${p.base}-2400.webp ${p.widthLg}w`}
+              sizes="(min-width: 1100px) 60vw, (min-width: 768px) 80vw, 160vw"
+              width={p.width}
+              height={p.height}
+              alt={p.alt}
+              loading="lazy"
+              decoding="async"
+              style={`object-position: ${p.position};`}
+            />
+          </picture>
+        </div>
+        <figcaption class="label manifesto__caption">{p.caption}</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<style>
+  .manifesto {
+    isolation: isolate;
+    overflow-x: clip;
+    --row-gap: var(--sp-7);
+  }
+
+  /* --- Yüzen kesimler ----------------------------------------------------- */
+  .manifesto__field,
+  .manifesto__figfield {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .manifesto__field {
+    z-index: 0;
+  }
+  .manifesto__float {
+    position: absolute;
+    block-size: auto;
+    max-inline-size: none;
+    rotate: var(--rot, 0deg);
+    filter: blur(var(--blur, 0px)) drop-shadow(0 1.4rem 1.6rem rgba(42, 23, 16, 0.2));
+    z-index: 0;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+  /* "back": metnin/çerçevenin arkasında; "front": önünde (yalnız boş alanlarda) */
+  .manifesto__float[data-depth='front'] {
+    z-index: 3;
+  }
+  .manifesto__content {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* --- Açıklama (paragraf) -------------------------------------------------- */
+  .manifesto__statement {
+    position: relative;
+    z-index: 1;
+    max-inline-size: none;
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(1.9rem, 4.4vw, 5rem);
+    font-weight: 350;
+    font-optical-sizing: auto;
+    line-height: 1.08;
+    letter-spacing: -0.032em;
+    --soft: 70;
+    font-variation-settings:
+      'SOFT' var(--soft),
+      'WONK' var(--wonk);
+    text-wrap: pretty;
+    hyphens: manual;
+    color: var(--fg);
+  }
+  .manifesto__em {
+    font-style: italic;
+    --wonk: 1;
+    font-variation-settings:
+      'SOFT' var(--soft),
+      'WONK' var(--wonk);
+    color: var(--accent);
+  }
+
+  /* --- Notlar (tek sıra) + CTA --------------------------------------------- */
+  .manifesto__side {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    gap: var(--sp-6);
+    align-self: end;
+    justify-items: start;
+  }
+  .manifesto__notes {
+    display: grid;
+    gap: var(--sp-4);
+    inline-size: 100%;
+    margin: 0;
+  }
+  .manifesto__note {
+    display: grid;
+    gap: var(--sp-2);
+    padding-block: var(--sp-4) 0;
+    border-block-start: 1px solid var(--line);
+  }
+  .manifesto__note dt {
+    color: var(--muted);
+  }
+  .manifesto__note dd {
+    margin: 0;
+    text-wrap: balance;
+    font-size: var(--fs-body);
+    line-height: 1.35;
+  }
+  .manifesto__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55em;
+    min-block-size: 2.75rem;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: var(--fs-h4);
+    letter-spacing: -0.015em;
+    color: var(--accent);
+    --soft: 80;
+    font-variation-settings:
+      'SOFT' var(--soft),
+      'WONK' var(--wonk);
+  }
+  .manifesto__arrow {
+    display: inline-block;
+    transition: transform var(--dur-3) var(--ease-sun);
+  }
+  .manifesto__cta:hover .manifesto__arrow,
+  .manifesto__cta:focus-visible .manifesto__arrow {
+    transform: translateX(0.4em);
+  }
+
+  /* --- Uzun dikey çerçeve -------------------------------------------------- */
+  .manifesto__figure {
+    position: relative;
+    z-index: 1;
+    margin: 0;
+    display: grid;
+    gap: var(--sp-3);
+  }
+  .manifesto__figfield {
+    z-index: auto;
+  }
+  .manifesto__frame {
+    position: relative;
+    z-index: 1;
+    aspect-ratio: 4 / 5;
+    inline-size: 100%;
+  }
+  .manifesto__frame > picture {
+    display: block;
+    block-size: 100%;
+  }
+  .manifesto__img {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+  }
+  .manifesto__caption {
+    position: relative;
+    z-index: 1;
+    color: var(--muted);
+  }
+  /* JS açılırken kapalı başlar; hareket kapalıyken (html.reduce) hep açık */
+  :global(html.motion-ok) .manifesto__frame {
+    clip-path: inset(0% 0% 100% 0% round 24px);
+  }
+
+  @media (max-width: 767.98px) {
+    /* Dar ekranda metin tüm genişliği kaplar: iki büyük kesim metnin altına düşmesin */
+    .manifesto__field .manifesto__float:nth-child(-n + 2) {
+      display: none;
+    }
+    .manifesto__figure {
+      max-inline-size: 20rem;
+      justify-self: end;
+      inline-size: 82%;
+    }
+  }
+  @media (min-width: 768px) {
+    .manifesto__figure {
+      align-self: start;
+    }
+    .manifesto__notes {
+      grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr) minmax(0, 1.3fr);
+      gap: var(--gap);
+    }
+  }
+  @media (min-width: 1100px) {
+    /* Çerçeve sağa kayık ve uzun; paragrafın son satırlarına biner */
+    .manifesto__frame {
+      aspect-ratio: 3 / 4.3;
+    }
+    .manifesto__figure {
+      margin-block-start: calc(var(--sp-9) * -0.9);
+    }
+    /* Notlar paragrafın hemen ardından okunur; çerçeve sağda aşağı uzar */
+    .manifesto__side {
+      align-self: start;
+      padding-block-start: var(--sp-8);
+    }
+    .manifesto {
+      padding-block-end: var(--sp-7);
+    }
+  }
+</style>
+
+<script>
+  import '@/lib/manifesto/manifesto';
+</script>

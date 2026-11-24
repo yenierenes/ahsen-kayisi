@@ -1,0 +1,400 @@
+---
+/**
+ * Dünya — "05 — Malatya'dan dünyaya."
+ * ≥1100px: sabit (sticky) sahne + taşan büyük küre; sağ sütundaki içerik onun üstünden akar.
+ *          Rotalar sahne kaydırıldıkça sırayla çizilir (ilk yay erken, onuncusu ~%65'te iner).
+ * <1100px: küre üstte (≈92vw, kenarlardan taşabilir), liste altta.
+ * Noktalı WebGL küre (three.js, bölüm yaklaşınca tembel yüklenir) + pazar listesi.
+ * Liste öğesi üzerine gelince/odaklanınca küre o ülkeye döner, rotası parlar.
+ * reduced-motion / WebGL yok → aynı veriden Canvas 2D durağan çizim. Betik: src/lib/globe/globe.ts
+ * Pazar listesi Türkiye'nin başlıca pazarlarıdır (Ahsen'e ait değil) ve öyle etiketlenir.
+ */
+import { getContent } from '@/content';
+import SectionHeading from '@/components/ui/SectionHeading.astro';
+const { dunya: c } = getContent();
+const maxShare = Math.max(...c.markets.map((m) => m.shareValue));
+const globeData = JSON.stringify({
+  origin: { name: c.origin.name, lat: c.origin.lat, lon: c.origin.lon },
+  markets: c.markets,
+});
+---
+
+<section id="dunya" class="section dunya" data-sky="night" aria-labelledby="dunya-title">
+  <div class="dunya__scene" data-globe-scene>
+    <div class="dunya__stage" data-globe-stage>
+      <figure class="dunya__globe" data-globe={globeData} data-cursor={c.globe.drag}>
+        <canvas class="dunya__canvas" data-globe-canvas aria-hidden="true"></canvas>
+        <span class="label dunya__origin" data-globe-origin aria-hidden="true">
+          <span class="dunya__origin-dot"></span><span class="dunya__origin-name">{c.origin.name}</span>
+        </span>
+        <figcaption class="sr-only">{c.globe.label}</figcaption>
+      </figure>
+      <p class="label dunya__coords" aria-hidden="true">{c.origin.label}</p>
+    </div>
+
+    <div class="dunya__content">
+      <div class="dunya__intro">
+        <SectionHeading heading={c.heading} id="dunya-title" />
+        <p class="t-lead dunya__lead" data-reveal="lines">{c.lead}</p>
+        <p class="dunya__stat">
+          <span class="dunya__stat-num">{c.stat.value}</span><span class="dunya__stat-side"
+            ><span class="dunya__stat-suffix">{c.stat.suffix}</span>{' '}<span class="dunya__stat-unit"
+              >{c.stat.unit}</span
+            ></span
+          >
+        </p>
+        <p class="t-sm dunya__stat-cap">{c.stat.caption}</p>
+      </div>
+
+      <div class="dunya__markets">
+        <h3 class="label dunya__list-title" id="dunya-list-title">{c.list.title}</h3>
+        <ol class="dunya__list" aria-labelledby="dunya-list-title" data-globe-list>
+          {
+            c.markets.map((m, i) => (
+              <li style={`--i:${i}`}>
+                <button
+                  type="button"
+                  class="dunya__item"
+                  data-market={i}
+                  aria-pressed="false"
+                  aria-describedby="dunya-hint"
+                >
+                  <span class="dunya__no" aria-hidden="true">
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <span class="dunya__name">{m.name}</span>
+                  <span class="dunya__route" aria-hidden="true">
+                    <span class="dunya__route-line" style={`--w:${(m.shareValue / maxShare).toFixed(3)}`} />
+                  </span>
+                  <span class="dunya__share">{m.share}</span>
+                </button>
+              </li>
+            ))
+          }
+        </ol>
+        <p class="t-sm dunya__hint" id="dunya-hint">{c.list.hint}</p>
+        <p class="t-sm dunya__source">{c.list.note} {c.list.source}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* ======================================================================
+     Sahne düzeni
+     ====================================================================== */
+  .dunya {
+    padding-block-end: var(--sp-8);
+  }
+  .dunya__scene {
+    position: relative;
+    display: grid;
+    overflow-x: clip; /* taşan küre yatay kaydırma yaratmasın (sticky'yi bozmaz) */
+  }
+  .dunya__stage {
+    /* <1100: akışta, küre üstte */
+    --D: min(92vw, 70svh); /* görünen küre çapı */
+    --F: calc(var(--D) * 1.564); /* tuval: küre + atmosfer payı (globe.ts HALF/CAM_Z ile eşleşir) */
+    position: relative;
+  }
+  .dunya__globe {
+    position: relative;
+    inline-size: var(--F);
+    aspect-ratio: 1;
+    margin-inline: calc((100% - var(--F)) / 2);
+    margin-block: calc(var(--D) * -0.2) calc(var(--D) * -0.16);
+    cursor: grab;
+  }
+  .dunya__content {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    gap: var(--sp-8);
+    padding-inline: var(--gutter);
+  }
+
+  @media (min-width: 1100px) {
+    .dunya__stage {
+      --D: min(96lvh, 62vw);
+      grid-area: 1 / 1;
+      align-self: start;
+      position: sticky;
+      inset-block-start: 0;
+      block-size: 100lvh;
+      /* alttan taşan küre sert kesilmesin: sahnenin alt kenarında yumuşak sönüm */
+      -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 9%, #000 84%, transparent 100%);
+      mask-image: linear-gradient(to bottom, transparent 0, #000 9%, #000 84%, transparent 100%);
+    }
+    .dunya__globe {
+      position: absolute;
+      margin: 0;
+      /* küre merkezi: soldan 0,35·D, yukarıdan %60 → sol ve alttan taşar */
+      inset-inline-start: calc(var(--D) * 0.35 - var(--F) / 2);
+      inset-block-start: calc(60% - var(--F) / 2);
+    }
+    .dunya__content {
+      grid-area: 1 / 1;
+      gap: 0;
+      padding-inline: max(56vw, calc(var(--sp-7) + min(96lvh, 62vw) * 0.85)) var(--gutter);
+      pointer-events: none; /* sol taraftaki boşluk sürüklemeyi küreye bıraksın */
+    }
+    .dunya__content > * {
+      pointer-events: auto;
+    }
+    .dunya__intro {
+      min-block-size: 92lvh;
+      align-content: center;
+      padding-block: var(--nav-h) var(--sp-6);
+    }
+    .dunya__markets {
+      padding-block: 4lvh 14lvh;
+    }
+  }
+  :global(html:not(.js)) .dunya__stage {
+    display: none;
+  }
+  :global(html:not(.js)) .dunya__content {
+    padding-inline: var(--gutter);
+  }
+
+  /* --- küre -------------------------------------------------------------- */
+  .dunya__globe.is-dragging {
+    cursor: grabbing;
+  }
+  .dunya__canvas {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    touch-action: pan-y;
+    opacity: 0;
+    transition: opacity var(--dur-5) var(--ease-out);
+  }
+  .dunya__globe.is-live .dunya__canvas,
+  .dunya__globe.is-static .dunya__canvas {
+    opacity: 1;
+  }
+  .dunya__globe.is-static {
+    cursor: default;
+  }
+  .dunya__origin {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    margin: -0.85em 0 0 0.9em;
+    font-size: max(0.75rem, var(--fs-label));
+    color: var(--c-honey);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity var(--dur-3) var(--ease-out);
+    will-change: transform;
+  }
+  .dunya__origin-dot {
+    inline-size: 1.8em;
+    block-size: 1px;
+    background: currentColor;
+  }
+  .dunya__origin-name {
+    padding: 0.35em 0.6em 0.3em;
+    border-radius: var(--r-pill);
+    background: color-mix(in srgb, var(--c-night) 72%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c-honey) 35%, transparent);
+  }
+  .dunya__globe.is-static .dunya__origin {
+    display: none;
+  }
+  .dunya__coords {
+    color: var(--muted);
+    text-align: center;
+    margin-block: var(--sp-3) var(--sp-6);
+  }
+  @media (min-width: 1100px) {
+    .dunya__coords {
+      position: absolute;
+      inset-inline-start: var(--gutter);
+      inset-block-start: calc(var(--nav-h) + var(--sp-5));
+      margin: 0;
+      padding: 0.45em 0.8em 0.4em;
+      border-radius: var(--r-pill);
+      background: color-mix(in srgb, var(--c-night) 78%, transparent);
+      text-align: start;
+    }
+  }
+
+  /* --- metin ------------------------------------------------------------- */
+  .dunya__intro {
+    display: grid;
+    gap: var(--sp-5);
+  }
+  .dunya__intro :global(.section-heading__title) {
+    font-size: clamp(2.75rem, 6.2vw, 7.5rem);
+    line-height: 0.95;
+    max-inline-size: 11ch;
+  }
+  .dunya__lead {
+    color: var(--muted);
+    max-inline-size: 36ch;
+  }
+
+  /* "100 | 'den fazla / ülke" — tek kilit: büyük rakam + iki satırlık yan blok */
+  .dunya__stat {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.12em;
+    margin-block-start: var(--sp-4);
+    font-family: var(--font-display);
+    font-size: clamp(5.5rem, 10vw, 11rem);
+    line-height: 0.78;
+    color: var(--accent);
+    white-space: nowrap;
+    --soft: 100;
+  }
+  .dunya__stat-num {
+    font-weight: 320;
+    letter-spacing: -0.05em;
+  }
+  .dunya__stat-side {
+    display: grid;
+    font-size: 0.3em;
+    line-height: 1;
+    padding-block-end: 0.06em;
+    font-style: italic;
+    letter-spacing: -0.01em;
+  }
+  .dunya__stat-suffix {
+    color: var(--accent);
+  }
+  .dunya__stat-unit {
+    color: var(--fg);
+  }
+  .dunya__stat-cap {
+    color: var(--muted);
+    max-inline-size: 40ch;
+  }
+
+  /* --- liste ------------------------------------------------------------- */
+  .dunya__markets {
+    display: grid;
+    gap: var(--sp-4);
+    align-content: start;
+  }
+  .dunya__list-title {
+    color: var(--accent);
+    padding-block-end: var(--sp-2);
+  }
+  .dunya__list {
+    display: grid;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-block-start: 1px solid var(--line);
+  }
+  .dunya__item {
+    display: grid;
+    grid-template-columns: 2.25rem minmax(0, 10.5rem) 1fr 4.25rem;
+    align-items: center;
+    gap: var(--sp-3);
+    inline-size: 100%;
+    min-block-size: 3.25rem;
+    padding-block: 0.55rem;
+    border-block-end: 1px solid var(--line);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    text-align: start;
+    color: var(--fg);
+    background: none;
+    cursor: pointer;
+    transition: color var(--dur-2) var(--ease-out);
+  }
+  .dunya__item:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+  .dunya__no {
+    font-family: var(--font-mono);
+    font-size: max(0.75rem, var(--fs-label));
+    letter-spacing: var(--ls-label);
+    color: var(--muted);
+  }
+  .dunya__share {
+    font-family: var(--font-mono);
+    font-size: 0.9375rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--muted);
+    text-align: end;
+  }
+  .dunya__name {
+    font-weight: 500;
+    line-height: 1.2;
+    transition: transform var(--dur-3) var(--ease-sun);
+  }
+  .dunya__route {
+    position: relative;
+    block-size: 2px;
+  }
+  .dunya__route::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--line);
+  }
+  .dunya__route-line {
+    position: absolute;
+    inset: 0;
+    background: var(--accent);
+    transform-origin: 0 50%;
+    transform: scaleX(calc(0.12 + var(--w) * 0.88));
+    opacity: 0.6;
+    transition:
+      transform var(--dur-4) var(--ease-sun),
+      opacity var(--dur-3) var(--ease-out);
+  }
+  /* JS varsa çubuklar liste görününce sırayla dolar (globe.ts → .is-in) */
+  :global(html.js:not(.reduce)) .dunya__list:not(.is-in) .dunya__route-line {
+    transform: scaleX(0);
+  }
+  :global(html.js:not(.reduce)) .dunya__list.is-in .dunya__route-line {
+    transition-delay: calc(var(--i) * 70ms), 0ms;
+  }
+  .dunya__route-line::after {
+    content: '';
+    position: absolute;
+    inset-inline-end: -3px;
+    inset-block-start: -2.5px;
+    inline-size: 7px;
+    block-size: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+  .dunya__item[aria-pressed='true'] .dunya__name {
+    transform: translateX(0.4em);
+  }
+  .dunya__list .dunya__item[aria-pressed='true'] .dunya__route-line {
+    transform: scaleX(1);
+    opacity: 1;
+    transition-delay: 0ms;
+  }
+  .dunya__item[aria-pressed='true'] .dunya__share,
+  .dunya__item[aria-pressed='true'] .dunya__no {
+    color: var(--c-honey);
+  }
+  .dunya[data-market-active] .dunya__item[aria-pressed='false'] {
+    color: var(--muted);
+  }
+  .dunya__hint,
+  .dunya__source {
+    color: var(--muted);
+    max-inline-size: 46ch;
+  }
+  @media (max-width: 479.98px) {
+    .dunya__item {
+      grid-template-columns: 1.75rem minmax(0, 1fr) 3rem 3.75rem;
+    }
+  }
+</style>
+
+<script>
+  import '@/lib/globe/globe';
+</script>

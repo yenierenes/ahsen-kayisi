@@ -1,0 +1,496 @@
+/* ==========================================================================
+   Kabuk: gezinme · mobil menü · dil seçici · güneş yayı · imleç · preloader
+   Renkler canlı temadan (--fg/--bg) gelir; bölüm gökyüzüyle birlikte akar.
+   ========================================================================== */
+
+/* --- Ortak güneş dolgusu (Hero sonu = Sergi perdesi; birebir aynı olmalı) --- */
+.sun-fill {
+  background: radial-gradient(130% 130% at 50% 50%, var(--sun-core) 0%, var(--sun) 46%, #d8701c 100%);
+}
+
+/* --- Gezinme ---------------------------------------------------------------- */
+.nav {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: var(--z-nav);
+  color: var(--fg);
+  pointer-events: none;
+  transition: translate var(--dur-4) var(--ease-sun);
+}
+.nav.is-hidden {
+  translate: 0 -110%;
+}
+.nav__bar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-5);
+  block-size: var(--nav-h);
+  padding-inline: var(--gutter);
+  padding-block-start: 6px;
+  pointer-events: auto;
+}
+.nav__bar::before {
+  /* okunurluk perdesi: sayfa tepesinden uzakta görünürken belirir. Renk canlı
+     gökyüzünden (--bg) türetilir; tepede (hero üstü) tamamen saydam. */
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: color-mix(in srgb, var(--bg) 74%, transparent);
+  border-block-end: 1px solid var(--line);
+  -webkit-backdrop-filter: blur(16px) saturate(1.25);
+  backdrop-filter: blur(16px) saturate(1.25);
+  opacity: 0;
+  transition: opacity var(--dur-3) var(--ease-soft);
+  pointer-events: none;
+}
+.nav.is-scrolled .nav__bar::before {
+  opacity: 1;
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .nav__bar::before {
+    background: color-mix(in srgb, var(--bg) 94%, transparent);
+  }
+}
+.nav__brand {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  border-radius: var(--r-sm);
+}
+.nav__brand img {
+  block-size: clamp(34px, 2.2rem + 0.4vw, 44px);
+  inline-size: auto;
+}
+/* Tipografik işaret: küçük harf Fraunces (italik, yüksek opsz, SOFT) + güneş noktası */
+.nav__wordmark {
+  align-items: baseline;
+  gap: 0.08em;
+  min-block-size: 2.75rem;
+  padding-inline: 0.1em;
+  font-family: var(--font-display);
+  font-size: clamp(1.625rem, 1.3rem + 0.9vw, 2.25rem);
+  font-style: italic;
+  font-weight: 420;
+  line-height: 1;
+  letter-spacing: -0.035em;
+  font-variation-settings:
+    'opsz' 144,
+    'SOFT' 100,
+    'WONK' 1;
+  color: inherit; /* .nav: var(--fg); menü açıkken krem */
+  text-decoration: none;
+}
+.nav__word {
+  padding-block: 0.12em 0.18em;
+}
+.nav__sun {
+  flex: none;
+  inline-size: 0.26em;
+  block-size: 0.26em;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 32%, var(--c-honey), var(--c-apricot) 72%);
+  box-shadow: 0 0 0.45em 0.05em color-mix(in srgb, var(--c-apricot) 55%, transparent);
+  transition: transform var(--dur-3) var(--ease-sun);
+}
+.nav__wordmark:hover .nav__sun,
+.nav__wordmark:focus-visible .nav__sun {
+  transform: translateY(-0.35em) scale(1.15);
+}
+/* açık gökyüzleri: nokta kontrast için koyulaşır (≥3:1, ikon kuralı) */
+html[data-sky='blossom'] .nav__sun,
+html[data-sky='cream'] .nav__sun,
+html[data-sky='bone'] .nav__sun {
+  background: var(--c-apricot-strong);
+  box-shadow: none;
+}
+html[data-sky='golden'] .nav__sun {
+  background: var(--c-apricot-deep);
+  box-shadow: none;
+}
+.nav.is-menu-open .nav__sun {
+  background: radial-gradient(circle at 35% 32%, var(--c-honey), var(--c-apricot) 72%);
+}
+.nav__links {
+  display: none;
+  margin-inline: auto;
+}
+.nav__links ul {
+  display: flex;
+  gap: clamp(1rem, 0.4rem + 1.4vw, 2.25rem);
+}
+.nav__link {
+  position: relative;
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  padding-block: 0.4em;
+}
+.nav__link::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0.1em;
+  block-size: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: 100% 50%;
+  transition: transform var(--dur-3) var(--ease-sun);
+}
+.nav__link:hover::after,
+.nav__link:focus-visible::after {
+  transform: scaleX(1);
+  transform-origin: 0 50%;
+}
+.nav__end {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-inline-start: auto;
+}
+@media (min-width: 1024px) {
+  .nav__links {
+    display: block;
+  }
+  .nav__end {
+    margin-inline-start: 0;
+  }
+}
+
+/* CTA: kayısı dolgu + gece-toprağı etiket (7,92:1). Krem/beyaz etiket yasak. */
+.btn--cta {
+  --btn-bg: var(--c-apricot);
+  --btn-fg: var(--c-night);
+  min-block-size: 2.75rem;
+  padding-inline: 1.3em;
+}
+.btn--cta::before {
+  background: var(--c-night);
+}
+.btn--cta:hover,
+.btn--cta:focus-visible {
+  color: var(--c-cream);
+}
+/* Altın gökyüzünde kayısı dolgu zeminde kaybolur: tersine çevir */
+html[data-sky='golden'] .btn--cta {
+  --btn-bg: var(--c-night);
+  --btn-fg: var(--c-cream);
+}
+html[data-sky='golden'] .btn--cta::before {
+  background: var(--c-apricot);
+}
+html[data-sky='golden'] .btn--cta:hover,
+html[data-sky='golden'] .btn--cta:focus-visible {
+  color: var(--c-night);
+}
+
+/* Dil seçici */
+.lang {
+  position: relative;
+}
+.lang summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  min-block-size: 2.75rem;
+  padding-inline: 0.6em;
+  list-style: none;
+  cursor: pointer;
+  border-radius: var(--r-pill);
+}
+.lang summary::-webkit-details-marker {
+  display: none;
+}
+.lang summary svg {
+  inline-size: 0.7em;
+  transition: rotate var(--dur-2) var(--ease-out);
+}
+.lang[open] summary svg {
+  rotate: 180deg;
+}
+.lang__list {
+  position: absolute;
+  inset-block-start: calc(100% + 6px);
+  inset-inline-end: 0;
+  min-inline-size: 12rem;
+  padding: var(--sp-2);
+  border-radius: var(--r-md);
+  background: var(--c-night);
+  color: var(--c-cream);
+  box-shadow: 0 18px 50px -18px rgba(20, 11, 7, 0.6), inset 0 0 0 1px var(--c-line-dark);
+}
+.lang__item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  padding: 0.6em 0.75em;
+  border-radius: var(--r-sm);
+}
+.lang__item[aria-current='true'] {
+  background: rgba(246, 235, 221, 0.08);
+}
+.lang__item.is-soon {
+  color: var(--c-ink-muted-dark);
+}
+.lang__soon {
+  font-size: 0.85em;
+  color: var(--c-honey);
+}
+
+/* Menü düğmesi (≤1023px) */
+.nav__menu-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  min-block-size: 2.75rem;
+  padding-inline: 0.5em;
+  border-radius: var(--r-pill);
+}
+.burger {
+  position: relative;
+  inline-size: 22px;
+  block-size: 10px;
+}
+.burger::before,
+.burger::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  block-size: 1.5px;
+  background: currentColor;
+  transition: transform var(--dur-3) var(--ease-sun);
+}
+.burger::before {
+  top: 0;
+}
+.burger::after {
+  bottom: 0;
+}
+.nav.is-menu-open .burger::before {
+  transform: translateY(4.25px) rotate(45deg);
+}
+.nav.is-menu-open .burger::after {
+  transform: translateY(-4.25px) rotate(-45deg);
+}
+@media (min-width: 1024px) {
+  .nav__menu-btn,
+  .menu {
+    display: none;
+  }
+}
+@media (max-width: 479.98px) {
+  .nav__menu-label {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+}
+
+/* Mobil menü */
+.menu {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  display: grid;
+  align-content: end;
+  padding: calc(var(--nav-h) + var(--sp-6)) var(--gutter) var(--sp-8);
+  background: var(--c-night);
+  color: var(--c-cream);
+  clip-path: inset(0 0 100% 0);
+  transition: clip-path var(--dur-4) var(--ease-in-out);
+  pointer-events: auto;
+}
+.nav.is-menu-open {
+  color: var(--c-cream);
+}
+.nav.is-menu-open .menu {
+  clip-path: inset(0 0 0 0);
+}
+.menu__list a {
+  display: block;
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 1.6rem + 6vw, 4.5rem);
+  line-height: 1.08;
+  letter-spacing: var(--ls-display);
+  padding-block: 0.06em;
+}
+.menu__meta {
+  margin-block-start: var(--sp-7);
+  color: var(--c-ink-muted-dark);
+}
+
+/* --- Güneş yayı --------------------------------------------------------------- */
+.sunarc {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: var(--z-sunarc);
+  block-size: 16px;
+  pointer-events: none;
+}
+.sunarc svg {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  overflow: visible;
+}
+.sunarc__track {
+  stroke: var(--line);
+}
+.sunarc__trail {
+  stroke: var(--accent);
+}
+.sunarc__sun {
+  position: absolute;
+  inset: 0 auto auto 0;
+  inline-size: 9px;
+  block-size: 9px;
+  margin: -4.5px 0 0 -4.5px;
+  border-radius: 50%;
+  background: var(--c-honey);
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--c-apricot) 35%, transparent),
+    0 0 18px 4px color-mix(in srgb, var(--c-apricot) 55%, transparent);
+  will-change: transform;
+}
+
+/* --- İmleç ---------------------------------------------------------------------- */
+.cursor {
+  display: none;
+}
+/* "Güneş noktası": bal → kayısı dolgu, yumuşak hale. Karışım modu YOK
+   (difference kayısıyı maviye çeviriyordu). Varsayılan ≈10px nokta; yalnız
+   data-cursor="Etiket" taşıyan öğelerde etiketli diske büyür. */
+html.has-cursor .cursor {
+  position: fixed;
+  inset: 0 auto auto 0;
+  z-index: var(--z-cursor);
+  display: block;
+  inline-size: 0;
+  block-size: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--dur-2) var(--ease-soft);
+}
+html.has-cursor .cursor.is-visible {
+  opacity: 1;
+}
+/* hale: ölçeklenmeyen ayrı katman (nokta küçükken de yumuşak kalsın) */
+.cursor::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto auto 0;
+  inline-size: 40px;
+  block-size: 40px;
+  margin: -20px 0 0 -20px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--c-honey) 55%, transparent) 0%,
+    color-mix(in srgb, var(--c-apricot) 22%, transparent) 38%,
+    transparent 70%
+  );
+  transition:
+    transform var(--dur-3) var(--ease-sun),
+    opacity var(--dur-2) var(--ease-soft);
+}
+.cursor__dot {
+  position: absolute;
+  inset: 0 auto auto 0;
+  display: grid;
+  place-items: center;
+  inline-size: 84px;
+  block-size: 84px;
+  margin: -42px 0 0 -42px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 36% 32%, var(--c-honey) 0%, var(--c-amber) 45%, var(--c-apricot) 100%);
+  transform: scale(0.12); /* ≈10px */
+  transition:
+    transform var(--dur-3) var(--ease-sun),
+    opacity var(--dur-2) var(--ease-soft);
+}
+/* bağlantı/düğme: nokta biraz büyür, hale genişler — metni örtmez */
+.cursor.is-link .cursor__dot {
+  transform: scale(0.2);
+}
+.cursor.is-link::before {
+  transform: scale(1.5);
+}
+/* etiketli disk */
+.cursor.is-active.has-label .cursor__dot {
+  transform: scale(1);
+  box-shadow: 0 10px 34px -10px color-mix(in srgb, var(--c-apricot) 70%, transparent);
+}
+.cursor.is-active.has-label::before {
+  opacity: 0;
+}
+/* etiketsiz data-cursor: yarı saydam güneş halkası */
+.cursor.is-active:not(.has-label) .cursor__dot {
+  transform: scale(0.42);
+  opacity: 0.55;
+}
+.cursor.is-down .cursor__dot {
+  transform: scale(0.08);
+  opacity: 1;
+}
+.cursor__label {
+  color: var(--c-night);
+  opacity: 0;
+  transition: opacity var(--dur-2) var(--ease-soft);
+}
+.cursor.has-label .cursor__label {
+  opacity: 1;
+}
+html.has-cursor [data-cursor] {
+  cursor: none;
+}
+
+/* --- Preloader -------------------------------------------------------------------- */
+.preloader {
+  display: none;
+}
+html.js.motion-ok .preloader {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-preloader);
+  display: grid;
+  place-items: center;
+  background: var(--c-night);
+  color: var(--c-cream);
+  clip-path: inset(0 0 0 0);
+}
+.preloader__inner {
+  display: grid;
+  justify-items: center;
+  gap: var(--sp-5);
+}
+.preloader__fruit {
+  position: relative;
+  inline-size: clamp(72px, 4rem + 3vw, 112px);
+  aspect-ratio: 120 / 132;
+}
+.preloader__fruit svg {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+}
+.preloader__outline {
+  color: var(--c-ink-muted-dark);
+}
+.preloader__fill {
+  clip-path: inset(calc((1 - var(--p, 0)) * 100%) 0 0 0);
+}
+.preloader__count {
+  display: flex;
+  gap: var(--sp-3);
+  color: var(--c-ink-muted-dark);
+}
+.preloader__count strong {
+  color: var(--c-cream);
+  font-weight: 450;
+  min-inline-size: 2ch;
+  text-align: end;
+}

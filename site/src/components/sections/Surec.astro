@@ -1,0 +1,412 @@
+---
+/**
+ * Süreç — kemik → altın gökyüzünde "03 — Bahçeden kutuya, sekiz adım."
+ * Solda sabit, uzun medya çerçevesi (adım değiştikçe clip-path perdesiyle görsel değişir),
+ * sağda sekiz adım; ince dikey ray üzerinde küçük bir güneş noktası kaydırmayla yol alır.
+ * Dar ekranda çerçeve ekranın üstüne yapışır, adımlar altından akar.
+ * Davranış: src/lib/surec/surec.ts (aktif adım, ray ilerlemesi).
+ */
+import { getContent } from '@/content';
+import SectionHeading from '@/components/ui/SectionHeading.astro';
+const { surec: c } = getContent();
+
+const pad = (n: number): string => String(n).padStart(2, '0');
+const total = pad(c.steps.length);
+const sizes = '(min-width: 1100px) 46vw, 100vw';
+---
+
+<section
+  id="surec"
+  class="section surec"
+  data-surec
+  data-sky="bone"
+  data-sky-to="golden"
+  data-sky-to-range="0.55 0.88"
+  aria-labelledby="surec-title"
+>
+  <div class="container">
+    <div class="grid surec__head">
+      <div class="cell" style="--col: 1 / span 8; --col-md: 1 / -1">
+        <SectionHeading heading={c.heading} id="surec-title" />
+      </div>
+      <p class="surec__intro t-lead cell" style="--col: 9 / span 4; --col-md: 5 / span 4">{c.intro}</p>
+    </div>
+
+    <div class="surec__layout">
+      <div class="surec__media" data-surec-media>
+        <div class="surec__frame media-frame" data-surec-frame>
+          {
+            c.steps.map((s, i) => (
+              <div class:list={['surec__layer', { 'is-on': i === 0 }]} data-surec-layer aria-hidden={i === 0 ? undefined : 'true'}>
+                <picture>
+                  <source type="image/avif" srcset={`${s.photo.base}-1600.avif ${s.photo.widthAvif}w`} sizes={sizes} />
+                  <img
+                    src={`${s.photo.base}-1200.webp`}
+                    srcset={`${s.photo.base}-1200.webp ${s.photo.width}w, ${s.photo.base}-2400.webp ${s.photo.widthLg}w`}
+                    sizes={sizes}
+                    width={s.photo.width}
+                    height={s.photo.height}
+                    alt={s.photo.alt}
+                    loading="lazy"
+                    decoding="async"
+                    style={`object-position: ${s.photo.position ?? '50% 50%'};`}
+                  />
+                </picture>
+              </div>
+            ))
+          }
+          <p class="surec__tag label" aria-hidden="true">
+            <span data-surec-no>{pad(1)}</span>
+            <span>/ {total}</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="surec__list" data-surec-list>
+        <span class="surec__rail" aria-hidden="true" data-surec-rail>
+          <span class="surec__fill" data-surec-fill></span>
+          <span class="surec__sun" data-surec-sun></span>
+        </span>
+        <ol class="surec__steps">
+          {
+            c.steps.map((s, i) => (
+              <li class:list={['surec__step', { 'is-active': i === 0 }]} data-surec-step data-title={s.title}>
+                <div class="surec__body">
+                  <span class="surec__ghost" aria-hidden="true">
+                    {pad(i + 1)}
+                  </span>
+                  <p class="surec__when label">
+                    <span class="surec__mark" aria-hidden="true" data-surec-mark></span>
+                    <span>{s.when}</span>
+                  </p>
+                  <h3 class="surec__title">{s.title}</h3>
+                  <p class="surec__copy">{s.copy}</p>
+                </div>
+              </li>
+            ))
+          }
+        </ol>
+        <p class="surec__end">
+          <a class="surec__cta" href={c.cta.href} data-cursor>
+            <span class="link">{c.cta.label}</span>
+            <span class="surec__arrow" aria-hidden="true">→</span>
+          </a>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .surec {
+    --rail-x: 0.5rem; /* ray merkezi, listenin sol kenarından */
+    --step-pad: clamp(2.25rem, 1.6rem + 2.2vw, 3.75rem);
+  }
+  .surec__head {
+    align-items: end;
+  }
+  .surec__intro {
+    color: var(--muted);
+    max-inline-size: 28ch;
+  }
+
+  /* --- Dar ekran (varsayılan): çerçeve üste yapışır, adımlar altından akar ---- */
+  .surec__layout {
+    margin-block-start: var(--sp-8);
+  }
+  .surec__media {
+    position: sticky;
+    /* 0'a yapışır, üst boşluğu dolgu kapatır: adım metni çerçevenin üstünde görünmesin */
+    inset-block-start: 0;
+    z-index: var(--z-raised);
+    padding-block: calc(var(--nav-h) + var(--sp-2)) var(--sp-3);
+    background: var(--bg);
+  }
+  .surec__frame {
+    inline-size: 100%;
+    block-size: clamp(11rem, 34svh, 22rem);
+  }
+
+  /* Katmanlar: perde (clip-path) ile değişir, içte yavaş ölçek */
+  .surec__layer {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    clip-path: inset(100% 0 0 0);
+    transition: clip-path var(--dur-4) var(--ease-in-out);
+  }
+  .surec__layer picture,
+  .surec__layer img {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+  }
+  .surec__layer img {
+    object-fit: cover;
+    transform: scale(1.16);
+    transition: transform 1.2s var(--ease-sun);
+  }
+  .surec__layer.is-prev {
+    clip-path: inset(0 0 0 0);
+    z-index: 1;
+  }
+  .surec__layer.is-on {
+    clip-path: inset(0 0 0 0);
+    z-index: 2;
+  }
+  .surec__layer.is-prev img {
+    transform: scale(1.02);
+  }
+  .surec__layer.is-on img {
+    transform: scale(1);
+    transition-duration: 5s;
+  }
+
+  .surec__tag {
+    position: absolute;
+    inset-inline: 0;
+    inset-block-end: 0;
+    z-index: 3;
+    display: flex;
+    gap: 0.6em;
+    align-items: baseline;
+    margin: 0;
+    max-inline-size: none;
+    padding: var(--sp-7) var(--sp-5) var(--sp-4);
+    background: var(--scrim);
+    color: var(--c-cream);
+    pointer-events: none;
+  }
+
+  /* --- Adımlar ------------------------------------------------------------- */
+  .surec__list {
+    position: relative;
+  }
+  .surec__steps {
+    list-style: none;
+    margin: 0;
+    padding: 0 0 0 var(--step-pad);
+  }
+  .surec__step {
+    min-block-size: 52svh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-block: var(--sp-7);
+    color: var(--fg);
+  }
+  .surec__body {
+    position: relative;
+    display: grid;
+    gap: var(--sp-4);
+  }
+  /* Pasif adımlar soluk; etkin adım tam güçte */
+  .surec__ghost,
+  .surec__when,
+  .surec__title,
+  .surec__copy {
+    transition: opacity var(--dur-3) var(--ease-soft);
+  }
+  .surec__step:not(.is-active) :is(.surec__ghost, .surec__when, .surec__title, .surec__copy) {
+    opacity: 0.3;
+  }
+
+  /* Büyük içi boş numara */
+  .surec__ghost {
+    display: block;
+    margin-block-end: -0.12em;
+    font-family: var(--font-display);
+    font-size: clamp(3.5rem, 2rem + 6vw, 5rem);
+    font-weight: 300;
+    line-height: 0.8;
+    letter-spacing: -0.04em;
+    font-variant-numeric: lining-nums;
+    --soft: 100;
+    font-variation-settings:
+      'SOFT' var(--soft),
+      'WONK' var(--wonk);
+    color: transparent;
+    -webkit-text-stroke: 1px color-mix(in srgb, var(--fg) 42%, transparent);
+    user-select: none;
+  }
+  .surec__step.is-active .surec__ghost {
+    -webkit-text-stroke-color: color-mix(in srgb, var(--fg) 58%, transparent);
+  }
+  @supports not (-webkit-text-stroke: 1px black) {
+    .surec__ghost {
+      color: color-mix(in srgb, var(--fg) 14%, transparent);
+    }
+  }
+
+  .surec__when {
+    position: relative;
+    display: flex;
+    gap: 0.6em;
+    margin: 0;
+    max-inline-size: none;
+    color: var(--accent);
+  }
+  .surec__title {
+    font-size: clamp(2.25rem, 1.4rem + 3.2vw, 5rem);
+    line-height: 0.98;
+    letter-spacing: var(--ls-display);
+    font-weight: 380;
+    --soft: 60;
+    color: inherit;
+    text-wrap: balance;
+  }
+  .surec__copy {
+    max-inline-size: 36ch;
+    font-size: var(--fs-body);
+    line-height: var(--lh-body);
+    color: inherit;
+  }
+
+  /* İşaret noktası: rayın üzerinde, etiket satırında */
+  .surec__mark {
+    position: absolute;
+    inset-inline-start: calc(var(--rail-x) - var(--step-pad) - 0.375rem);
+    inset-block-start: 50%;
+    translate: 0 -50%;
+    inline-size: 0.75rem;
+    block-size: 0.75rem;
+    border-radius: 50%;
+    background: var(--bg);
+    box-shadow: inset 0 0 0 1.5px var(--muted);
+    transition:
+      background-color var(--dur-2) var(--ease-soft),
+      box-shadow var(--dur-2) var(--ease-soft);
+  }
+  .surec__step.is-active .surec__mark {
+    background: var(--accent);
+    box-shadow: inset 0 0 0 1.5px var(--accent);
+  }
+
+  /* Ray + ilerleme + güneş noktası */
+  .surec__rail {
+    position: absolute;
+    inset-inline-start: var(--rail-x);
+    inset-block-start: var(--rail-top, 1rem);
+    block-size: var(--rail-h, calc(100% - 2rem));
+    inline-size: 1px;
+    background: color-mix(in srgb, var(--fg) 24%, transparent);
+    pointer-events: none;
+  }
+  .surec__fill {
+    position: absolute;
+    inset: 0;
+    background: var(--accent);
+    transform: scaleY(0);
+    transform-origin: 50% 0;
+  }
+  .surec__sun {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: -0.4375rem;
+    inline-size: 0.9375rem;
+    block-size: 0.9375rem;
+    border-radius: 50%;
+    background: var(--c-apricot);
+    box-shadow:
+      0 0 0 3px var(--bg),
+      0 0 0 4.5px var(--accent);
+    will-change: transform;
+    translate: 0 -50%;
+  }
+
+  .surec__end {
+    margin: var(--sp-5) 0 0;
+    padding-inline-start: var(--step-pad);
+    max-inline-size: none;
+  }
+  .surec__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55em;
+    min-block-size: 2.75rem;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: var(--fs-h4);
+    letter-spacing: -0.01em;
+    color: var(--fg);
+  }
+  .surec__arrow {
+    display: inline-block;
+    transition: transform var(--dur-3) var(--ease-sun);
+  }
+  .surec__cta:hover .surec__arrow,
+  .surec__cta:focus-visible .surec__arrow {
+    transform: translateX(0.4em);
+  }
+
+  @media (min-width: 768px) {
+    .surec__frame {
+      block-size: clamp(14rem, 38svh, 26rem);
+    }
+    .surec__step {
+      min-block-size: 56svh;
+    }
+  }
+
+  /* --- Geniş ekran: 12 kolon — çerçeve 1–6, ray 7, adımlar 8–12 -------------- */
+  @media (min-width: 1100px) {
+    .surec__layout {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: var(--gap);
+      align-items: start;
+      margin-block-start: var(--sp-9);
+    }
+    .surec__media {
+      grid-column: 1 / span 6;
+      inset-block-start: max(10svh, calc(var(--nav-h) + var(--sp-2)));
+      padding: 0;
+      background: none;
+    }
+    .surec__frame {
+      block-size: 80svh;
+      max-block-size: 60rem;
+      border-radius: 24px;
+    }
+    .surec__tag {
+      padding: var(--sp-8) var(--sp-6) var(--sp-5);
+    }
+    /* Liste 7–12; kolon ölçüsü liste genişliğinden (6 kolon) türetilir */
+    .surec__list {
+      grid-column: 7 / span 6;
+      container-type: inline-size;
+      --colw: calc((100cqi - 5 * var(--gap)) / 6);
+      --rail-x: calc(var(--colw) / 2);
+      --step-pad: calc(var(--colw) + var(--gap));
+    }
+    .surec__step {
+      min-block-size: 72svh;
+      padding-block: var(--sp-7);
+    }
+    .surec__body {
+      gap: var(--sp-5);
+    }
+    .surec__ghost {
+      font-size: clamp(5rem, 9vw, 10rem);
+    }
+    .surec__title {
+      font-size: clamp(2.5rem, 4.6vw, 4.75rem);
+    }
+    .surec__copy {
+      font-size: clamp(1.0625rem, 0.9rem + 0.25vw, 1.125rem);
+      max-inline-size: 34ch;
+    }
+    .surec__end {
+      padding-block-end: var(--sp-8);
+    }
+  }
+
+  /* reduced-motion: perde ve ölçek geçişi zaten global kuralla 0'a iner */
+  :global(html.reduce) .surec__layer img {
+    transform: none;
+  }
+</style>
+
+<script>
+  import '@/lib/surec/surec';
+</script>
