@@ -1,0 +1,540 @@
+{
+ "note": "seq/ altında yalnız manifest ve ilk kare listelenir; kareler manifest.json'daki şemayla çözülür. Sergi ve tesis videoları Vertex Veo ile üretildi (sesiz, -an, +faststart, 0,8 sn çapraz geçişli döngü); posterler döngünün ilk karesidir.",
+ "assets": [
+  {
+   "path": "media/foto/cicek-safak-1200.webp",
+   "bytes": 177660,
+   "width": 1200,
+   "height": 670,
+   "description": "Şafakta çiçek açmış kayısı bahçesi"
+  },
+  {
+   "path": "media/foto/cicek-safak-1600.avif",
+   "bytes": 221179,
+   "width": 1600,
+   "height": 893,
+   "description": "Şafakta çiçek açmış kayısı bahçesi"
+  },
+  {
+   "path": "media/foto/cicek-safak-2400.webp",
+   "bytes": 682100,
+   "width": 2400,
+   "height": 1340,
+   "description": "Şafakta çiçek açmış kayısı bahçesi"
+  },
+  {
+   "path": "media/foto/hero-kuru-1200.webp",
+   "bytes": 20566,
+   "width": 1200,
+   "height": 670,
+   "description": "Güneşte kurutulmuş kayısı (hero bitiş karesi)"
+  },
+  {
+   "path": "media/foto/hero-kuru-1600.avif",
+   "bytes": 31038,
+   "width": 1600,
+   "height": 893,
+   "description": "Güneşte kurutulmuş kayısı (hero bitiş karesi)"
+  },
+  {
+   "path": "media/foto/hero-kuru-2400.webp",
+   "bytes": 81730,
+   "width": 2400,
+   "height": 1340,
+   "description": "Güneşte kurutulmuş kayısı (hero bitiş karesi)"
+  },
+  {
+   "path": "media/foto/hero-taze-1200.webp",
+   "bytes": 13668,
+   "width": 1200,
+   "height": 670,
+   "description": "Taze kayısı, koyu sıcak zeminde (hero başlangıç karesi)"
+  },
+  {
+   "path": "media/foto/hero-taze-1600.avif",
+   "bytes": 21176,
+   "width": 1600,
+   "height": 893,
+   "description": "Taze kayısı, koyu sıcak zeminde (hero başlangıç karesi)"
+  },
+  {
+   "path": "media/foto/hero-taze-2400.webp",
+   "bytes": 61608,
+   "width": 2400,
+   "height": 1340,
+   "description": "Taze kayısı, koyu sıcak zeminde (hero başlangıç karesi)"
+  },
+  {
+   "path": "media/foto/hero-yarim-1200.webp",
+   "bytes": 32326,
+   "width": 1200,
+   "height": 670,
+   "description": "Kayısı kuruma ara karesi"
+  },
+  {
+   "path": "media/foto/hero-yarim-1600.avif",
+   "bytes": 42485,
+   "width": 1600,
+   "height": 893,
+   "description": "Kayısı kuruma ara karesi"
+  },
+  {
+   "path": "media/foto/hero-yarim-2400.webp",
+   "bytes": 111060,
+   "width": 2400,
+   "height": 1340,
+   "description": "Kayısı kuruma ara karesi"
+  },
+  {
+   "path": "media/foto/sergi-drone-1200.webp",
+   "bytes": 277860,
+   "width": 1200,
+   "height": 670,
+   "description": "Malatya kayısı serme alanları, drone görünümü"
+  },
+  {
+   "path": "media/foto/sergi-drone-1600.avif",
+   "bytes": 297247,
+   "width": 1600,
+   "height": 893,
+   "description": "Malatya kayısı serme alanları, drone görünümü"
+  },
+  {
+   "path": "media/foto/sergi-drone-2400.webp",
+   "bytes": 979566,
+   "width": 2400,
+   "height": 1340,
+   "description": "Malatya kayısı serme alanları, drone görünümü"
+  },
+  {
+   "path": "media/foto/sergi-tepeden-1200.webp",
+   "bytes": 370316,
+   "width": 1200,
+   "height": 670,
+   "description": "Serme alanları tepeden, işçilerle"
+  },
+  {
+   "path": "media/foto/sergi-tepeden-1600.avif",
+   "bytes": 339224,
+   "width": 1600,
+   "height": 893,
+   "description": "Serme alanları tepeden, işçilerle"
+  },
+  {
+   "path": "media/foto/sergi-tepeden-2400.webp",
+   "bytes": 1168430,
+   "width": 2400,
+   "height": 1340,
+   "description": "Serme alanları tepeden, işçilerle"
+  },
+  {
+   "path": "media/foto/urun-cekirdek-1200.webp",
+   "bytes": 58474,
+   "width": 967,
+   "height": 1200,
+   "description": "Kayısı çekirdeği içi (badem benzeri), düz çekim"
+  },
+  {
+   "path": "media/foto/urun-cekirdek-1600.avif",
+   "bytes": 74036,
+   "width": 1289,
+   "height": 1600,
+   "description": "Kayısı çekirdeği içi (badem benzeri), düz çekim"
+  },
+  {
+   "path": "media/foto/urun-cekirdek-2400.webp",
+   "bytes": 195208,
+   "width": 1856,
+   "height": 2304,
+   "description": "Kayısı çekirdeği içi (badem benzeri), düz çekim"
+  },
+  {
+   "path": "media/foto/urun-cekirdek-kesim.webp",
+   "bytes": 243138,
+   "width": 957,
+   "height": 1325,
+   "description": "Kayısı çekirdeği içi (badem benzeri), düz çekim (şeffaf arka plan)"
+  },
+  {
+   "path": "media/foto/urun-gun-kurusu-1200.webp",
+   "bytes": 70920,
+   "width": 967,
+   "height": 1200,
+   "description": "Gün kurusu kayısı, düz çekim"
+  },
+  {
+   "path": "media/foto/urun-gun-kurusu-1600.avif",
+   "bytes": 101096,
+   "width": 1289,
+   "height": 1600,
+   "description": "Gün kurusu kayısı, düz çekim"
+  },
+  {
+   "path": "media/foto/urun-gun-kurusu-2400.webp",
+   "bytes": 274264,
+   "width": 1856,
+   "height": 2304,
+   "description": "Gün kurusu kayısı, düz çekim"
+  },
+  {
+   "path": "media/foto/urun-gun-kurusu-kesim.webp",
+   "bytes": 317264,
+   "width": 1036,
+   "height": 1400,
+   "description": "Gün kurusu kayısı, düz çekim (şeffaf arka plan)"
+  },
+  {
+   "path": "media/foto/urun-kup-1200.webp",
+   "bytes": 101532,
+   "width": 967,
+   "height": 1200,
+   "description": "Kayısı küpleri, düz çekim"
+  },
+  {
+   "path": "media/foto/urun-kup-1600.avif",
+   "bytes": 130916,
+   "width": 1289,
+   "height": 1600,
+   "description": "Kayısı küpleri, düz çekim"
+  },
+  {
+   "path": "media/foto/urun-kup-2400.webp",
+   "bytes": 364886,
+   "width": 1856,
+   "height": 2304,
+   "description": "Kayısı küpleri, düz çekim"
+  },
+  {
+   "path": "media/foto/urun-kup-kesim.webp",
+   "bytes": 401390,
+   "width": 1015,
+   "height": 1400,
+   "description": "Kayısı küpleri, düz çekim (şeffaf arka plan)"
+  },
+  {
+   "path": "media/foto/urun-organik-1200.webp",
+   "bytes": 60560,
+   "width": 967,
+   "height": 1200,
+   "description": "Organik kuru kayısı, düz çekim"
+  },
+  {
+   "path": "media/foto/urun-organik-1600.avif",
+   "bytes": 107810,
+   "width": 1289,
+   "height": 1600,
+   "description": "Organik kuru kayısı, düz çekim"
+  },
+  {
+   "path": "media/foto/urun-organik-2400.webp",
+   "bytes": 258804,
+   "width": 1856,
+   "height": 2304,
+   "description": "Organik kuru kayısı, düz çekim"
+  },
+  {
+   "path": "media/foto/urun-organik-kesim.webp",
+   "bytes": 250834,
+   "width": 992,
+   "height": 1400,
+   "description": "Organik kuru kayısı, düz çekim (şeffaf arka plan)"
+  },
+  {
+   "path": "media/foto/urun-sari-1200.webp",
+   "bytes": 54474,
+   "width": 967,
+   "height": 1200,
+   "description": "Sarı kuru kayısı, düz çekim"
+  },
+  {
+   "path": "media/foto/urun-sari-1600.avif",
+   "bytes": 84257,
+   "width": 1289,
+   "height": 1600,
+   "description": "Sarı kuru kayısı, düz çekim"
+  },
+  {
+   "path": "media/foto/urun-sari-2400.webp",
+   "bytes": 197580,
+   "width": 1856,
+   "height": 2304,
+   "description": "Sarı kuru kayısı, düz çekim"
+  },
+  {
+   "path": "media/foto/urun-sari-kesim.webp",
+   "bytes": 247246,
+   "width": 1091,
+   "height": 1400,
+   "description": "Sarı kuru kayısı, düz çekim (şeffaf arka plan)"
+  },
+  {
+   "path": "media/kesim/cicek-1000.webp",
+   "bytes": 321374,
+   "width": 629,
+   "height": 660,
+   "description": "Kesim: kayısı çiçeği (şeffaf arka plan)"
+  },
+  {
+   "path": "media/kesim/cicek-500.webp",
+   "bytes": 201982,
+   "width": 477,
+   "height": 500,
+   "description": "Kesim: kayısı çiçeği (şeffaf arka plan)"
+  },
+  {
+   "path": "media/kesim/kuru-1-1000.webp",
+   "bytes": 312832,
+   "width": 531,
+   "height": 586,
+   "description": "Kesim: kuru kayısı 1 (şeffaf arka plan)"
+  },
+  {
+   "path": "media/kesim/kuru-1-500.webp",
+   "bytes": 239590,
+   "width": 453,
+   "height": 500,
+   "description": "Kesim: kuru kayısı 1 (şeffaf arka plan)"
+  },
+  {
+   "path": "media/kesim/kuru-2-1000.webp",
+   "bytes": 427554,
+   "width": 633,
+   "height": 655,
+   "description": "Kesim: kuru kayısı 2 (şeffaf arka plan)"
+  },
+  {
+   "path": "media/kesim/kuru-2-500.webp",
+   "bytes": 265000,
+   "width": 483,
+   "height": 500,
+   "description": "Kesim: kuru kayısı 2 (şeffaf arka plan)"
+  },
+  {
+   "path": "media/kesim/kuru-3-1000.webp",
+   "bytes": 594766,
+   "width": 705,
+   "height": 745,
+   "description": "Kesim: kuru kayısı 3 (şeffaf arka plan)"
+  },
+  {
+   "path": "media/kesim/kuru-3-500.webp",
+   "bytes": 291516,
+   "width": 473,
+   "height": 500,
+   "description": "Kesim: kuru kayısı 3 (şeffaf arka plan)"
+  },
+  {
+   "path": "media/kesim/kuru-4-1000.webp",
+   "bytes": 464246,
+   "width": 652,
+   "height": 708,
+   "description": "Kesim: kuru kayısı 4 (şeffaf arka plan)"
+  },
+  {
+   "path": "media/kesim/kuru-4-500.webp",
+   "bytes": 250554,
+   "width": 460,
+   "height": 500,
+   "description": "Kesim: kuru kayısı 4 (şeffaf arka plan)"
+  },
+  {
+   "path": "media/kesim/kuru-5-1000.webp",
+   "bytes": 382544,
+   "width": 534,
+   "height": 631,
+   "description": "Kesim: kuru kayısı 5 (şeffaf arka plan)"
+  },
+  {
+   "path": "media/kesim/kuru-5-500.webp",
+   "bytes": 254898,
+   "width": 423,
+   "height": 500,
+   "description": "Kesim: kuru kayısı 5 (şeffaf arka plan)"
+  },
+  {
+   "path": "media/kesim/taze-yaprak-1000.webp",
+   "bytes": 322460,
+   "width": 615,
+   "height": 610,
+   "description": "Kesim: yapraklı taze kayısı (şeffaf arka plan)"
+  },
+  {
+   "path": "media/kesim/taze-yaprak-500.webp",
+   "bytes": 223942,
+   "width": 500,
+   "height": 496,
+   "description": "Kesim: yapraklı taze kayısı (şeffaf arka plan)"
+  },
+  {
+   "path": "media/marka/ahsen-logo.png",
+   "bytes": 34682,
+   "width": 240,
+   "height": 115,
+   "description": ""
+  },
+  {
+   "path": "media/foto/hasat-eller-1200.webp",
+   "bytes": 168254,
+   "width": 967,
+   "height": 1200,
+   "description": "Çiftçinin elleri kayısıyı kasaya yerleştiriyor (hasat)"
+  },
+  {
+   "path": "media/foto/hasat-eller-1600.avif",
+   "bytes": 148248,
+   "width": 1289,
+   "height": 1600,
+   "description": "Çiftçinin elleri kayısıyı kasaya yerleştiriyor (hasat)"
+  },
+  {
+   "path": "media/foto/hasat-eller-2400.webp",
+   "bytes": 463706,
+   "width": 1856,
+   "height": 2304,
+   "description": "Çiftçinin elleri kayısıyı kasaya yerleştiriyor (hasat)"
+  },
+  {
+   "path": "media/foto/islim-1200.webp",
+   "bytes": 96770,
+   "width": 967,
+   "height": 1200,
+   "description": "İslim odasında kerevetlerde taze kayısı"
+  },
+  {
+   "path": "media/foto/islim-1600.avif",
+   "bytes": 94456,
+   "width": 1289,
+   "height": 1600,
+   "description": "İslim odasında kerevetlerde taze kayısı"
+  },
+  {
+   "path": "media/foto/islim-2400.webp",
+   "bytes": 334440,
+   "width": 1856,
+   "height": 2304,
+   "description": "İslim odasında kerevetlerde taze kayısı"
+  },
+  {
+   "path": "media/foto/paketleme-1200.webp",
+   "bytes": 52626,
+   "width": 967,
+   "height": 1200,
+   "description": "Eldivenli eller açık kolide kuru kayısıyı düzeltiyor (paketleme)"
+  },
+  {
+   "path": "media/foto/paketleme-1600.avif",
+   "bytes": 55063,
+   "width": 1289,
+   "height": 1600,
+   "description": "Eldivenli eller açık kolide kuru kayısıyı düzeltiyor (paketleme)"
+  },
+  {
+   "path": "media/foto/paketleme-2400.webp",
+   "bytes": 131928,
+   "width": 1856,
+   "height": 2304,
+   "description": "Eldivenli eller açık kolide kuru kayısıyı düzeltiyor (paketleme)"
+  },
+  {
+   "path": "media/foto/tesis-secim-1200.webp",
+   "bytes": 49198,
+   "width": 670,
+   "height": 1200,
+   "description": "Tesis bandında kuru kayısı seçimi, dikey"
+  },
+  {
+   "path": "media/foto/tesis-secim-1600.avif",
+   "bytes": 48035,
+   "width": 893,
+   "height": 1600,
+   "description": "Tesis bandında kuru kayısı seçimi, dikey"
+  },
+  {
+   "path": "media/foto/tesis-secim-2400.webp",
+   "bytes": 113874,
+   "width": 1340,
+   "height": 2400,
+   "description": "Tesis bandında kuru kayısı seçimi, dikey"
+  },
+  {
+   "path": "media/video/v-sergi-drone.mp4",
+   "bytes": 30600965,
+   "width": 1920,
+   "height": 1080,
+   "description": "Sergi alanları üzerinde drone push-in; ~7.2 sn kesintisiz döngü, sessiz (masaüstü)"
+  },
+  {
+   "path": "media/video/v-sergi-drone-m.mp4",
+   "bytes": 3951385,
+   "width": 960,
+   "height": 540,
+   "description": "Sergi drone videosu, mobil sürüm; sessiz döngü"
+  },
+  {
+   "path": "media/video/v-sergi-drone.jpg",
+   "bytes": 712638,
+   "width": 1920,
+   "height": 1080,
+   "description": "Sergi drone videosu posteri (döngünün ilk karesi)"
+  },
+  {
+   "path": "media/video/v-tesis.mp4",
+   "bytes": 3481393,
+   "width": 1080,
+   "height": 1920,
+   "description": "Tesis seçme bandı, dikey; ~7.2 sn kesintisiz döngü, sessiz (masaüstü)"
+  },
+  {
+   "path": "media/video/v-tesis-m.mp4",
+   "bytes": 758839,
+   "width": 540,
+   "height": 960,
+   "description": "Tesis videosu, mobil sürüm; sessiz döngü"
+  },
+  {
+   "path": "media/video/v-tesis.jpg",
+   "bytes": 127693,
+   "width": 1080,
+   "height": 1920,
+   "description": "Tesis videosu posteri (döngünün ilk karesi)"
+  },
+  {
+   "path": "seq/hero/f_0001.webp",
+   "bytes": 35704,
+   "width": 1600,
+   "height": 900,
+   "description": "Hero kuruma sekansı, 192 kare 1600x900 (f_0001..f_0192; m/ 96 kare 960x540)"
+  },
+  {
+   "path": "seq/hero/manifest.json",
+   "bytes": 131,
+   "description": "Hero sekans manifesti"
+  },
+  {
+   "path": "seq/hero/m/f_0001.webp",
+   "bytes": 11592,
+   "width": 960,
+   "height": 540,
+   "description": "Hero kuruma sekansı, 192 kare 1600x900 (f_0001..f_0192; m/ 96 kare 960x540)"
+  },
+  {
+   "path": "seq/hero-fg/f_0001.webp",
+   "bytes": 39294,
+   "width": 1600,
+   "height": 900,
+   "description": "Hero ön plan matte sekansı (yalnız meyve, alfa), aynı numaralama; m/ mobil"
+  },
+  {
+   "path": "seq/hero-fg/manifest.json",
+   "bytes": 131,
+   "description": "Ön plan sekans manifesti"
+  },
+  {
+   "path": "seq/hero-fg/m/f_0001.webp",
+   "bytes": 17704,
+   "width": 960,
+   "height": 540,
+   "description": "Hero ön plan matte sekansı (yalnız meyve, alfa), aynı numaralama; m/ mobil"
+  }
+ ]
+}
