@@ -1,20 +1,20 @@
 ---
 /**
  * Çiçek — "BAHAR". Rakamlar ile Süreç arasında, numarasız önsöz.
- * Sabit ≈560lvh (mobil 420lvh) sahne. Katmanlar (alttan üste):
- *   kemik zemin (çıkışta) → medya (canvas dizisi /seq/cicek/ ya da durağan foto) → açık örtü (yazı alanı) →
+ * Sabit ≈420lvh (mobil 340lvh) sahne. Dört vuruş, dört çekim: her vuruşun kısa, döngülü videosu
+ * GERÇEK ZAMANLI oynar (kaydırma durunca da görüntü canlı); kaydırma vuruşu, dolayısıyla çekimi değiştirir.
+ * Vuruş sınırında zamana bağlı film geçişi (≈0.7 s çapraz karışım + hafif ölçek oturması); kaydırma
+ * çekimin yavaş yaklaşmasını (1.00→1.07), yazıyı ve yaprak rüzgârını sürer.
+ * Katmanlar (alttan üste):
+ *   kemik zemin (çıkışta) → çekim katmanları (poster <img> + <video>) → açık örtü (+ çekime göre ek güç) →
  *   uzak + orta yapraklar → dört vuruşluk yazı → yakın yapraklar.
- * Dizi: komşu kareler karışır (data-blend), kareler oynatma başının önünde ana iş parçacığı dışında
- * çözülür (data-bitmap), yükleme ~3 ekran önce başlar ve oynatma başını izler (data-sequence-follow).
  * Sayfa rengi kemiğe sahnenin en sonunda (0.995–1) tek hamlede döner; görünen geçişi
- * .cicek__under katmanı yapar (gökyüzü değişkenleri her karede tüm belgeyi yeniden biçemlendirir).
- * Bölümün altında, Süreç girişinin üstüne taşan küçük bir "köprü" alanı: birkaç yaprak
- * sahne bittikten sonra da düşmeye devam eder.
- * Koreografi: src/lib/cicek/cicek.ts · yaprak sistemi: src/lib/cicek/petals.ts
+ * .cicek__under katmanı yapar. Bölümün altında Süreç girişine taşan küçük bir "köprü" yaprak alanı.
+ * Koreografi + video yönetimi: src/lib/cicek/cicek.ts · yaprak sistemi: src/lib/cicek/petals.ts
  *
- * Derleme/istek anında:
- *  - /seq/cicek/manifest.json yoksa canvas yerine durağan foto basılır (404 yok);
- *    dizi gelince kod değişmeden canvas'a geçer.
+ * Derleme/istek anında (dosya yoksa 404 yok; dosya gelince kod değişmeden kullanılır):
+ *  - /media/video/bahar-N{.mp4,-m.mp4,.jpg}: N yoksa 1. çekim, o da yoksa durağan foto (cicek-safak-*).
+ *    Aynı klibi kullanan vuruşlar tek katmanı paylaşır (geçiş olmaz, aynı video sürer).
  *  - Yaprak/çiçek kesimleri public/media/kesim/ klasöründen okunur
  *    (cicek-N-500.webp, petal-N-300.webp); hiçbiri yoksa tek cicek-500.webp.
  */
@@ -25,8 +25,52 @@ const { cicek: c } = getContent();
 
 const cwd = (globalThis as { process?: { cwd(): string } }).process?.cwd() ?? '.';
 const pub = (url: string): string => `${cwd}/public/${url.replace(/^\/+/, '')}`;
-const hasSeq: boolean = fs.existsSync(pub(`${c.sequence.base}manifest.json`));
+const has = (url: string): boolean => fs.existsSync(pub(url));
 
+// --- Çekimler -------------------------------------------------------------------
+const s = c.still;
+const stillPoster = `${s.base}-1200.webp`;
+interface Clip {
+  key: string;
+  src: string;
+  srcM: string;
+  poster: string;
+  still: boolean;
+}
+const clipOf = (base: string): Clip | null => {
+  if (!base || !has(`${base}.mp4`)) return null;
+  return {
+    key: base,
+    src: `${base}.mp4`,
+    srcM: has(`${base}-m.mp4`) ? `${base}-m.mp4` : `${base}.mp4`,
+    poster: has(`${base}.jpg`) ? `${base}.jpg` : stillPoster,
+    still: false,
+  };
+};
+const firstClip = clipOf(c.beats[0]?.shot.base ?? '');
+const stillClip: Clip = { key: 'still', src: '', srcM: '', poster: stillPoster, still: true };
+const perBeat: Clip[] = c.beats.map((b) => clipOf(b.shot.base) ?? firstClip ?? stillClip);
+/** benzersiz klip başına bir katman; `beat` = katmanın asıl sahibi (alt + örtü gücü ondan) */
+const layers: { clip: Clip; beat: number }[] = [];
+const beatLayer: number[] = perBeat.map((cl, i) => {
+  let k = layers.findIndex((l) => l.clip.key === cl.key);
+  if (k < 0) {
+    k = layers.length;
+    layers.push({ clip: cl, beat: i });
+  }
+  return k;
+});
+const layerAlt = (k: number): string => {
+  const l = layers[k];
+  if (!l) return s.alt;
+  return l.clip.still ? s.alt : (c.beats[l.beat]?.shot.alt ?? s.alt);
+};
+const shotMap = JSON.stringify({
+  beat: beatLayer,
+  wash: layers.map((l) => c.beats[l.beat]?.shot.wash ?? 0),
+});
+
+// --- Yapraklar ------------------------------------------------------------------
 let files: string[] = [];
 try {
   files = (fs.readdirSync(pub('/media/kesim/')) as string[]).slice();
@@ -39,7 +83,7 @@ const petals = files.filter((f) => /^petal-\d+-300\.webp$/.test(f)).sort(byNo).m
 if (!blossoms.length && !petals.length) blossoms = [c.spriteFallback.src];
 const sprites = JSON.stringify({ b: blossoms, p: petals });
 
-// reduced-motion / JS yok: kadrajın kenarlarına oturan 6 durağan kesim (2 çiçek + 4 yaprak)
+// reduced-motion / JS yok: kenarlara oturan 6 durağan kesim (2 çiçek + 4 yaprak)
 const pickB = (i: number): string => blossoms[i % Math.max(1, blossoms.length)] ?? petals[i % petals.length] ?? c.spriteFallback.src;
 const pickP = (i: number): string => petals[i % Math.max(1, petals.length)] ?? pickB(i);
 const rest = [
@@ -50,13 +94,11 @@ const rest = [
   { src: pickP(2), style: 'left:7%; bottom:-4%; --s:clamp(2rem, 3vw, 3rem); --r:64deg' },
   { src: pickP(3), style: 'left:44%; bottom:-3%; --s:clamp(1.4rem, 2vw, 2rem); --r:-18deg' },
 ];
-
-const s = c.still;
 ---
 
 <section
   id="cicek"
-  class:list={['cicek', { 'cicek--seq': hasSeq }]}
+  class="cicek"
   data-cicek
   data-sky="blossom"
   data-sky-to="bone"
@@ -71,52 +113,71 @@ const s = c.still;
     <div class="cicek__frame">
       <div class="cicek__media" data-cicek-media>
         <div class="cicek__zoom" data-cicek-zoom>
-          {
-            hasSeq && (
-              <canvas
-                class="cicek__canvas"
-                data-cicek-canvas
-                data-sequence={c.sequence.base}
-                data-sequence-group="cicek"
-                data-fit="cover"
-                data-fit-portrait="cover"
-                data-blend
-                data-bitmap
-                data-dpr-max="1"
-                data-sequence-margin="300%"
-                data-sequence-follow
-                data-sequence-light="4"
-                data-sequence-margin-slow="1000%"
-                role="img"
-                aria-label={c.sequence.alt}
-              />
-            )
-          }
-          <picture class="cicek__still" data-cicek-still>
-            <source type="image/avif" srcset={`${s.base}-1600.avif ${s.widthAvif}w`} sizes="100vw" />
-            <img
-              src={`${s.base}-1200.webp`}
-              srcset={`${s.base}-1200.webp ${s.width}w, ${s.base}-2400.webp ${s.widthLg}w`}
-              sizes="100vw"
-              width={s.width}
-              height={s.height}
-              alt={s.alt}
-              loading="lazy"
-              decoding="async"
-            />
-          </picture>
+          <div class="cicek__shots" data-cicek-shots data-map={shotMap} role="img" aria-label={layerAlt(0)}>
+            {
+              layers.map((l, k) => (
+                <div class="cicek__shot" data-cicek-shot data-alt={layerAlt(k)}>
+                  <div class="cicek__settle" data-cicek-settle>
+                    {l.clip.still ? (
+                      <picture class="cicek__still">
+                        <source type="image/avif" srcset={`${s.base}-1600.avif ${s.widthAvif}w`} sizes="100vw" />
+                        <img
+                          src={`${s.base}-1200.webp`}
+                          srcset={`${s.base}-1200.webp ${s.width}w, ${s.base}-2400.webp ${s.widthLg}w`}
+                          sizes="100vw"
+                          width={s.width}
+                          height={s.height}
+                          alt=""
+                          decoding="async"
+                        />
+                      </picture>
+                    ) : (
+                      <img
+                        class="cicek__poster"
+                        src={l.clip.poster}
+                        width="1280"
+                        height="720"
+                        alt=""
+                        loading={k === 0 ? 'eager' : 'lazy'}
+                        fetchpriority={k === 0 ? 'auto' : 'low'}
+                        decoding="async"
+                      />
+                    )}
+                    {!l.clip.still && (
+                      <video
+                        class="cicek__video"
+                        data-cicek-video
+                        data-src={l.clip.src}
+                        data-src-m={l.clip.srcM}
+                        muted
+                        playsinline
+                        loop
+                        preload="none"
+                        disablepictureinpicture
+                        disableRemotePlayback
+                        tabindex="-1"
+                        aria-hidden="true"
+                      />
+                    )}
+                  </div>
+                </div>
+              ))
+            }
+          </div>
         </div>
-        <div class="cicek__wash" data-cicek-wash aria-hidden="true"></div>
+        <div class="cicek__wash" data-cicek-wash aria-hidden="true">
+          <i class="cicek__wash-boost" data-cicek-boost></i>
+        </div>
       </div>
 
       <!-- çıkış kartının 24px köşeleri (cicek.ts konumlar; dikdörtgen kırpmanın üstünde) -->
       <div class="cicek__corners" aria-hidden="true">
         <i data-cicek-corner data-c="tl"></i><i data-cicek-corner data-c="tr"></i><i data-cicek-corner data-c="bl"></i><i data-cicek-corner data-c="br"></i>
       </div>
+    </div>
 
-      <div class="cicek__rest" aria-hidden="true">
-        {rest.map((r) => <img src={r.src} alt="" style={r.style} loading="lazy" decoding="async" />)}
-      </div>
+    <div class="cicek__rest" aria-hidden="true">
+      {rest.map((r) => <img src={r.src} alt="" style={r.style} loading="lazy" decoding="async" />)}
     </div>
 
     <!-- Yaprak alanı: petals.ts doldurur. Uzak + orta yazının arkasında, yakın önünde. -->
@@ -128,26 +189,39 @@ const s = c.still;
     <div class="cicek__ui">
       <ol class="cicek__beats" role="list" data-cicek-beats>
         {
-          c.beats.map((b, i) => (
-            <li class="cicek__beat" data-cicek-beat>
-              <p class="cicek__label label">
-                <span class="cicek__mask">
-                  <span class="cicek__mask-in" data-cicek-part>
-                    {c.label}
-                    <span class="cicek__dots" aria-hidden="true">
-                      {c.beats.map((_, j) => <i class:list={{ 'is-on': j === i }} />)}
+          c.beats.map((b, i) => {
+            const k = beatLayer[i] ?? 0;
+            const own = layers[k]?.beat === i;
+            return (
+              <li class="cicek__beat" data-cicek-beat>
+                <img
+                  class="cicek__beat-img"
+                  src={perBeat[i]?.poster ?? stillPoster}
+                  width="1280"
+                  height="720"
+                  alt={own ? layerAlt(k) : ''}
+                  loading="lazy"
+                  decoding="async"
+                />
+                <p class="cicek__label label">
+                  <span class="cicek__mask">
+                    <span class="cicek__mask-in" data-cicek-part>
+                      {c.label}
+                      <span class="cicek__dots" aria-hidden="true">
+                        {c.beats.map((_, j) => <i class:list={{ 'is-on': j === i }} />)}
+                      </span>
                     </span>
                   </span>
-                </span>
-              </p>
-              <p class="cicek__title" data-cicek-split>
-                {b.title}
-              </p>
-              <p class="cicek__text" data-cicek-split>
-                {b.text}
-              </p>
-            </li>
-          ))
+                </p>
+                <p class="cicek__title" data-cicek-split>
+                  {b.title}
+                </p>
+                <p class="cicek__text" data-cicek-split>
+                  {b.text}
+                </p>
+              </li>
+            );
+          })
         }
       </ol>
     </div>
@@ -163,14 +237,14 @@ const s = c.still;
 
 <style>
   .cicek {
-    --pin-len: 560lvh;
+    --pin-len: 420lvh;
     position: relative;
     z-index: var(--z-raised);
     color: var(--fg);
   }
   @media (max-width: 767.98px) {
     .cicek {
-      --pin-len: 420lvh;
+      --pin-len: 340lvh;
     }
   }
   .cicek__stage {
@@ -220,7 +294,10 @@ const s = c.still;
   /* --- Medya ------------------------------------------------------------------ */
   .cicek__frame,
   .cicek__media,
-  .cicek__zoom {
+  .cicek__zoom,
+  .cicek__shots,
+  .cicek__shot,
+  .cicek__settle {
     position: absolute;
     inset: 0;
   }
@@ -231,25 +308,44 @@ const s = c.still;
   .cicek__zoom {
     transform-origin: 50% 46%;
   }
-  .cicek__canvas,
+  /* Çekim katmanları: cicek.ts opaklık (geçiş) + ölçek (yavaş yaklaşma) yazar */
+  .cicek__shot {
+    transform-origin: 50% 46%;
+    will-change: transform, opacity;
+  }
+  .cicek__shot:not(:first-child) {
+    opacity: 0;
+  }
+  .cicek__settle {
+    transform-origin: 50% 46%;
+  }
   .cicek__still,
-  .cicek__still img {
+  .cicek__still img,
+  .cicek__poster,
+  .cicek__video {
+    position: absolute;
+    inset: 0;
     display: block;
     inline-size: 100%;
     block-size: 100%;
-  }
-  .cicek__still img {
     object-fit: cover;
     object-position: 50% 46%;
   }
-  .cicek__still {
-    transform-origin: 50% 46%;
+  /* kaynakların üst kenarındaki 2–3 px'lik koyu şerit kadraj dışında kalsın */
+  .cicek__poster,
+  .cicek__video {
+    inset-block-start: -0.6%;
+    block-size: 100.6%;
   }
-  /* Dizi varken durağan foto yalnız reduced-motion / JS yok / dizi yüklenemedi durumunda */
-  :global(html.js:not(.reduce)) .cicek--seq:not(.is-nostream) .cicek__still {
-    display: none;
+  /* video ilk karesini gösterene dek altındaki poster görünür (boş kare yok) */
+  .cicek__video {
+    opacity: 0;
+    transition: opacity 0.4s var(--ease-out);
   }
-  .cicek.is-nostream .cicek__canvas {
+  .cicek__video.is-live {
+    opacity: 1;
+  }
+  .cicek.is-noautoplay .cicek__video {
     display: none;
   }
 
@@ -263,6 +359,19 @@ const s = c.still;
       radial-gradient(ellipse 58% 62% at 14% 30%, rgba(246, 235, 221, 0.9) 0%, rgba(246, 235, 221, 0.66) 42%, rgba(246, 235, 221, 0) 100%),
       linear-gradient(to bottom, rgba(246, 235, 221, 0.35), rgba(246, 235, 221, 0) 34%);
   }
+  /* çekime göre ek krem ışık (koyu/mavi çekimde yazı okunur kalsın); opaklığı cicek.ts yazar */
+  .cicek__wash-boost {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    will-change: opacity;
+    background: radial-gradient(
+      ellipse 62% 72% at 14% 30%,
+      rgba(246, 235, 221, 0.72) 0%,
+      rgba(246, 235, 221, 0.5) 46%,
+      rgba(246, 235, 221, 0) 100%
+    );
+  }
   @media (max-width: 767.98px) {
     .cicek__wash {
       background: linear-gradient(
@@ -272,6 +381,9 @@ const s = c.still;
         rgba(246, 235, 221, 0.36) 46%,
         rgba(246, 235, 221, 0) 58%
       );
+    }
+    .cicek__wash-boost {
+      background: linear-gradient(to bottom, rgba(246, 235, 221, 0.7) 0%, rgba(246, 235, 221, 0.5) 40%, rgba(246, 235, 221, 0) 60%);
     }
   }
 
@@ -424,19 +536,23 @@ const s = c.still;
     gap: var(--sp-7);
     padding-inline: var(--gutter);
   }
+  /* durağan düzende tam ekran çekim yerine her vuruşun kendi posteri kartın üstünde */
+  .cicek__beat-img {
+    display: none;
+  }
+  :global(html.reduce) .cicek__beat-img,
+  :global(html:not(.js)) .cicek__beat-img {
+    display: block;
+    inline-size: 100%;
+    block-size: auto;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    /* yuvarlak köşe + kaynağın üst kenarındaki koyu şeridi kırp */
+    clip-path: inset(0.8% 0 0 0 round var(--r-media));
+    margin-block-end: var(--sp-2);
+  }
   :global(html.reduce) .cicek__frame,
-  :global(html:not(.js)) .cicek__frame {
-    position: relative;
-    inset: auto;
-    aspect-ratio: 16 / 9;
-  }
-  :global(html.reduce) .cicek__media,
-  :global(html:not(.js)) .cicek__media {
-    clip-path: none;
-    border-radius: var(--r-media);
-  }
-  :global(html.reduce) .cicek__canvas,
-  :global(html:not(.js)) .cicek__canvas,
+  :global(html:not(.js)) .cicek__frame,
   :global(html.reduce) .cicek__wash,
   :global(html:not(.js)) .cicek__wash,
   :global(html.reduce) .cicek__under,
@@ -448,10 +564,6 @@ const s = c.still;
   :global(html.reduce) .cicek__bridge,
   :global(html:not(.js)) .cicek__bridge {
     display: none;
-  }
-  :global(html.reduce) .cicek__still,
-  :global(html:not(.js)) .cicek__still {
-    display: block;
   }
   :global(html.reduce) .cicek__rest,
   :global(html:not(.js)) .cicek__rest {
@@ -521,10 +633,6 @@ const s = c.still;
     :global(html:not(.js)) .cicek__beats {
       grid-template-columns: 1fr;
       row-gap: var(--sp-6);
-    }
-    :global(html.reduce) .cicek__frame,
-    :global(html:not(.js)) .cicek__frame {
-      aspect-ratio: 4 / 5;
     }
   }
 </style>
