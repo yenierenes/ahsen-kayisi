@@ -50,8 +50,8 @@ export interface KaliteContent {
 }
 
 export const kalite: KaliteContent = {
-  heading: { no: '', title: 'Aynı kayısı, her seferinde.' },
-  lead: 'İyi kayısı göndermek kolay. Zor olan, aynısını bir daha göndermek.',
+  heading: { no: '', title: 'Her siparişte aynı kalite' },
+  lead: 'Bir müşterinin ikinci siparişinde de aynı kayısıyı bulması gerekir. Bunun için dört şeye dikkat ediyoruz.',
   video: {
     src: '/media/video/v-tesis.mp4',
     srcMobile: '/media/video/v-tesis-m.mp4',
@@ -68,31 +68,31 @@ export const kalite: KaliteContent = {
     toggle: { play: 'Videoyu oynat', pause: 'Videoyu durdur' },
     caption: 'Seçme bandı',
   },
-  promisesLabel: 'Nasıl tutturuyoruz',
+  promisesLabel: 'Dikkat ettiğimiz dört şey',
   promises: [
     {
       no: '01',
       title: 'Parti numarası',
-      text: 'Her kolinin üstünde bir numara var. O numara, kayısının hangi gün hangi partiden çıktığını söyler. Bir sorun olursa geriye doğru yürürüz.',
+      text: 'Her koliye bir parti numarası yazılır. Bu numara sayesinde kayısının hangi gün işlendiği sonradan bulunabilir.',
     },
     {
       no: '02',
-      title: 'Önce ölçü',
-      text: 'Kayısı içeri girerken nemi, kükürdü ve boyu ölçülür. Tutmayan parti, tutana karışmaz.',
+      title: 'Giriş kontrolü',
+      text: 'Kayısı tesise girerken nemi, kükürt oranı ve boyu ölçülür. Ölçüleri tutmayan parti diğerlerine karıştırılmaz.',
     },
     {
       no: '03',
-      title: 'Ülkesine göre kükürt',
-      text: 'Avrupa en çok 2.000 mg/kg kabul eder, Amerika 3.000’e kadar ister. Kayısı, gideceği ülkenin sınırına göre hazırlanır.',
+      title: 'Ülkeye göre kükürt',
+      text: 'Kükürt sınırı ülkeden ülkeye değişir. Avrupa Birliği’nde sınır 2.000 mg/kg, ABD’de 3.000 ppm’dir. Kayısı gideceği ülkeye göre hazırlanır.',
     },
     {
       no: '04',
-      title: 'Son bakış insanın',
-      text: 'Makine iriyi ufaktan ayırır. Lekeyi, yarığı, rengi dönmüşü göz ayırır.',
+      title: 'Elle son kontrol',
+      text: 'Makineden geçen kayısı son olarak elle kontrol edilir. Lekeli, yarık ya da rengi bozuk taneler bu aşamada ayrılır.',
     },
   ],
   strip: {
-    label: 'Uyduğumuz ölçüler',
+    label: 'Esas aldığımız standartlar',
     items: [
       'Malatya Kayısısı · AB Korunan Menşe Adı · 2017',
       'UNECE DDP-15 · Ekstra, Sınıf I, Sınıf II',
@@ -104,7 +104,7 @@ export const kalite: KaliteContent = {
   },
   spec: {
     label: 'Teknik',
-    title: 'Kısaca şartname',
+    title: 'Teknik bilgiler',
     colBasis: 'Dayanak',
     rows: [
       {
@@ -120,7 +120,7 @@ export const kalite: KaliteContent = {
       {
         label: 'Kükürt (SO₂)',
         value: 'AB ve Türkiye: en çok 2.000 mg/kg · ABD: 3.000 ppm · Kanada: 2.500 ppm',
-        basis: 'Ülkesine göre ayarlanır',
+        basis: 'Ülkeye göre ayarlanır',
       },
       {
         label: 'Nem',
@@ -138,6 +138,6 @@ export const kalite: KaliteContent = {
         basis: 'İhracat spesifikasyonu',
       },
     ],
-    note: 'Bunlar genel değerler. Sizin partinizin şartnamesi siparişten önce yazılı gelir.',
+    note: 'Bunlar genel değerlerdir. Siparişinize ait şartname, sipariş öncesinde yazılı olarak gönderilir.',
   },
 };

@@ -41,9 +41,9 @@ export interface ManifestoContent {
 export const manifesto: ManifestoContent = {
   heading: { no: '', title: 'Ahsen' },
   statement: [
-    'Malatya’da kayısıyı herkes kurutur. Biz seçeriz: hangi bahçe, hangi dal, hangi gün. İyisini ayırır, gerisini kutuya koymayız. Ahsen’de kural kısa: ',
+    'Ahsen Kayısı, Malatya’nın Battalgazi ilçesinde kayısı işler. Malatya bahçelerinde yetişip güneşte kuruyan kayısıyı seçer, boyuna göre ayırır, paketler ve yurt içine, yurt dışına göndeririz. İşimizi tek bir söze göre yaparız: ',
     { em: 'önce kalite.' },
-    ' Kutuyu açan, bunu sormadan anlar.',
+    ' Her kolide aradığımız şey budur.',
   ],
   notes: [
     { label: 'Yer', value: 'Battalgazi, Malatya' },

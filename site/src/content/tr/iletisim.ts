@@ -58,7 +58,7 @@ export interface IletisimContent {
 export const iletisim: IletisimContent = {
   heading: { no: '', title: 'Tadına bakmadan olmaz.' },
   eyebrow: 'Numune',
-  lead: 'Ne aradığınızı yazın: hangi ürün, hangi boy, hangi ülke. Bir kutu kayısı gönderelim, gerisini kayısı anlatsın.',
+  lead: 'Hangi ürünü, hangi boyda ve hangi ülkeye istediğinizi yazın. Size numune gönderelim.',
   form: {
     label: 'Numune talep formu',
     fields: {
@@ -96,11 +96,11 @@ export const iletisim: IletisimContent = {
         name: 'mesaj',
         label: 'Notunuz',
         optional: true,
-        placeholder: 'Ne kadar, hangi ambalajda, nereye? Aklınıza ne geliyorsa.',
+        placeholder: 'Miktar, ambalaj ve varsa diğer istekleriniz.',
       },
     },
     products: {
-      legend: 'Hangisi?',
+      legend: 'İlgilendiğiniz ürünler',
       hint: 'Birkaçını birden seçebilirsiniz.',
       options: [
         { value: 'sari', label: 'Sarı kayısı' },
@@ -129,17 +129,17 @@ export const iletisim: IletisimContent = {
     },
     optionalLabel: 'isteğe bağlı',
     submit: 'Numune iste',
-    note: 'Ad, ülke ve e-posta yeter.',
+    note: 'Ad, ülke ve e-posta zorunludur.',
     summaryError: 'İşaretli alanlara bir daha bakar mısınız?',
   },
   success: {
-    title: 'Aldık.',
+    title: 'Talebiniz alındı.',
     text: 'Talebinize bakıp {email} adresine yazacağız.',
     prototype: 'Prototip — form henüz bir adrese bağlı değil.',
     again: 'Bir talep daha',
   },
   contact: {
-    label: 'Ya da doğrudan',
+    label: 'Doğrudan ulaşmak için',
     address: {
       label: 'Adres',
       lines: ['Yeni Hamam Mah. Cezmi Kartay No: 16/B', 'Battalgazi / Malatya'],

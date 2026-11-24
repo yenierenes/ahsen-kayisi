@@ -15,6 +15,19 @@
  * - data-alpha: kareler saydam (clearRect). data-sequence-fallback="mirror":
  *   manifest yoksa grubun ilk üyesinin karelerini kullanır ve .is-fallback alır.
  * - data-scrub="#bolum": ilerlemeyi o bölümün sabit aralığına bağlar (isteğe bağlı).
+ *
+ * İsteğe bağlı (yalnız işaretli canvas'larda; işaretsiz gruplar eskisi gibi çalışır):
+ * - data-blend: komşu iki kare globalAlpha ile karışır (kesirli ilerleme) → az karede bile sürekli hareket.
+ *   Ara kare yüklü değilse en yakın iki yüklü kare arasında karışır (≤ 12 kare aralık).
+ * - data-bitmap: kareler fetch → Blob olarak iner; oynatma başının çevresindeki pencere
+ *   createImageBitmap ile ÖNCEDEN (ana iş parçacığı dışında) çözülür. Çizim yalnız hazır bitmap'lerden.
+ * - data-dpr-max="1": arka tampon DPR üst sınırı.
+ * - data-sequence-margin="300%": yüklemenin başlayacağı uzaklık (varsayılan 200%).
+ * - data-sequence-light="4": ölçülen hız (measuredMbps) < 4 Mbit/s ya da saveData ise masaüstünde de mobil set;
+ *   o durumda data-sequence-margin-slow (ör. 700%) daha erken başlatır.
+ * - data-sequence-follow: anahtar karelerden sonra dolgu oynatma başına yakın, kaba → ince sırayla;
+ *   boşta bekleme yok (kaydırma sürerken de iner).
+ * Grup API'si: pauseFill(true|false) — arka plan dolgusunu (anahtar kareler hariç) durdurur/sürdürür.
  */
 import { ScrollTrigger, emit, introGate, isMobile, mm, MOTION, num, prefersReduced, qsa } from './core';
 
@@ -80,6 +93,46 @@ export function finestStride(): number {
   return /^(slow-2g|2g|3g)$/.test(c.effectiveType ?? '') ? 2 : 1;
 }
 
+/**
+ * Ölçülen indirme hızı (Mbit/s): sayfada daha önce inmiş ilk 24 dizi karesinin (preloader'ın
+ * 4'lü anahtar kare patlaması) toplam baytı / meşgul süre.
+ * Yeterli ölçüm yoksa null. (navigator.connection.downlink ölçümsüz oturumda varsayılan ~1,5 döndürür;
+ * hızlı bağlantıyı yavaş sanmamak için kullanılmaz.)
+ */
+export function measuredMbps(): number | null {
+  if (typeof performance === 'undefined' || !performance.getEntriesByType) return null;
+  const list = (performance.getEntriesByType('resource') as PerformanceResourceTiming[])
+    .filter((e) => /\/seq\/[^?#]+\.(webp|avif|jpe?g|png)/.test(e.name) && e.encodedBodySize > 0 && e.responseEnd > 0)
+    .sort((a, b) => a.startTime - b.startTime)
+    .slice(0, 24);
+  if (list.length < 8) return null;
+  // bayt / meşgul süre (en az bir isteğin sürdüğü aralıkların birleşimi; JS açılışı gibi boşluklar sayılmaz)
+  let bytes = 0;
+  let busy = 0;
+  let a = -1;
+  let b = -1;
+  for (const e of list) {
+    bytes += e.encodedBodySize;
+    if (e.startTime > b) {
+      if (b > a) busy += b - a;
+      a = e.startTime;
+      b = e.responseEnd;
+    } else b = Math.max(b, e.responseEnd);
+  }
+  if (b > a) busy += b - a;
+  if (bytes < 150_000 || busy <= 0) return null;
+  return (bytes * 8) / (busy * 1000);
+}
+
+/** Bağlantı eşikten (Mbit/s) yavaş mı (ölçüme göre) ya da veri tasarrufu açık mı */
+export function slowLink(mbps: number): boolean {
+  if (!(mbps > 0)) return false;
+  const c = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
+  if (c?.saveData) return true;
+  const m = measuredMbps();
+  return m !== null && m < mbps;
+}
+
 const idle = (): Promise<void> =>
   new Promise((r) => {
     if ('requestIdleCallback' in window) window.requestIdleCallback(() => r(), { timeout: 600 });
@@ -125,9 +178,21 @@ export class Sequence {
   private readonly alpha: boolean;
   private aborted = false;
   onLoad: (() => void) | null = null;
+  /** data-bitmap: sıkıştırılmış kareler (Blob) + oynatma başı çevresinde çözülmüş pencere */
+  readonly bitmapMode: boolean;
+  blobs: (Blob | null)[] = [];
+  private bitmaps = new Map<number, ImageBitmap>();
+  private decoding = new Set<number>();
+  private pending = new Set<number>();
+  private winCenter = 0;
+  private winDir = 1;
+  onBitmap: (() => void) | null = null;
+  private mixKey = '';
+  private lastMix: { a: number; b: number; t: number } | null = null;
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
+    this.bitmapMode = canvas.hasAttribute('data-bitmap') && typeof createImageBitmap === 'function';
     this.alpha = canvas.hasAttribute('data-alpha');
     const ctx = canvas.getContext('2d', { alpha: this.alpha });
     if (!ctx) throw new Error('canvas 2d yok');
@@ -152,11 +217,13 @@ export class Sequence {
       const res = await fetch(`${this.src}manifest.json`, { cache: 'force-cache' });
       if (!res.ok) throw new Error(String(res.status));
       const m = (await res.json()) as SequenceManifest;
-      const mob = isMobile() && m.mobile;
+      // data-sequence-light="4": bağlantı < 4 Mbit/s (ya da veri tasarrufu) ise masaüstünde de hafif set
+      const mob = (isMobile() || slowLink(num(this.canvas.dataset.sequenceLight, 0))) && m.mobile;
       this.set = mob
         ? { base: `${this.src}${m.mobile!.dir.replace(/\/?$/, '/')}`, count: m.mobile!.count, width: m.mobile!.width, height: m.mobile!.height, prefix: m.prefix, pad: m.pad, ext: m.ext }
         : { base: this.src, count: m.count, width: m.width, height: m.height, prefix: m.prefix, pad: m.pad, ext: m.ext };
       this.frames = new Array<HTMLImageElement | null>(this.set.count).fill(null);
+      if (this.bitmapMode) this.blobs = new Array<Blob | null>(this.set.count).fill(null);
       return true;
     } catch {
       this.failed = true;
@@ -176,6 +243,7 @@ export class Sequence {
 
   /** Tek kare yükle (aynı kare iki kez istenmez). priority: fetchpriority ipucu */
   loadFrame(i: number, priority: 'high' | 'low' | 'auto' = 'auto'): Promise<void> {
+    if (this.bitmapMode) return this.loadBlob(i, priority);
     return new Promise((resolve) => {
       if (this.aborted || this.frames[i] || i < 0 || i >= this.count) return resolve();
       const img = new Image();
@@ -196,6 +264,104 @@ export class Sequence {
         () => done(img.complete && img.naturalWidth > 0),
       );
     });
+  }
+
+  /** data-bitmap: kareyi sıkıştırılmış hâliyle indir (çözme ensure() penceresinde) */
+  private async loadBlob(i: number, priority: 'high' | 'low' | 'auto'): Promise<void> {
+    if (this.aborted || this.blobs[i] || this.pending.has(i) || i < 0 || i >= this.count) return;
+    this.pending.add(i);
+    try {
+      const res = await fetch(this.frameUrl(i), { priority } as RequestInit);
+      if (!res.ok) throw new Error(String(res.status));
+      const blob = await res.blob();
+      if (this.aborted) return;
+      this.blobs[i] = blob;
+      this.loadedCount += 1;
+      this.onLoad?.();
+    } catch {
+      /* eksik kare: komşulara düşülür */
+    } finally {
+      this.pending.delete(i);
+    }
+  }
+
+  /** Bu kare tuvale hemen (çözme beklemeden) çizilebilir mi */
+  ready(i: number): boolean {
+    return this.bitmapMode ? this.bitmaps.has(i) : !!this.frames[i];
+  }
+
+  /**
+   * data-bitmap: oynatma başının çevresini önceden çöz (gidiş yönünde 16, geride 6 kare),
+   * pencere dışını serbest bırak. Aynı anda en çok 3 çözme.
+   */
+  ensure(center: number, dir: number): void {
+    if (!this.bitmapMode || this.aborted) return;
+    const n = this.count;
+    const c = Math.max(0, Math.min(n - 1, Math.round(center)));
+    this.winCenter = c;
+    this.winDir = dir < 0 ? -1 : 1;
+    const AHEAD = 16;
+    const BEHIND = 6;
+    const lo = this.winDir > 0 ? c - BEHIND : c - AHEAD;
+    const hi = this.winDir > 0 ? c + AHEAD : c + BEHIND;
+    for (const [k, bm] of this.bitmaps) {
+      if (k < lo - 4 || k > hi + 4) {
+        bm.close();
+        this.bitmaps.delete(k);
+      }
+    }
+    for (let d = 0; d <= AHEAD && this.decoding.size < 3; d++) {
+      const cand = d <= BEHIND && d > 0 ? [c + d * this.winDir, c - d * this.winDir] : [c + d * this.winDir];
+      for (const k of cand) {
+        if (this.decoding.size >= 3) break;
+        if (k < 0 || k >= n || k < lo || k > hi) continue;
+        const blob = this.blobs[k];
+        if (!blob || this.bitmaps.has(k) || this.decoding.has(k)) continue;
+        this.decoding.add(k);
+        createImageBitmap(blob).then(
+          (bm) => {
+            this.decoding.delete(k);
+            const keep = this.winDir > 0 ? k >= this.winCenter - BEHIND - 4 && k <= this.winCenter + AHEAD + 4 : k >= this.winCenter - AHEAD - 4 && k <= this.winCenter + BEHIND + 4;
+            if (this.aborted || !keep) bm.close();
+            else {
+              this.bitmaps.set(k, bm);
+              this.onBitmap?.();
+            }
+            this.ensure(this.winCenter, this.winDir);
+          },
+          () => this.decoding.delete(k),
+        );
+      }
+    }
+  }
+
+  /** data-blend: a karesi, üstüne b karesi t opaklıkla. Aynı (a, b, t) ise çizmez. */
+  drawMix(a: number, b: number, t: number): void {
+    const key = `${a}|${b}|${t}`;
+    if (key === this.mixKey || !this.cssW) return;
+    const src = (i: number): CanvasImageSource | null => (this.bitmapMode ? (this.bitmaps.get(i) ?? null) : (this.frames[i] ?? null));
+    const A = src(a);
+    if (!A) return;
+    const B = t > 0 && b !== a ? src(b) : null;
+    const { width: bw, height: bh } = this.canvas;
+    const k = bw / this.cssW;
+    const g = this.geometry();
+    const ctx = this.ctx;
+    if (this.alpha && !this.mirrored) ctx.clearRect(0, 0, bw, bh);
+    else {
+      ctx.fillStyle = this.bg ?? this.source?.bg ?? '#140b07';
+      ctx.fillRect(0, 0, bw, bh);
+    }
+    ctx.drawImage(A, g.x * k, g.y * k, g.w * k, g.h * k);
+    if (B) {
+      ctx.globalAlpha = t;
+      ctx.drawImage(B, g.x * k, g.y * k, g.w * k, g.h * k);
+      ctx.globalAlpha = 1;
+    }
+    if (!this.alpha || this.mirrored) this.feather(g, k);
+    this.mixKey = key;
+    this.lastMix = { a, b, t };
+    this.lastDrawn = t >= 0.5 && B ? b : a;
   }
 
   private sampleBg(img: HTMLImageElement): void {
@@ -248,6 +414,8 @@ export class Sequence {
     const g = this.geometry();
     // Kaynak çözünürlüğünü 1.25 katından fazla aşan arka tampon boşa piksel demektir
     let dpr = Math.min(window.devicePixelRatio || 1, 2, Math.max(1, 1.25 / g.scale));
+    const cap = num(this.canvas.dataset.dprMax, 0);
+    if (cap > 0) dpr = Math.min(dpr, cap);
     if (W * dpr > MAX_BACKING) dpr = MAX_BACKING / W;
     const bw = Math.round(W * dpr);
     const bh = Math.round(H * dpr);
@@ -256,13 +424,19 @@ export class Sequence {
       this.canvas.height = bh;
       this.ctx.imageSmoothingQuality = 'high';
     }
+    this.mixKey = '';
+    if (this.lastMix) {
+      const m = this.lastMix;
+      this.drawMix(m.a, m.b, m.t);
+      return;
+    }
     const last = this.lastDrawn;
     this.lastDrawn = -1;
     if (last >= 0) this.draw(last);
   }
 
   has(i: number): boolean {
-    return !!this.frames[i];
+    return !!this.frames[i] || !!this.blobs[i];
   }
 
   draw(i: number): void {
@@ -315,6 +489,8 @@ export class Sequence {
 
   destroy(): void {
     this.aborted = true;
+    for (const bm of this.bitmaps.values()) bm.close();
+    this.bitmaps.clear();
   }
 }
 
@@ -367,13 +543,93 @@ export class SequenceGroup {
     this.resolveReady();
   }
 
+  /** data-blend: kesirli kare konumu, gidiş yönü; ölçüm için gösterilen kare ve karışan aralık */
+  blend = false;
+  follow = false;
+  pos = 0;
+  private dir = 1;
+  shown = -1;
+  gap = 0;
+  private paused = false;
+  private pausedP: Promise<void> | null = null;
+  private unpause: (() => void) | null = null;
+
+  /** Arka plan dolgusunu durdur / sürdür (anahtar kareler ve uçuştaki istekler etkilenmez) */
+  pauseFill(on: boolean): void {
+    if (on === this.paused) return;
+    this.paused = on;
+    if (on) this.pausedP = new Promise((r) => (this.unpause = r));
+    else {
+      this.unpause?.();
+      this.pausedP = null;
+    }
+  }
+
+  /** dolgu işçileri her kareden önce bunu bekler */
+  gate(): Promise<void> {
+    return this.pausedP ?? Promise.resolve();
+  }
+
+  /** dolgu sırası için oynatma başı (kare indeksi) */
+  get playhead(): number {
+    return this.blend ? this.pos : this.index;
+  }
+
   /** 0–1 ilerleme → kare. Aynı kare ise çizim yapılmaz. */
   setProgress(p: number): void {
     this.progress = Math.min(1, Math.max(0, p));
     const n = this.count;
     if (!n) return;
+    if (this.blend) {
+      const pos = this.progress * (n - 1);
+      if (pos !== this.pos) this.dir = pos > this.pos ? 1 : -1;
+      this.pos = pos;
+    }
     this.index = Math.round(this.progress * (n - 1));
     this.render();
+  }
+
+  /** data-blend: pos'u çevreleyen en yakın iki hazır kare arasında karıştır */
+  private renderBlend(): void {
+    const n = this.count;
+    const live = this.members.filter((m) => !m.failed);
+    for (const m of live) m.ensure(this.pos, this.dir);
+    const ok = (i: number): boolean => i >= 0 && i < n && live.every((m) => m.ready(i));
+    const MAXG = 12;
+    const f = Math.floor(this.pos);
+    const c = Math.min(n - 1, f + 1);
+    let lo = -1;
+    let hi = -1;
+    for (let d = 0; d <= MAXG && (lo < 0 || hi < 0); d++) {
+      if (lo < 0 && ok(f - d)) lo = f - d;
+      if (hi < 0 && ok(c + d)) hi = c + d;
+    }
+    if (lo < 0 && hi < 0) {
+      // yakında hazır kare yok: en yakın hazır kare (donmak yerine)
+      for (let d = MAXG + 1; d < n; d++) {
+        if (ok(f - d)) {
+          lo = f - d;
+          break;
+        }
+        if (ok(c + d)) {
+          lo = c + d;
+          break;
+        }
+      }
+      if (lo < 0) return;
+      hi = lo;
+    }
+    if (lo < 0) lo = hi;
+    if (hi < 0) hi = lo;
+    let t = hi > lo ? (this.pos - lo) / (hi - lo) : 0;
+    t = Math.min(1, Math.max(0, Math.round(t * 48) / 48));
+    if (t >= 1) {
+      lo = hi;
+      t = 0;
+    }
+    for (const m of live) m.drawMix(lo, hi, t);
+    this.shown = t >= 0.5 ? hi : lo;
+    this.gap = hi - lo;
   }
 
   /** Bir sonraki karede yeniden çiz (yeni kare yüklendiğinde) */
@@ -389,6 +645,7 @@ export class SequenceGroup {
   render(): void {
     const n = this.count;
     if (!n) return;
+    if (this.blend) return this.renderBlend();
     const live = this.members.filter((m) => !m.failed);
     const ok = (i: number): boolean => i >= 0 && i < n && live.every((m) => m.has(i));
     let target = -1;
@@ -444,6 +701,7 @@ async function startGroup(group: SequenceGroup): Promise<void> {
   const loadIndex = (i: number, pri: 'high' | 'low' | 'auto'): Promise<void> =>
     Promise.all(loaders.map((m) => m.loadFrame(i, pri))).then(() => undefined);
   for (const m of loaders) m.onLoad = () => group.invalidate();
+  for (const m of group.members) m.onBitmap = () => group.invalidate();
 
   const plan = loadPlan(group.count, staticOnly, finestStride());
   group.plannedFrames = plan.reduce((a, p) => a + p.frames.length, 0);
@@ -468,11 +726,43 @@ async function startGroup(group: SequenceGroup): Promise<void> {
     }, stop);
     // 3) preloader kalktıktan sonra arka planda 4 → 2 → 1; boşta, düşük öncelik, 2'li havuz
     if (rest.length) await introGate.promise;
-    for (const phase of rest) {
+    if (group.follow && rest.length) {
+      // Kaba adım önce (4 → 2 → 1, her adım tüm dizide), adım içinde oynatma başına yakın (ileri yönde
+      // öncelikli); boşta bekleme yok, 3'lü havuz. Yavaş bağlantıda bile her yerde ≤ 4 kare aralık erken oluşur.
+      const left = new Set(rest.flatMap((ph) => ph.frames));
+      const coarse = (i: number): number => (i % 4 === 0 ? 0 : i % 2 === 0 ? 1e4 : 2e4);
+      const pick = (): number => {
+        const h = group.playhead;
+        let best = -1;
+        let score = Infinity;
+        for (const i of left) {
+          const s = (i >= h ? i - h : (h - i) * 3) + coarse(i);
+          if (s < score) {
+            score = s;
+            best = i;
+          }
+        }
+        if (best >= 0) left.delete(best);
+        return best;
+      };
+      group.stride = 1;
+      group.report();
+      const worker = async (): Promise<void> => {
+        while (left.size && !stopped) {
+          await group.gate();
+          const i = pick();
+          if (i < 0) break;
+          await loadIndex(i, 'high');
+        }
+      };
+      await Promise.all([worker(), worker(), worker()]);
+    }
+    for (const phase of group.follow ? [] : rest) {
       if (stopped) break;
       group.stride = phase.stride;
       group.report();
       await pool(phase.frames, 2, async (i) => {
+        await group.gate();
         await idle();
         await loadIndex(i, 'low');
       }, stop);
@@ -495,7 +785,10 @@ export function initSequences(root: ParentNode = document): void {
       groups.set(id, g);
     }
     g.members.push(new Sequence(c));
+    if (c.hasAttribute('data-blend')) g.blend = true;
+    if (c.hasAttribute('data-sequence-follow')) g.follow = true;
   }
+  if (import.meta.env.DEV) (window as unknown as { __seqGroups?: Map<string, SequenceGroup> }).__seqGroups = groups;
 
   const ro = new ResizeObserver(() => groups.forEach((g) => g.resize()));
   groups.forEach((g) => {
@@ -506,16 +799,26 @@ export function initSequences(root: ParentNode = document): void {
     if (eager) {
       void startGroup(g);
     } else {
-      const io = new IntersectionObserver(
-        (entries) => {
-          if (entries.some((e) => e.isIntersecting)) {
-            io.disconnect();
+      const ios: IntersectionObserver[] = [];
+      let started = false;
+      const watch = (margin: string, onlySlow: boolean): void => {
+        const io = new IntersectionObserver(
+          (entries) => {
+            if (started || !entries.some((e) => e.isIntersecting)) return;
+            // yavaş bağlantı kararı o an (önceki dizilerin ölçümüyle) verilir
+            if (onlySlow && !slowLink(num(first.dataset.sequenceLight, 0))) return;
+            started = true;
+            ios.forEach((o) => o.disconnect());
             void startGroup(g);
-          }
-        },
-        { rootMargin: '200% 0px' },
-      );
-      io.observe(first);
+          },
+          { rootMargin: `${margin} 0px` },
+        );
+        ios.push(io);
+        io.observe(first);
+      };
+      watch(first.dataset.sequenceMargin ?? '200%', false);
+      // data-sequence-margin-slow: yavaş bağlantıda daha erken başla (süre mesafeden önemli)
+      if (first.dataset.sequenceMarginSlow) watch(first.dataset.sequenceMarginSlow, true);
     }
 
     // İsteğe bağlı otomatik scrub

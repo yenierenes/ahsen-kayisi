@@ -36,13 +36,13 @@ const TALL = { width: 967, height: 1200, widthLg: 1856, widthAvif: 1289 } as con
 // Adımlar arastirma/02-malatya-kayisi.md §2.4 (takvim) ve §5 (süreç) ile uyumludur.
 export const surec: SurecContent = {
   heading: { no: '', title: 'Daldan kutuya.' },
-  intro: 'Arada bir bahar, bir yaz ve çok el emeği var.',
+  intro: 'Kayısının çiçekten koliye girene kadar geçtiği sekiz aşama.',
   steps: [
     {
       id: 'cicek',
       title: 'Çiçek',
       when: 'Mart sonu',
-      copy: 'Ağaç önce çiçeğe durur. Nisan ortasına kadar don korkusu bitmez; o yılın kayısısı bu üç haftada belli olur.',
+      copy: 'Kayısı ağaçları mart sonunda çiçek açar. Nisan ortasına kadar don riski vardır; çiçek donarsa o yıl meyve olmaz.',
       photo: {
         base: '/media/foto/cicek-safak',
         ...WIDE,
@@ -54,7 +54,7 @@ export const surec: SurecContent = {
       id: 'hasat',
       title: 'Hasat',
       when: 'Temmuz',
-      copy: 'Meyve saman sarısına dönünce, sabah serinliğinde toplanır. Ağaç bir günde boşalmaz: önce güneşi gören tepe dallar, sonra aşağısı.',
+      copy: 'Meyve temmuzda, rengi saman sarısına döndüğünde toplanır. Hasat sabah erken saatte yapılır ve ağacın üst dallarından başlar.',
       photo: {
         base: '/media/foto/hasat-eller',
         ...TALL,
@@ -66,7 +66,7 @@ export const surec: SurecContent = {
       id: 'islim',
       title: 'İslim',
       when: 'Hasat günü',
-      copy: 'Sarı kayısının sırrı burada. Meyve kerevetlere dizilir, islim odasında sekiz on saat kükürt dumanında bekler; rengi altın sarısı kalır. Gün kurusu bu odaya hiç girmez.',
+      copy: 'Sarı kayısı için meyve kerevetlere dizilir ve islim odasında sekiz on saat kükürt dumanında bekletilir. Kükürt, kayısının sarı rengini korur. Gün kurusu kayısıya bu işlem uygulanmaz.',
       photo: {
         base: '/media/foto/islim',
         ...TALL,
@@ -78,7 +78,7 @@ export const surec: SurecContent = {
       id: 'sergi',
       title: 'Sergi',
       when: 'Üç dört gün',
-      copy: 'Kayısı yere, temiz örtülerin üstüne tek kat serilir. Gerisi güneşin işi.',
+      copy: 'Kayısı sergi yerinde örtülerin üzerine tek kat serilir ve üç dört gün güneşte bekler.',
       photo: {
         base: '/media/foto/sergi-drone',
         ...WIDE,
@@ -90,7 +90,7 @@ export const surec: SurecContent = {
       id: 'patik',
       title: 'Patik',
       when: 'Üçüncü gün',
-      copy: 'Yarı kuruyan meyvenin çekirdeği parmakla itilip çıkarılır, kayısı avuçta yassılır. Bildiğiniz o şekil makineden değil, elden çıkar. Sonra iki üç gün daha güneş.',
+      copy: 'Yarı kuruyan kayısının çekirdeği elle çıkarılır ve meyveye yassı şekli verilir. Bu işe patik denir. Kayısı sonra iki üç gün daha güneşte kalır.',
       photo: {
         base: '/media/foto/sergi-tepeden',
         ...WIDE,
@@ -102,7 +102,7 @@ export const surec: SurecContent = {
       id: 'secme',
       title: 'Yıkama, seçme',
       when: 'Tesiste',
-      copy: 'Kayısı yıkanır, bantta tane tane gözden geçer. Lekeli, yarık, küçük kalan ayrılır.',
+      copy: 'Kuruyan kayısı tesiste yıkanır. Bant üzerinde tek tek kontrol edilir; lekeli ve yarık taneler ayrılır.',
       photo: {
         base: '/media/foto/tesis-secim',
         ...TALL916,
@@ -114,7 +114,7 @@ export const surec: SurecContent = {
       id: 'kalibrasyon',
       title: 'Boylama',
       when: 'Kiloda tane hesabı',
-      copy: 'Kayısı iriliğine göre numara alır: kiloya seksen taneden az giriyorsa jumbo, iki yüz yirmiden çok giriyorsa sekiz numara. Numara küçüldükçe tane büyür.',
+      copy: 'Kayısı iriliğine göre sınıflara ayrılır. Ölçü, bir kiloya giren tane sayısıdır: jumboda en çok 80, sekiz numarada 221–240 tane.',
       photo: {
         base: '/media/foto/urun-sari',
         ...TALL,
@@ -126,7 +126,7 @@ export const surec: SurecContent = {
       id: 'paketleme',
       title: 'Paketleme',
       when: 'Yola çıkmadan',
-      copy: 'Tartılır, kolilenir, etiketine parti numarası yazılır: hangi kayısı hangi günden, belli olsun. Sonrası serin depo ve yol.',
+      copy: 'Kayısı tartılır ve kolilenir. Her koliye parti numarası yazılır; sevkiyata kadar serin depoda tutulur.',
       photo: {
         base: '/media/foto/paketleme',
         ...TALL,

@@ -1,7 +1,7 @@
 /**
  * Çiçek — "BAHAR" sahnesi (Rakamlar ile Süreç arasında, numarasız).
  * Çiçek açmış kayısı sırası boyunca kaydırmayla ilerleyen görüntü dizisi;
- * üç vuruş, her biri bir Fraunces satırı + bir kısa cümle.
+ * dört vuruş, her biri bir Fraunces satırı + bir kısa cümle.
  */
 
 export interface CicekBeat {
@@ -10,11 +10,12 @@ export interface CicekBeat {
 }
 
 export interface CicekContent {
-  /** Mono etiket: "BAHAR · 01 / 03" */
+  /** Mono etiket "BAHAR" + vuruş sayısı kadar nokta */
   label: string;
   /** Ekran okuyucu başlığı (görsel başlık vuruşların kendisi) */
   srTitle: string;
-  beats: [CicekBeat, CicekBeat, CicekBeat];
+  /** dört vuruş, sırayla: çiçek · don · yaprak dökümü · hasada doğru */
+  beats: CicekBeat[];
   sequence: {
     /** public/ altındaki klasör; içinde manifest.json bulunur */
     base: string;
@@ -38,16 +39,20 @@ export const cicek: CicekContent = {
   srTitle: 'Bahar: çiçekten meyveye',
   beats: [
     {
-      title: 'Her şey beyaz başlar.',
-      text: 'Mart sonunda Malatya ovası bir haftalığına çiçek açar.',
+      title: 'Mart sonunda bahçeler çiçek açar.',
+      text: 'Malatya’da kayısı ağaçları bir iki hafta boyunca pembe beyaz çiçekle kaplanır.',
     },
     {
-      title: 'Bir gece don, bir yıl kayıp.',
-      text: 'Çiçek dona yakalanırsa o dalda meyve olmaz. Nisan ortasına kadar herkes göğe bakar.',
+      title: 'En büyük korku dondur.',
+      text: 'Çiçek açtıktan sonra gelen soğuk bir gece, o yılın meyvesini götürebilir. Don riski nisan ortasına kadar sürer.',
     },
     {
-      title: 'Yüz gün sonra aynı dal turuncu.',
-      text: 'Çiçekten hasada aşağı yukarı yüz gün var. Temmuzda toplamaya çıkılır.',
+      title: 'Sonra yapraklar dökülür.',
+      text: 'Taç yaprakları dökülen çiçeğin yerinde küçük, yeşil bir meyve kalır.',
+    },
+    {
+      title: 'Hasada üç ay var.',
+      text: 'Meyve bahar boyunca büyür, haziranda sararır. Toplama temmuz başında başlar.',
     },
   ],
   sequence: {

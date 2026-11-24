@@ -21,7 +21,7 @@ const { manifesto: c } = getContent();
  */
 const layout = [
   // Büyük, sağ kenarda kırpılır; paragrafın sağ kenarının arkasında (ilk satırın altında)
-  { host: 'field', depth: 'back', pos: 'right: -13vw; top: 27%', size: 'clamp(11rem, 36vw, 46rem)', rot: '24deg', speed: 0.16, mouse: 10, spin: 8, blur: 0, big: true },
+  { host: 'field', depth: 'back', pos: 'right: -21vw; top: 33%', size: 'clamp(11rem, 34vw, 44rem)', rot: '24deg', speed: 0.16, mouse: 10, spin: 8, blur: 0, big: true },
   // Büyük, sol kenarda kırpılır; paragrafın sol kenarının arkasında
   { host: 'field', depth: 'back', pos: 'left: -21vw; top: 40%', size: 'clamp(10rem, 32vw, 40rem)', rot: '-28deg', speed: 0.26, mouse: 14, spin: -10, blur: 0, big: true },
   // Uzak, küçük, bulanık: üst boşlukta, başlık etiketinin sağında
@@ -209,7 +209,7 @@ const { portrait: p } = c;
     max-inline-size: none;
     margin: 0;
     font-family: var(--font-display);
-    font-size: clamp(1.9rem, 4.4vw, 5rem);
+    font-size: clamp(1.9rem, 4vw, 4.6rem);
     font-weight: 350;
     font-optical-sizing: auto;
     line-height: 1.08;
@@ -342,12 +342,12 @@ const { portrait: p } = c;
     }
   }
   @media (min-width: 1100px) {
-    /* Çerçeve sağa kayık ve uzun; paragrafın son satırlarına biner */
+    /* Çerçeve sağa kayık ve uzun; paragrafın son satırından SONRA başlar (metne hiç binmez) */
     .manifesto__frame {
       aspect-ratio: 3 / 4.3;
     }
     .manifesto__figure {
-      margin-block-start: calc(var(--sp-9) * -0.9);
+      margin-block-start: 0;
     }
     /* Notlar paragrafın hemen ardından okunur; çerçeve sağda aşağı uzar */
     .manifesto__side {

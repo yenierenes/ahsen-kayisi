@@ -28,8 +28,8 @@ export interface RakamlarContent {
 
 // Tüm rakamlar arastirma/02-malatya-kayisi.md §0 ve §8'deki güvenli ifadelerdir.
 export const rakamlar: RakamlarContent = {
-  heading: { no: '', title: 'Malatya, sayıyla.' },
-  intro: 'Övünmek ayıp, saymak serbest. Her rakamın kaynağı altında yazar.',
+  heading: { no: '', title: 'Rakamlarla Malatya kayısısı' },
+  intro: 'Bu rakamlar Malatya’nın tamamına aittir. Kaynakları altlarında yazıyor.',
   figures: [
     {
       id: 'agac',
@@ -37,7 +37,7 @@ export const rakamlar: RakamlarContent = {
       count: { to: 8.4, decimals: 1 },
       unit: 'milyon ağaç',
       short: 'kayısı ağacı',
-      context: 'Malatya’da insandan çok kayısı ağacı var. Kişi başına on taneden fazla düşer.',
+      context: 'Malatya’da 8,4 milyon kayısı ağacı var.',
       source: 'Malatya Ticaret Borsası',
       year: '2025',
     },
@@ -45,7 +45,7 @@ export const rakamlar: RakamlarContent = {
       id: 'yari',
       value: "2'de 1",
       short: 'dünyadaki pay',
-      context: 'Dünyanın yediği her iki kuru kayısıdan biri bu ovadan çıkar. İyi yılda üçte ikisi.',
+      context: 'Dünyada üretilen her iki kuru kayısıdan biri Malatya’dan çıkıyor.',
       source: 'INC',
       year: 'son 5 sezon ortalaması',
     },
@@ -55,7 +55,7 @@ export const rakamlar: RakamlarContent = {
       count: { to: 3.5, decimals: 1 },
       unit: 'kg → 1 kg',
       short: 'meyveden kuruya',
-      context: 'Üç buçuk kilo meyve güneşe girer, bir kilo kayısı çıkar.',
+      context: 'Bir kilo kuru kayısı için yaklaşık 3,5 kilo taze meyve gerekiyor.',
       source: 'AB PDO şartnamesi',
       year: '2017',
     },
@@ -65,7 +65,7 @@ export const rakamlar: RakamlarContent = {
       count: { to: 2800, prefix: '~' },
       unit: 'saat',
       short: 'yıllık güneş',
-      context: 'Yılda 2.800 saat güneş. Temmuzda günde on iki saatten fazla.',
+      context: 'Malatya yılda yaklaşık 2.800 saat güneş alıyor. Temmuzda günde 12 saatten fazla.',
       source: 'MGM verisinden hesap',
       year: '1929–2025',
     },
@@ -75,7 +75,7 @@ export const rakamlar: RakamlarContent = {
       count: { to: 100, suffix: '+' },
       unit: 'ülke',
       short: 'ihracat pazarı',
-      context: 'Yüzden fazla ülkede kahvaltıya aynı kayısı çıkar.',
+      context: 'Malatya kayısısı 100’den fazla ülkeye satılıyor.',
       source: 'Malatya Ticaret Borsası',
       year: '2023/24',
     },
@@ -84,10 +84,10 @@ export const rakamlar: RakamlarContent = {
       value: '2017',
       unit: 'AB tescili',
       short: 'menşe tescili',
-      context: '“Malatya Kayısısı” adı Avrupa’da tescilli. Başka yerde kuruyan bu adı kullanamaz.',
+      context: '“Malatya Kayısısı” adı 2017’den beri Avrupa Birliği’nde Korunan Menşe Adı olarak tescilli.',
       source: 'Tüzük (AB) 2017/1220',
       year: '2017',
     },
   ],
-  note: 'Rakamlar Malatya’nın, Ahsen’in değil. Biz bu ovanın bir parçasıyız.',
+  note: 'Bu rakamlar Malatya’nın geneline aittir; Ahsen Kayısı’nın kendi üretimini göstermez.',
 };

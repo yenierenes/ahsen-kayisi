@@ -1,9 +1,13 @@
 ---
 /**
  * Çiçek — "BAHAR". Rakamlar ile Süreç arasında, numarasız önsöz.
- * Sabit ≈320lvh (mobil 240lvh) sahne. Katmanlar (alttan üste):
- *   medya (canvas dizisi /seq/cicek/ ya da durağan foto) → açık örtü (yazı alanı) →
- *   uzak + orta yapraklar → üç vuruşluk yazı → yakın yapraklar.
+ * Sabit ≈560lvh (mobil 420lvh) sahne. Katmanlar (alttan üste):
+ *   kemik zemin (çıkışta) → medya (canvas dizisi /seq/cicek/ ya da durağan foto) → açık örtü (yazı alanı) →
+ *   uzak + orta yapraklar → dört vuruşluk yazı → yakın yapraklar.
+ * Dizi: komşu kareler karışır (data-blend), kareler oynatma başının önünde ana iş parçacığı dışında
+ * çözülür (data-bitmap), yükleme ~3 ekran önce başlar ve oynatma başını izler (data-sequence-follow).
+ * Sayfa rengi kemiğe sahnenin en sonunda (0.995–1) tek hamlede döner; görünen geçişi
+ * .cicek__under katmanı yapar (gökyüzü değişkenleri her karede tüm belgeyi yeniden biçemlendirir).
  * Bölümün altında, Süreç girişinin üstüne taşan küçük bir "köprü" alanı: birkaç yaprak
  * sahne bittikten sonra da düşmeye devam eder.
  * Koreografi: src/lib/cicek/cicek.ts · yaprak sistemi: src/lib/cicek/petals.ts
@@ -56,13 +60,14 @@ const s = c.still;
   data-cicek
   data-sky="blossom"
   data-sky-to="bone"
-  data-sky-to-range="0.84 0.98"
+  data-sky-to-range="0.995 1"
   data-pin
   aria-labelledby="cicek-title"
 >
   <div class="cicek__stage" data-pin-stage data-cicek-stage>
     <h2 id="cicek-title" class="sr-only">{c.srTitle}</h2>
 
+    <div class="cicek__under" data-cicek-under aria-hidden="true"></div>
     <div class="cicek__frame">
       <div class="cicek__media" data-cicek-media>
         <div class="cicek__zoom" data-cicek-zoom>
@@ -75,6 +80,13 @@ const s = c.still;
                 data-sequence-group="cicek"
                 data-fit="cover"
                 data-fit-portrait="cover"
+                data-blend
+                data-bitmap
+                data-dpr-max="1"
+                data-sequence-margin="300%"
+                data-sequence-follow
+                data-sequence-light="4"
+                data-sequence-margin-slow="1000%"
                 role="img"
                 aria-label={c.sequence.alt}
               />
@@ -95,6 +107,11 @@ const s = c.still;
           </picture>
         </div>
         <div class="cicek__wash" data-cicek-wash aria-hidden="true"></div>
+      </div>
+
+      <!-- çıkış kartının 24px köşeleri (cicek.ts konumlar; dikdörtgen kırpmanın üstünde) -->
+      <div class="cicek__corners" aria-hidden="true">
+        <i data-cicek-corner data-c="tl"></i><i data-cicek-corner data-c="tr"></i><i data-cicek-corner data-c="bl"></i><i data-cicek-corner data-c="br"></i>
       </div>
 
       <div class="cicek__rest" aria-hidden="true">
@@ -146,18 +163,58 @@ const s = c.still;
 
 <style>
   .cicek {
-    --pin-len: 320lvh;
+    --pin-len: 560lvh;
     position: relative;
     z-index: var(--z-raised);
     color: var(--fg);
   }
   @media (max-width: 767.98px) {
     .cicek {
-      --pin-len: 240lvh;
+      --pin-len: 420lvh;
     }
   }
   .cicek__stage {
     isolation: isolate;
+  }
+  /* Çıkışta çerçevenin çevresinde görünen kemik zemin (cicek.ts opaklığını açar) */
+  .cicek__under {
+    position: absolute;
+    inset: 0;
+    background: var(--c-bone);
+    opacity: 0;
+    pointer-events: none;
+    will-change: opacity;
+  }
+  .cicek__corners {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .cicek__corners i {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    inline-size: 24px;
+    block-size: 24px;
+    transform: scale(0);
+    will-change: transform;
+    --g: transparent 23.25px, var(--c-bone) 24px;
+  }
+  .cicek__corners i[data-c='tl'] {
+    transform-origin: 0 0;
+    background: radial-gradient(circle at 100% 100%, var(--g));
+  }
+  .cicek__corners i[data-c='tr'] {
+    transform-origin: 100% 0;
+    background: radial-gradient(circle at 0 100%, var(--g));
+  }
+  .cicek__corners i[data-c='bl'] {
+    transform-origin: 0 100%;
+    background: radial-gradient(circle at 100% 0, var(--g));
+  }
+  .cicek__corners i[data-c='br'] {
+    transform-origin: 100% 100%;
+    background: radial-gradient(circle at 0 0, var(--g));
   }
 
   /* --- Medya ------------------------------------------------------------------ */
@@ -169,7 +226,6 @@ const s = c.still;
   }
   .cicek__media {
     overflow: clip;
-    clip-path: inset(0% 0% 0% 0% round 0px);
     background: var(--c-blossom);
   }
   .cicek__zoom {
@@ -202,6 +258,7 @@ const s = c.still;
     position: absolute;
     inset: 0;
     pointer-events: none;
+    will-change: opacity;
     background:
       radial-gradient(ellipse 58% 62% at 14% 30%, rgba(246, 235, 221, 0.9) 0%, rgba(246, 235, 221, 0.66) 42%, rgba(246, 235, 221, 0) 100%),
       linear-gradient(to bottom, rgba(246, 235, 221, 0.35), rgba(246, 235, 221, 0) 34%);
@@ -235,7 +292,6 @@ const s = c.still;
     inline-size: var(--s);
     block-size: var(--s);
     will-change: transform;
-    backface-visibility: visible;
   }
   .cicek__field :global(.cicek-sprite img),
   .cicek__bridge :global(.cicek-sprite img) {
@@ -247,9 +303,7 @@ const s = c.still;
   .cicek__field :global(.cicek-sprite[data-d='0']) {
     opacity: 0.82;
   }
-  .cicek__field :global(.cicek-sprite[data-d='2']) {
-    filter: blur(1.6px);
-  }
+  /* yakın katmanın yumuşaklığı canlı filtre değil: petals.ts bir kez bulanık kopya üretir */
   .cicek__bridge {
     position: absolute;
     inset-inline: 0;
@@ -385,6 +439,10 @@ const s = c.still;
   :global(html:not(.js)) .cicek__canvas,
   :global(html.reduce) .cicek__wash,
   :global(html:not(.js)) .cicek__wash,
+  :global(html.reduce) .cicek__under,
+  :global(html:not(.js)) .cicek__under,
+  :global(html.reduce) .cicek__corners,
+  :global(html:not(.js)) .cicek__corners,
   :global(html.reduce) .cicek__field,
   :global(html:not(.js)) .cicek__field,
   :global(html.reduce) .cicek__bridge,
@@ -437,7 +495,7 @@ const s = c.still;
   :global(html.reduce) .cicek__beats,
   :global(html:not(.js)) .cicek__beats {
     inline-size: auto;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
     gap: var(--gap);
   }
   :global(html.reduce) .cicek__beat,

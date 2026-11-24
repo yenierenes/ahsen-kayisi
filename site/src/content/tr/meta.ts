@@ -12,7 +12,7 @@ export const meta: MetaContent = {
   dir: 'ltr',
   title: 'Ahsen Kayısı — Güneşin meyvesi',
   description:
-    'Malatya’nın güneşinde kuruyan kayısı. Sarısı, gün kurusu, doğranmışı: Ahsen Kayısı’ndan sofranıza ve tezgâhınıza.',
+    'Ahsen Kayısı, Malatya’da güneşte kurutulan kayısıyı seçer, paketler ve yurt içine, yurt dışına gönderir. Sarı kayısı, gün kurusu, organik, küp doğranmış kayısı ve kayısı çekirdeği.',
   ogImage: '/seq/hero/f_0192.webp',
   ogLocale: 'tr_TR',
 };

@@ -30,8 +30,8 @@ export interface DunyaContent {
 }
 
 export const dunya: DunyaContent = {
-  heading: { no: '', title: 'Buradan her yere.' },
-  lead: 'Malatya kayısısının kolisi burada kapanır, yüzden fazla ülkede açılır.',
+  heading: { no: '', title: 'Malatya’dan dünyaya' },
+  lead: 'Malatya kayısısı 100’den fazla ülkeye ihraç ediliyor. Listede Türkiye’nin en çok kuru kayısı sattığı on ülke var.',
   origin: { name: 'Malatya', lat: 38.35, lon: 38.31, label: 'Malatya · 38.35° K, 38.31° D' },
   stat: {
     value: '100',
@@ -42,7 +42,7 @@ export const dunya: DunyaContent = {
   list: {
     title: 'En çok kayısı alan on ülke',
     note: 'Türkiye’nin kuru kayısı ihracatının %69’u bu on ülkeye gider.',
-    hint: 'Ülkenin üstüne gelin, yolu görün.',
+    hint: 'Bir ülkenin üzerine geldiğinizde rota haritada görünür.',
     source: 'Kaynak: T.C. Ticaret Bakanlığı, 2025 ihracat değeri.',
   },
   globe: {

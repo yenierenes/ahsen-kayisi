@@ -21,7 +21,7 @@ export interface SergiContent {
 export const sergi: SergiContent = {
   title: 'Temmuzda toprak turuncuya döner.',
   chips: ['Günde 12 saat güneş', 'Ayda 4 mm yağmur', 'Rakım 950 metre'],
-  caption: 'Malatya, temmuz. Kayısı sergide beş ila yedi gün yatar; işi güneş görür.',
+  caption: 'Malatya’da temmuz ayı. Toplanan kayısı sergi yerine serilir ve güneşte kurumaya bırakılır.',
   video: {
     src: '/media/video/v-sergi-drone.mp4',
     srcMobile: '/media/video/v-sergi-drone-m.mp4',

@@ -36,9 +36,9 @@ const kesim = (ad: string, width: number, height: number, alt: string) => ({
 });
 
 export const urunler: UrunlerContent = {
-  heading: { no: '', title: 'Tek meyve, beş hâl.' },
+  heading: { no: '', title: 'Ürünlerimiz' },
   intro:
-    'Ağaç aynı, güneş aynı. Değişen, sizin onunla ne yapacağınız.',
+    'Hepsi Malatya kayısısından. Kükürtlü ya da kükürtsüz, bütün ya da doğranmış olarak hazırlıyoruz.',
   scrollHint: 'Kaydırın',
   sampleLink: 'Numune iste',
   products: [
@@ -47,7 +47,7 @@ export const urunler: UrunlerContent = {
       name: 'Sarı',
       em: 'kuru kayısı',
       tag: 'Kükürtlü',
-      desc: 'Herkesin bildiği kayısı. Parlak, yumuşak, altın sarısı.',
+      desc: 'Kükürtle işlem gördüğü için rengi altın sarısı kalır. En çok bilinen kuru kayısıdır.',
       image: kesim('sari', 1091, 1400, 'Sarı kuru kayısı, koyu zeminde'),
       specs: [
         { k: 'Form', v: 'Bütün, çekirdeksiz' },
@@ -61,7 +61,7 @@ export const urunler: UrunlerContent = {
       name: 'Gün',
       em: 'kurusu',
       tag: 'Doğal',
-      desc: 'Kükürt görmez, rengini güneşe bırakır. Koyu renkli, karamel tadında.',
+      desc: 'Kükürt kullanılmadan, yalnızca güneşte kurutulur. Rengi koyu kahverengidir.',
       image: kesim('gun-kurusu', 1036, 1400, 'Gün kurusu kayısı, koyu kahverengi taneler'),
       specs: [
         { k: 'Form', v: 'Bütün' },
@@ -75,7 +75,7 @@ export const urunler: UrunlerContent = {
       name: 'Organik',
       em: 'kayısı',
       tag: 'Kükürtsüz',
-      desc: 'Organik tarımda kükürt yok. Kayısı kendi renginde kurur.',
+      desc: 'Organik tarım kurallarına göre yetiştirilir ve kükürtsüz kurutulur.',
       image: kesim('organik', 992, 1400, 'Organik kuru kayısı taneleri'),
       specs: [
         { k: 'Form', v: 'Bütün' },
@@ -87,8 +87,8 @@ export const urunler: UrunlerContent = {
       id: 'kup',
       name: 'Küp',
       em: 'doğranmış',
-      tag: 'Üretime',
-      desc: 'Müsliye, bara, keke girecek kayısı. Yapışmasın diye pirinç ununa bulanır.',
+      tag: 'Doğranmış',
+      desc: 'Küp şeklinde doğranmış kayısı. Müsli, bar ve kek gibi ürünlerde kullanılır.',
       image: kesim('kup', 1015, 1400, 'Küp doğranmış kuru kayısı'),
       specs: [
         { k: 'Form', v: 'Küp doğranmış' },
@@ -101,7 +101,7 @@ export const urunler: UrunlerContent = {
       name: 'Kayısı',
       em: 'çekirdeği',
       tag: 'Tatlı · acı',
-      desc: 'İçinden badem gibi bir iç çıkar. Tatlısı çerezdir, acısı yağa gider.',
+      desc: 'Kayısı çekirdeğinin içi. Tatlı olanı çerez olarak yenir, acı olanı yağ üretiminde kullanılır.',
       image: kesim('cekirdek', 957, 1325, 'Kayısı çekirdeği içi, badem benzeri'),
       specs: [
         { k: 'Tür', v: 'Tatlı · acı' },
@@ -111,10 +111,10 @@ export const urunler: UrunlerContent = {
     },
   ],
   end: {
-    kicker: 'Karar vermenin en kolay yolu',
-    title: 'Tadına',
-    em: 'bakın',
+    kicker: 'Denemek isterseniz',
+    title: 'Numune',
+    em: 'isteyin',
     link: { label: 'Numune iste', href: '#iletisim' },
   },
-  note: 'Değerler sektörün genel ölçüleridir. Sizin partinizin değerleri teklifte yazar.',
+  note: 'Bu değerler genel sektör ölçüleridir. Kesin değerler teklifte belirtilir.',
 };

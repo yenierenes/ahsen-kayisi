@@ -40,15 +40,15 @@ export interface SofradaContent {
 const WIDE = { width: 1200, height: 670, widthLg: 2400, widthAvif: 1600 } as const;
 
 export const sofrada: SofradaContent = {
-  label: 'Sofrada',
-  title: 'Kutu açılınca.',
-  lead: 'Kayısının işi sergide bitmez. Nereye gidecekse ona göre seçilir.',
-  pickLabel: 'Buna giden',
+  label: 'Kullanım',
+  title: 'Nerede kullanılır?',
+  lead: 'Kayısının çeşidi ve boyu, kullanılacağı yere göre seçilir. En sık sorulan beş kullanım:',
+  pickLabel: 'Önerimiz',
   items: [
     {
       id: 'kahvalti',
       title: 'Kahvaltı sofrası',
-      text: 'İri, etli, tek başına yenir. El önce buna gider.',
+      text: 'Sofrada tek başına yenen kayısının iri ve etli olması istenir.',
       pick: 'Sarı kayısı · Jumbo – No.2',
       photo: {
         base: '/media/foto/sofra-kahvalti',
@@ -59,7 +59,7 @@ export const sofrada: SofradaContent = {
     {
       id: 'pastane',
       title: 'Pastane tezgâhı',
-      text: 'Tartın üstünde parlar, kekin içinde kaybolmaz.',
+      text: 'Tart ve pastaların üstünde bütün kayısı kullanılır.',
       pick: 'Sarı kayısı · No.3 – No.5',
       photo: {
         base: '/media/foto/sofra-pastane',
@@ -70,7 +70,7 @@ export const sofrada: SofradaContent = {
     {
       id: 'cikolata',
       title: 'Çikolata atölyesi',
-      text: 'Yarısı çikolataya batar, yarısı açıkta kalır. Boyları eşit olmalı.',
+      text: 'Çikolataya batırılacak kayısıların aynı boyda olması gerekir.',
       pick: 'Sarı kayısı · No.2 – No.4',
       photo: {
         base: '/media/foto/sofra-cikolata',
@@ -81,7 +81,7 @@ export const sofrada: SofradaContent = {
     {
       id: 'musli',
       title: 'Müsli ve bar',
-      text: 'Her kaşığa bir parça düşsün diye küp küp doğranır.',
+      text: 'Karışıma eşit dağılması için küp doğranmış kayısı tercih edilir.',
       pick: 'Küp doğranmış kayısı',
       photo: {
         base: '/media/foto/sofra-musli',
@@ -92,7 +92,7 @@ export const sofrada: SofradaContent = {
     {
       id: 'hediye',
       title: 'Hediye kutusu',
-      text: 'Malatya’dan dönen, eli boş dönmez.',
+      text: 'Hediyelik kutulara en iri kayısılar dizilir.',
       pick: 'Jumbo sarı kayısı ve gün kurusu',
       photo: {
         base: '/media/foto/sofra-hediye',
@@ -102,5 +102,5 @@ export const sofrada: SofradaContent = {
     },
   ],
   footnote: 'Numara küçüldükçe tane irileşir: Jumbo’da kiloya en çok 80 tane girer, No.8’de 221–240.',
-  cta: { label: 'Sizinki hangisi? Numune isteyin', href: '#iletisim' },
+  cta: { label: 'Numune isteyin', href: '#iletisim' },
 };

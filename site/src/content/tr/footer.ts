@@ -23,7 +23,7 @@ export interface FooterContent {
 export const footer: FooterContent = {
   heading: { no: '', title: 'AHSEN' },
   wordmark: 'AHSEN',
-  tagline: 'Malatya’da güneşte kurur, Ahsen’de seçilir.',
+  tagline: 'Malatya’dan, güneşte kurutulmuş kayısı.',
   logo: { src: '/media/marka/ahsen-logo.png', alt: 'Ahsen Kayısı logosu', width: 240, height: 115 },
   sectionsLabel: 'Bölümler',
   sections: [

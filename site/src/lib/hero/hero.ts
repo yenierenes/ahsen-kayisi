@@ -77,6 +77,13 @@ function initHero(): void {
   const group = getSequenceGroup('hero');
   const dayTotal = Number(day?.dataset.total ?? 7);
 
+  // Hero ekrandan çıkınca arka plan dolgusu (adım 4 → 2 → 1) bekler; bant genişliği sonraki
+  // dizilere kalır. Geri dönülürken (bir ekran önce) sürer. Anahtar kareler etkilenmez.
+  if (group) {
+    const io = new IntersectionObserver(([e]) => group.pauseFill(!(e?.isIntersecting ?? true)), { rootMargin: '100% 0px' });
+    io.observe(hero);
+  }
+
   // Arka plan rengi: dizinin boşluk rengiyle birebir
   hero.addEventListener('sequence:bg', (e) => {
     stage.style.setProperty('--void', (e as CustomEvent<string>).detail);

@@ -32,17 +32,17 @@ export const hero: HeroContent = {
     {
       index: '01',
       title: 'Dalında bekler.',
-      text: 'Şekeri oturmadan dala el sürülmez.',
+      text: 'Meyve dalında tam olgunlaşmadan toplanmaz.',
     },
     {
       index: '02',
       title: 'Güneşe serilir.',
-      text: 'Beş ila yedi gün. Fırın yok, acele yok.',
+      text: 'Hasattan sonra beş ila yedi gün açık havada, güneşte kurur.',
     },
     {
       index: '03',
       title: 'Özü kalır.',
-      text: 'Üç buçuk kilo meyveden bir kilo kayısı. Suyu gider, tadı kalır.',
+      text: 'Üç buçuk kilo taze kayısıdan bir kilo kuru kayısı çıkar.',
     },
   ],
   dayLabel: 'GÜN',

@@ -6,7 +6,9 @@
  * Şerit, alanın (kesim boyu kadar genişletilmiş) dikdörtgenini kesen doğru parçasıdır:
  * kesim daima ekran DIŞINDAN girer (u < uIn) ve dışarıdan çıkar (u > uOut) — ortada belirmez.
  * İlerleme = kaydırma (px) × katman çarpanı × rüzgâr + zamanla yavaş sürüklenme;
- * üstüne yanal salınım, dönüş ve 3B çırpınma (yalnız transform).
+ * üstüne yanal salınım, dönüş ve çırpınma. Çırpınma 3B dönüş değil: perspektifsiz rotateX·rotateY'nin
+ * düzlem izdüşümü olan 2B matris (görüntü aynı; 3B katman sıralaması ve canlı filtre yok).
+ * Yakın katmanın yumuşaklığı (soften) bir kez canvas'ta bulanıklaştırılmış kopyayla verilir.
  * Yazı alanı: o dikdörtgenin n üzerindeki izdüşümü yasak s aralığıdır; hiçbir şerit yazının
  * üstünden geçmez. Yoğunluk: her kesimin bir "sırası" var; sıra < yoğunluk ise görevde,
  * değilse geçişini bitirip ekran dışında bekler.
@@ -82,6 +84,45 @@ export interface FieldOptions {
   box: HTMLElement;
   /** yazı alanı (box koordinatlarında) ya da null */
   exclude?: () => Rect | null;
+  /** derinlik 2 kesimleri için görüntü boyunda bulanıklık (px); bir kez pişirilir */
+  soften?: number;
+}
+
+const softCache = new Map<string, Promise<string | null>>();
+const canFilter = typeof CanvasRenderingContext2D !== 'undefined' && 'filter' in CanvasRenderingContext2D.prototype;
+
+/**
+ * Kesimin önceden bulanıklaştırılmış, görüntü boyuna yakın küçük kopyası (object URL).
+ * Canvas filtresi yoksa null → keskin kesim kalır.
+ */
+export function softened(src: string, size: number, blur: number): Promise<string | null> {
+  if (!canFilter) return Promise.resolve(null);
+  const box = Math.max(48, Math.round((size * 1.5) / 16) * 16);
+  const key = `${src}|${box}|${blur}`;
+  let p = softCache.get(key);
+  if (!p) {
+    p = (async (): Promise<string | null> => {
+      const img = new Image();
+      img.src = src;
+      await img.decode();
+      const k = box / Math.max(img.naturalWidth, img.naturalHeight, 1);
+      const w = Math.round(img.naturalWidth * k);
+      const h = Math.round(img.naturalHeight * k);
+      const r = (blur * box) / size;
+      const m = Math.ceil(r * 2.5);
+      const c = document.createElement('canvas');
+      c.width = w + 2 * m;
+      c.height = h + 2 * m;
+      const x = c.getContext('2d');
+      if (!x) return null;
+      x.filter = `blur(${r.toFixed(2)}px)`;
+      x.drawImage(img, m, m, w, h);
+      const blob = await new Promise<Blob | null>((res) => c.toBlob(res, 'image/webp', 0.92));
+      return blob ? URL.createObjectURL(blob) : null;
+    })().catch(() => null);
+    softCache.set(key, p);
+  }
+  return p;
 }
 
 const rand = (a: number, b: number): number => a + Math.random() * (b - a);
@@ -98,6 +139,7 @@ export class Field {
   private ex: Rect | null = null;
   private mouse = { x: 0, y: 0, tx: 0, ty: 0 };
   private scale = 1;
+  private layerTf: Partial<Record<Depth, string>> = {};
 
   constructor(private opt: FieldOptions) {
     const a = (opt.angle * Math.PI) / 180;
@@ -126,6 +168,11 @@ export class Field {
     img.draggable = false;
     el.appendChild(img);
     const base = rand(a, b);
+    if (depth === 2 && this.opt.soften) {
+      void softened(src, base * this.scale, this.opt.soften).then((url) => {
+        if (url) img.src = url;
+      });
+    }
     const sp: Sprite = {
       el,
       depth,
@@ -256,7 +303,11 @@ export class Field {
       const layer = this.opt.layers[d];
       if (layer) {
         const k = DEPTHS[d].mouse;
-        layer.style.transform = `translate3d(${(-mo.x * k).toFixed(2)}px, ${(-mo.y * k).toFixed(2)}px, 0)`;
+        const tf = `translate3d(${(-mo.x * k).toFixed(1)}px, ${(-mo.y * k).toFixed(1)}px, 0)`;
+        if (tf !== this.layerTf[d]) {
+          this.layerTf[d] = tf;
+          layer.style.transform = tf;
+        }
       }
     }
     const breeze = 0.55 + 0.45 * wind;
@@ -299,9 +350,13 @@ export class Field {
       const x = sp.s * this.nx + sp.u * this.dx + this.nx * sw - sp.size / 2;
       const y = sp.s * this.ny + sp.u * this.dy + this.ny * sw - sp.size / 2;
       const rz = sp.rz + 14 * Math.sin(t * sp.w2 + sp.ph3);
-      const rx = sp.flutter * Math.sin(t * sp.w3 + sp.ph1);
-      const ry = sp.flutter * 0.6 * Math.cos(t * sp.w3 * 0.7 + sp.ph2);
-      sp.el.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) rotate(${rz.toFixed(1)}deg) rotateX(${rx.toFixed(1)}deg) rotateY(${ry.toFixed(1)}deg)`;
+      const rx = (sp.flutter * Math.sin(t * sp.w3 + sp.ph1) * Math.PI) / 180;
+      const ry = (sp.flutter * 0.6 * Math.cos(t * sp.w3 * 0.7 + sp.ph2) * Math.PI) / 180;
+      // rotateX(rx) rotateY(ry) perspektifsiz izdüşümü: [[cos ry, 0], [sin rx·sin ry, cos rx]]
+      const ma = Math.cos(ry).toFixed(3);
+      const mb = (Math.sin(rx) * Math.sin(ry)).toFixed(3);
+      const md = Math.cos(rx).toFixed(3);
+      sp.el.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) rotate(${rz.toFixed(1)}deg) matrix(${ma}, ${mb}, 0, ${md}, 0, 0)`;
     }
   }
 
@@ -309,6 +364,7 @@ export class Field {
     for (const sp of this.sprites) sp.el.remove();
     this.sprites.length = 0;
     for (const l of Object.values(this.opt.layers)) if (l) l.style.transform = '';
+    this.layerTf = {};
   }
 }
 
