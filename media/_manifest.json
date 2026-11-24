@@ -537,25 +537,6 @@
       "description": "Hero ön plan matte sekansı (yalnız meyve, alfa), aynı numaralama; m/ mobil"
     },
     {
-      "path": "seq/cicek/f_0001.webp",
-      "bytes": 57344,
-      "width": 1152,
-      "height": 648,
-      "description": "Çiçek sekansı, 128 kare 1152x648 (f_0001..f_0128, 6,5 MB; m/ 72 kare 720x405, 2,1 MB), Veo, sesiz"
-    },
-    {
-      "path": "seq/cicek/m/f_0001.webp",
-      "bytes": 31416,
-      "width": 720,
-      "height": 405,
-      "description": "Çiçek sekansı, 128 kare 1152x648 (f_0001..f_0128, 6,5 MB; m/ 72 kare 720x405, 2,1 MB), Veo, sesiz"
-    },
-    {
-      "path": "seq/cicek/manifest.json",
-      "bytes": 131,
-      "description": "Çiçek sekans manifesti"
-    },
-    {
       "path": "media/kesim/cicek-1-500.webp",
       "bytes": 200856,
       "width": 512,
@@ -743,6 +724,90 @@
       "width": 1600,
       "height": 893,
       "description": "Kuru kayısılı hediye kutusu"
+    },
+    {
+      "path": "media/video/bahar-1.mp4",
+      "bytes": 3141267,
+      "width": 1280,
+      "height": 720,
+      "description": "Bahar 1: Şafakta çiçek açmış kayısı bahçesi, yavaş ilerleyen kamera; sessiz döngü (masaüstü)"
+    },
+    {
+      "path": "media/video/bahar-1-m.mp4",
+      "bytes": 1214362,
+      "width": 854,
+      "height": 480,
+      "description": "Bahar 1: Şafakta çiçek açmış kayısı bahçesi, yavaş ilerleyen kamera; sessiz döngü (mobil)"
+    },
+    {
+      "path": "media/video/bahar-1.jpg",
+      "bytes": 265020,
+      "width": 1280,
+      "height": 720,
+      "description": "Bahar 1 posteri: Şafakta çiçek açmış kayısı bahçesi, yavaş ilerleyen kamera"
+    },
+    {
+      "path": "media/video/bahar-2.mp4",
+      "bytes": 1035359,
+      "width": 1280,
+      "height": 720,
+      "description": "Bahar 2: Kırağılı kayısı çiçekleri, soğuk sis; sessiz döngü (masaüstü)"
+    },
+    {
+      "path": "media/video/bahar-2-m.mp4",
+      "bytes": 346056,
+      "width": 854,
+      "height": 480,
+      "description": "Bahar 2: Kırağılı kayısı çiçekleri, soğuk sis; sessiz döngü (mobil)"
+    },
+    {
+      "path": "media/video/bahar-2.jpg",
+      "bytes": 96116,
+      "width": 1280,
+      "height": 720,
+      "description": "Bahar 2 posteri: Kırağılı kayısı çiçekleri, soğuk sis"
+    },
+    {
+      "path": "media/video/bahar-3.mp4",
+      "bytes": 2453075,
+      "width": 1280,
+      "height": 720,
+      "description": "Bahar 3: Rüzgârda dökülen kayısı çiçek yaprakları, kontrast ışık; sessiz döngü (masaüstü)"
+    },
+    {
+      "path": "media/video/bahar-3-m.mp4",
+      "bytes": 923560,
+      "width": 854,
+      "height": 480,
+      "description": "Bahar 3: Rüzgârda dökülen kayısı çiçek yaprakları, kontrast ışık; sessiz döngü (mobil)"
+    },
+    {
+      "path": "media/video/bahar-3.jpg",
+      "bytes": 248776,
+      "width": 1280,
+      "height": 720,
+      "description": "Bahar 3 posteri: Rüzgârda dökülen kayısı çiçek yaprakları, kontrast ışık"
+    },
+    {
+      "path": "media/video/bahar-4.mp4",
+      "bytes": 1565398,
+      "width": 1280,
+      "height": 720,
+      "description": "Bahar 4: Dalda küçük yeşil ham kayısılar; sessiz döngü (masaüstü)"
+    },
+    {
+      "path": "media/video/bahar-4-m.mp4",
+      "bytes": 477628,
+      "width": 854,
+      "height": 480,
+      "description": "Bahar 4: Dalda küçük yeşil ham kayısılar; sessiz döngü (mobil)"
+    },
+    {
+      "path": "media/video/bahar-4.jpg",
+      "bytes": 107821,
+      "width": 1280,
+      "height": 720,
+      "description": "Bahar 4 posteri: Dalda küçük yeşil ham kayısılar"
     }
   ]
 }
